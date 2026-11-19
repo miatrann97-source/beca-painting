@@ -191,6 +191,15 @@ header .spacer{flex:1}
 }
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .hidden{display:none!important}
+/* ---------- story ---------- */
+#storyImg{
+  width:110px;height:110px;object-fit:cover;object-position:top center;border-radius:50%;
+  border:3px solid #fff;outline:3px solid var(--sea);box-shadow:0 3px 8px rgba(0,0,0,.25);
+  background:#BFE3FF;display:block;margin:0 auto 8px;
+}
+#storyDots{font-size:13px;letter-spacing:5px;color:#C9B896;margin-bottom:6px}
+#storyDots .on{color:var(--sea)}
+#storyText{font-size:16px;line-height:1.55}
 </style>
 </head>
 <body>
@@ -201,6 +210,7 @@ header .spacer{flex:1}
     <span class="pill">💰 <b id="coins">0đ</b></span>
     <span class="pill"><span data-i18n="day">Ngày</span> <b id="dayNum">1</b> · <span id="custCount">1/3</span></span>
     <button class="hbtn" id="soundBtn" title="Âm thanh">🔊</button>
+    <button class="hbtn" id="storyBtn" data-testid="storyBtn" title="Câu chuyện">📖</button>
     <button class="hbtn" id="langBtn">VI|EN</button>
   </header>
   <main id="layout">
@@ -288,9 +298,23 @@ header .spacer{flex:1}
   <div class="modal" style="position:relative;overflow:hidden">
     <h2>🎉 <span data-i18n="winTitle">Bé cá đã có tiệm vẽ riêng!</span></h2>
     <p data-i18n="winText">Bé cá dành đủ 5.000đ mua lại tiệm vẽ trên phố! Từ nay khách tới tận tiệm xem tranh. Cảm ơn An đã vẽ cùng bé cá!</p>
+    <p data-i18n="winStory" style="font-weight:700;color:#B7791F"></p>
     <p class="earn" id="winStats">—</p>
     <button class="bigbtn gold" id="winContinue" data-testid="winContinue">🎨 <span data-i18n="keepPlaying">Chơi tiếp tự do</span></button>
     <button class="bigbtn" id="winReset">🔄 <span data-i18n="reset">Chơi lại từ đầu</span></button>
+  </div>
+</div>
+
+<div class="overlay" id="storyOverlay">
+  <div class="modal">
+    <img id="storyImg" src="beca-character.jpg" alt="Bé cá">
+    <div id="storyDots"></div>
+    <h2 id="storyTitle">—</h2>
+    <p id="storyText">—</p>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+      <button class="bigbtn" id="storySkip" data-testid="storySkip">⏭️ <span data-i18n="skip">Bỏ qua</span></button>
+      <button class="bigbtn green" id="storyNext" data-testid="storyNext">➡️ <span id="storyNextLabel">Tiếp</span></button>
+    </div>
   </div>
 </div>
 
@@ -319,6 +343,8 @@ vi:{
   winTitle:'Bé cá đã có tiệm vẽ riêng!',
   winText:'Bé cá dành đủ 5.000đ mua lại tiệm vẽ trên phố! Từ nay khách tới tận tiệm xem tranh. Cảm ơn An đã vẽ cùng bé cá!',
   keepPlaying:'Chơi tiếp tự do',
+  skip:'Bỏ qua', next:'Tiếp', startDrawing:'Bắt đầu vẽ',
+  winStory:'Ước mơ thành thật rồi — từ cô sinh viên mới ra trường tay trắng, bé cá đã có tiệm vẽ của riêng mình!',
   rules1:'⭐⭐⭐: đúng màu chính ≥60%, tô ≥8% tranh, ≥5 nét',
   rules2:'⭐⭐: đúng màu ≥35%, tô ≥4%, ≥3 nét',
   rules3:'⭐: có vẽ là được chút tiền nè',
@@ -349,6 +375,8 @@ en:{
   winTitle:'Beca has her own art shop!',
   winText:'Beca saved 5,000đ and bought the art shop on the street! From now on customers come to the shop to see her paintings. Thanks for drawing with Beca!',
   keepPlaying:'Keep playing',
+  skip:'Skip', next:'Next', startDrawing:'Start drawing',
+  winStory:'The dream came true — from a fresh graduate with empty pockets, Beca now has an art shop of her own!',
   rules1:'⭐⭐⭐: main color ≥60%, covered ≥8%, ≥5 strokes',
   rules2:'⭐⭐: main color ≥35%, covered ≥4%, ≥3 strokes',
   rules3:'⭐: any drawing earns a little',
@@ -425,7 +453,7 @@ const SHOP_ITEMS = [
 
 /* ---------------- state ---------------- */
 let state = {
-  lang:'vi', sound:true, coins:0, day:1, custIdx:0,
+  lang:'vi', sound:true, seenStory:false, coins:0, day:1, custIdx:0,
   customersToday:[], requestsToday:[], owned:[], frame:null,
   deco:{lantern:false, flower:false, sign:false},
   won:false, totalPaintings:0, totalStars:0, todayEarned:0, todayStars:0,
@@ -816,7 +844,7 @@ document.getElementById('winContinue').onclick=()=>closeOverlay('winOverlay');
 function resetGame(){
   if(!confirm(t('resetConfirm'))) return;
   localStorage.removeItem(SAVE_KEY);
-  state = {lang:state.lang, sound:state.sound, coins:0, day:1, custIdx:0, customersToday:[], requestsToday:[], owned:[], frame:null, deco:{lantern:false,flower:false,sign:false}, won:false, totalPaintings:0, totalStars:0, todayEarned:0, todayStars:0};
+  state = {lang:state.lang, sound:state.sound, seenStory:state.seenStory, coins:0, day:1, custIdx:0, customersToday:[], requestsToday:[], owned:[], frame:null, deco:{lantern:false,flower:false,sign:false}, won:false, totalPaintings:0, totalStars:0, todayEarned:0, todayStars:0};
   pickDay(); save(); newCanvas();
   closeOverlay('shopOverlay'); closeOverlay('winOverlay');
   applyLang(); renderHeader(); renderScene(); renderPalette();
@@ -838,15 +866,49 @@ function applyLang(){
   document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent = t(el.dataset.i18n); });
   document.getElementById('langBtn').textContent = state.lang==='vi' ? 'VI|EN' : 'EN|VI';
   renderScene(); renderHeader(); updateMeters();
+  if(document.getElementById('storyOverlay').classList.contains('open')) renderStory();
 }
 document.getElementById('langBtn').onclick=()=>{ state.lang = state.lang==='vi' ? 'en' : 'vi'; save(); applyLang(); renderPalette(); };
 document.getElementById('soundBtn').onclick=()=>{ state.sound=!state.sound; save(); renderHeader(); if(state.sound) ting(); };
+
+/* ---------------- câu chuyện mở đầu ---------------- */
+const STORY = [
+  {titleVi:'Mới ra trường!', titleEn:'Fresh out of school!',
+   textVi:'Bé cá vừa tốt nghiệp trường mỹ thuật, tay cầm tấm bằng, lòng đầy háo hức.',
+   textEn:'Beca just graduated from art school, diploma in hand, heart full of excitement.'},
+  {titleVi:'Chưa có việc làm...', titleEn:'No job yet...',
+   textVi:'Nhưng chưa ai thuê cô vẽ cả, túi cũng chẳng còn bao nhiêu tiền.',
+   textEn:'But nobody hired her to paint yet, and her pockets were almost empty.'},
+  {titleVi:'Mang giá vẽ ra phố!', titleEn:'Off to the streets!',
+   textVi:'Cô mang giá vẽ ra phố, gõ cửa từng cửa hàng, mời từng người qua đường xem tranh.',
+   textEn:'She took her easel to the street, knocked on every shop door, and invited every passerby to see her paintings.'},
+  {titleVi:'Ước mơ của bé cá', titleEn:"Beca's dream",
+   textVi:'Ước mơ của bé cá: dành đủ 5.000đ để mua lại tiệm vẽ của riêng mình!',
+   textEn:"Beca's dream: save 5,000đ to buy an art shop of her very own!"},
+];
+let storyPage = 0;
+function renderStory(){
+  const s = STORY[storyPage];
+  document.getElementById('storyTitle').textContent = state.lang==='vi' ? s.titleVi : s.titleEn;
+  document.getElementById('storyText').textContent = state.lang==='vi' ? s.textVi : s.textEn;
+  document.getElementById('storyDots').innerHTML = STORY.map((_,i)=>`<span class="${i===storyPage?'on':''}">●</span>`).join('');
+  document.getElementById('storyNextLabel').textContent = storyPage===STORY.length-1 ? t('startDrawing') : t('next');
+}
+function openStory(){ storyPage=0; renderStory(); openOverlay('storyOverlay'); }
+function finishStory(){ state.seenStory=true; save(); closeOverlay('storyOverlay'); }
+document.getElementById('storyNext').onclick=()=>{
+  if(storyPage<STORY.length-1){ storyPage++; renderStory(); }
+  else finishStory();
+};
+document.getElementById('storySkip').onclick=finishStory;
+document.getElementById('storyBtn').onclick=openStory;
 
 /* ---------------- init ---------------- */
 load();
 if(!state.customersToday || state.customersToday.length!==3 || !state.requestsToday || state.requestsToday.length!==3) pickDay();
 applyLang(); renderHeader(); renderScene(); renderPalette(); syncTools();
 requestAnimationFrame(()=>{ fitCanvas(); updateMeters(); });
+if(!state.seenStory) openStory();
 
 /* debug hooks cho test harness (không ảnh hưởng gameplay) */
 window.__becaPainting = {
@@ -867,6 +929,7 @@ window.__becaPainting = {
   sell: ()=>document.getElementById('sellBtn').click(),
   buy: (id)=>{ if(id==='shop') return buyShop(); const it=SHOP_ITEMS.find(x=>x.id===id); if(it) buyItem(it); },
   nextDay: ()=>{ state.day++; pickDay(); save(); newCanvas(); renderHeader(); renderScene(); },
+  story: ()=>({open: document.getElementById('storyOverlay').classList.contains('open'), page: storyPage, seen: !!state.seenStory}),
 };
 </script>
 </body>
