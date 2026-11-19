@@ -101,7 +101,7 @@ header .spacer{flex:1}
 .bdot{border-radius:50%;background:var(--ink);display:inline-block}
 #actionRow{display:flex;gap:6px;flex-wrap:wrap}
 #sellBtn{
-  flex:1;min-width:150px;border:none;border-radius:14px;padding:13px 10px;cursor:pointer;
+  flex:none;min-width:150px;border:none;border-radius:14px;padding:13px 10px;cursor:pointer;
   background:linear-gradient(180deg,#2ECC71,#27AE60);color:#fff;font-size:18px;font-weight:800;
   box-shadow:0 4px 0 #1E8449;
 }
@@ -136,7 +136,8 @@ header .spacer{flex:1}
   #controlPanel{overflow-y:auto;min-height:0}
   #colors{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
   .swatch{width:100%;aspect-ratio:1;height:auto}
-  #sellBtn{font-size:16px;padding:11px 8px}
+  #sellBtn{font-size:16px;padding:11px 8px;min-width:0;width:100%}
+  #shopBtn{width:100%}
   #rules{font-size:12px}
 }
 @media (min-width:700px) and (orientation:portrait){
