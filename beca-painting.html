@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Bé Cá Vẽ Tranh 🎨</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%A8%3C/text%3E%3C/svg%3E">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --paper:#FFF8E7; --wood:#B5651D; --wood-dark:#8A4B12; --sea:#2E86DE; --sea-dark:#1B5FAA;
+  --ink:#3A2E22; --cream:#FFFDF5; --green:#27AE60; --gold:#F5B301; --pink:#FF6B9D; --red:#E74C3C;
+}
+html,body{height:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  color:var(--ink);
+  background:linear-gradient(180deg,#FFE9A8 0%,#FFD98E 45%,#FFC98A 100%);
+  overflow-x:hidden;
+}
+#app{max-width:1180px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column}
+/* ---------- header ---------- */
+header{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  padding:8px 10px;background:rgba(255,253,245,.92);border-bottom:3px solid var(--wood);
+  position:sticky;top:0;z-index:20;
+}
+header h1{font-size:20px;white-space:nowrap}
+header .spacer{flex:1}
+.pill{
+  background:#fff;border:2px solid var(--wood);border-radius:999px;padding:4px 10px;
+  font-weight:700;font-size:14px;white-space:nowrap;
+}
+.pill b{color:#B7791F}
+.hbtn{
+  border:2px solid var(--wood);background:#fff;border-radius:999px;padding:4px 10px;
+  font-weight:700;font-size:14px;cursor:pointer;color:var(--ink);
+}
+.hbtn:active{transform:scale(.96)}
+/* ---------- layout: portrait = column, landscape = 3-col grid ---------- */
+#layout{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;padding:8px}
+.panel{background:rgba(255,253,245,.94);border:3px solid var(--wood);border-radius:14px;padding:8px}
+/* scene */
+#scenePanel{display:flex;gap:10px;align-items:center}
+#becaBox{flex:0 0 auto;text-align:center}
+#becaImg{
+  width:92px;height:92px;object-fit:cover;object-position:top center;border-radius:50%;
+  border:3px solid #fff;outline:3px solid var(--sea);box-shadow:0 3px 8px rgba(0,0,0,.25);
+  background:#BFE3FF;display:block;
+}
+#becaName{font-size:12px;font-weight:700;color:var(--sea-dark);margin-top:3px}
+#custBox{flex:1;min-width:0}
+#custRow{display:flex;gap:8px;align-items:center}
+#custAvatar{width:58px;height:58px;flex:0 0 auto;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.2);overflow:hidden}
+#custName{font-weight:800;font-size:15px}
+#custMood{font-size:12px;color:#7A6A55}
+#reqBubble{
+  margin-top:6px;background:#fff;border:2px solid var(--pink);border-radius:12px;padding:6px 9px;
+  font-size:14px;line-height:1.35;position:relative;
+}
+#reqBubble::before{
+  content:"";position:absolute;left:18px;top:-8px;border:6px solid transparent;border-bottom-color:var(--pink);
+}
+#reqBubble .reqColors{display:inline-block;vertical-align:middle;margin-left:4px}
+.dot{display:inline-block;width:14px;height:14px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #999;margin-right:2px;vertical-align:middle}
+#reqHint{font-size:12px;color:#8A7A63;margin-top:3px}
+/* canvas */
+#canvasPanel{display:flex;flex-direction:column;gap:6px}
+#canvasWrap{
+  position:relative;width:100%;aspect-ratio:4/3;border-radius:12px;overflow:hidden;
+  background:var(--paper);border:3px solid var(--wood);box-shadow:inset 0 0 0 2px #fff;
+}
+#canvasWrap.framed-wood{border:8px solid #A5672F;outline:2px solid #7A4A1F}
+#canvasWrap.framed-gold{border:8px solid var(--gold);outline:2px solid #B7791F}
+#paintCanvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair;display:block}
+#canvasHint{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none;
+  color:#C9B896;font-weight:700;font-size:15px;text-align:center;opacity:.9;
+}
+#rules{font-size:12.5px;line-height:1.5;background:#FFF3D6;border:2px dashed #E0A93E;border-radius:10px;padding:6px 8px}
+#rules b{color:#8A5A00}
+#meters{font-size:13px;font-weight:700;display:flex;gap:12px;flex-wrap:wrap}
+#meters span{background:#EAF4FF;border-radius:8px;padding:2px 8px}
+/* controls */
+#controlPanel{display:flex;flex-direction:column;gap:8px}
+#colors{display:flex;flex-wrap:wrap;gap:6px}
+.swatch{
+  width:34px;height:34px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px #C9B896;
+  cursor:pointer;padding:0;position:relative;
+}
+.swatch.sel{box-shadow:0 0 0 3px var(--sea);transform:scale(1.12)}
+.swatch:disabled{opacity:.35;cursor:not-allowed}
+.swatch .lock{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px}
+#brushRow{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.bbtn{
+  border:2px solid var(--wood);background:#fff;border-radius:10px;padding:6px 10px;cursor:pointer;
+  font-weight:700;font-size:13px;color:var(--ink);display:flex;align-items:center;gap:6px;
+}
+.bbtn.sel{background:#FFE9A8;border-color:var(--sea)}
+.bbtn:active{transform:scale(.96)}
+.bdot{border-radius:50%;background:var(--ink);display:inline-block}
+#actionRow{display:flex;gap:6px;flex-wrap:wrap}
+#sellBtn{
+  flex:1;min-width:150px;border:none;border-radius:14px;padding:13px 10px;cursor:pointer;
+  background:linear-gradient(180deg,#2ECC71,#27AE60);color:#fff;font-size:18px;font-weight:800;
+  box-shadow:0 4px 0 #1E8449;
+}
+#sellBtn:active{transform:translateY(2px);box-shadow:0 2px 0 #1E8449}
+#sellBtn:disabled{opacity:.45;cursor:not-allowed}
+#shopBtn{
+  border:none;border-radius:14px;padding:13px 14px;cursor:pointer;
+  background:linear-gradient(180deg,#F5B301,#E09E00);color:#fff;font-size:16px;font-weight:800;
+  box-shadow:0 4px 0 #B7791F;
+}
+#shopBtn:active{transform:translateY(2px);box-shadow:0 2px 0 #B7791F}
+#decoRow{display:flex;gap:6px;flex-wrap:wrap;font-size:13px}
+.decoChip{background:#EAF7EE;border:2px solid #7BC8A4;border-radius:999px;padding:2px 9px;font-weight:700}
+/* ---------- landscape: canvas wide center, characters left, tools right ---------- */
+@media (orientation:landscape){
+  html,body{overflow:hidden}
+  #app{height:100dvh;overflow:hidden}
+  header{padding:3px 8px;flex-wrap:nowrap}
+  header h1{font-size:16px}
+  #layout{
+    display:grid;grid-template-columns:184px minmax(0,1fr) 168px;gap:8px;
+    padding:6px 8px;overflow:hidden;
+  }
+  #scenePanel{flex-direction:column;align-items:stretch;gap:8px;overflow-y:auto;min-height:0}
+  #becaBox{align-self:center}
+  #becaImg{width:96px;height:96px}
+  #custRow{flex-direction:column;text-align:center}
+  #custAvatar{width:52px;height:52px}
+  #reqBubble{font-size:13.5px}
+  #canvasPanel{min-height:0;overflow:hidden}
+  #canvasWrap{aspect-ratio:auto;flex:1;min-height:0}
+  #controlPanel{overflow-y:auto;min-height:0}
+  #colors{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+  .swatch{width:100%;aspect-ratio:1;height:auto}
+  #sellBtn{font-size:16px;padding:11px 8px}
+  #rules{font-size:12px}
+}
+@media (min-width:700px) and (orientation:portrait){
+  #layout{max-width:640px;margin:0 auto;width:100%}
+}
+/* ---------- modals ---------- */
+.overlay{
+  position:fixed;inset:0;background:rgba(40,25,5,.55);display:none;align-items:center;justify-content:center;
+  z-index:50;padding:12px;
+}
+.overlay.open{display:flex}
+.modal{
+  background:var(--cream);border:3px solid var(--wood);border-radius:18px;padding:16px;
+  width:100%;max-width:480px;max-height:92dvh;overflow-y:auto;text-align:center;
+  box-shadow:0 10px 40px rgba(0,0,0,.35);
+}
+.modal h2{font-size:22px;margin-bottom:8px}
+.modal p{font-size:15px;line-height:1.5;margin-bottom:8px}
+.stars{font-size:42px;letter-spacing:4px;margin:6px 0}
+.stars .off{opacity:.25;filter:grayscale(1)}
+.earn{font-size:20px;font-weight:800;color:#B7791F}
+.bigbtn{
+  border:none;border-radius:14px;padding:12px 18px;cursor:pointer;font-size:17px;font-weight:800;
+  background:linear-gradient(180deg,#2E86DE,#1B5FAA);color:#fff;box-shadow:0 4px 0 #12497F;margin-top:8px;
+}
+.bigbtn:active{transform:translateY(2px);box-shadow:0 2px 0 #12497F}
+.bigbtn.green{background:linear-gradient(180deg,#2ECC71,#27AE60);box-shadow:0 4px 0 #1E8449}
+.bigbtn.gold{background:linear-gradient(180deg,#F5B301,#E09E00);box-shadow:0 4px 0 #B7791F}
+.shopItem{
+  display:flex;gap:10px;align-items:center;text-align:left;background:#fff;
+  border:2px solid #E8D9B0;border-radius:12px;padding:8px;margin-bottom:8px;
+}
+.shopItem .ic{font-size:26px}
+.shopItem .inf{flex:1;min-width:0}
+.shopItem .nm{font-weight:800;font-size:15px}
+.shopItem .ds{font-size:13px;color:#7A6A55;line-height:1.35}
+.buyBtn{
+  border:none;border-radius:10px;padding:8px 12px;cursor:pointer;font-weight:800;font-size:14px;
+  background:var(--gold);color:#fff;white-space:nowrap;
+}
+.buyBtn:disabled{opacity:.45;cursor:not-allowed}
+.buyBtn.owned{background:#27AE60}
+.progress{height:12px;background:#EFE3C2;border-radius:99px;overflow:hidden;margin:6px 0}
+.progress>div{height:100%;background:linear-gradient(90deg,#F5B301,#FF6B9D)}
+.confetti{position:absolute;width:10px;height:16px;top:-20px;animation:fall linear infinite;opacity:.9}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+#toast{
+  position:fixed;left:50%;bottom:18px;transform:translateX(-50%) translateY(20px);
+  background:#3A2E22;color:#fff;padding:10px 16px;border-radius:999px;font-weight:700;font-size:14px;
+  opacity:0;pointer-events:none;transition:all .25s;z-index:80;max-width:92vw;text-align:center;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>🎨 <span data-i18n="title">Bé Cá Vẽ Tranh</span></h1>
+    <div class="spacer"></div>
+    <span class="pill">💰 <b id="coins">0đ</b></span>
+    <span class="pill"><span data-i18n="day">Ngày</span> <b id="dayNum">1</b> · <span id="custCount">1/3</span></span>
+    <button class="hbtn" id="soundBtn" title="Âm thanh">🔊</button>
+    <button class="hbtn" id="langBtn">VI|EN</button>
+  </header>
+  <main id="layout">
+    <section class="panel" id="scenePanel">
+      <div id="becaBox">
+        <img id="becaImg" src="beca-character.jpg" alt="Bé cá">
+        <div id="becaName">🐟 Bé Cá</div>
+      </div>
+      <div id="custBox">
+        <div id="custRow">
+          <div id="custAvatar"></div>
+          <div>
+            <div id="custName">—</div>
+            <div id="custMood">—</div>
+          </div>
+        </div>
+        <div id="reqBubble">
+          <span id="reqText">—</span><span class="reqColors" id="reqColors"></span>
+          <div id="reqHint">—</div>
+        </div>
+      </div>
+    </section>
+    <section class="panel" id="canvasPanel">
+      <div id="canvasWrap">
+        <canvas id="paintCanvas"></canvas>
+        <div id="canvasHint" data-i18n="canvasHint">Vẽ ở đây nè 🎨</div>
+      </div>
+      <div id="rules"></div>
+      <div id="meters">
+        <span id="mCover">🖌️ <span data-i18n="covered">Đã tô</span>: 0%</span>
+        <span id="mColor">🎯 <span data-i18n="rightColor">Đúng màu</span>: 0%</span>
+        <span id="mStrokes">✏️ <span data-i18n="strokes">Nét vẽ</span>: 0</span>
+      </div>
+    </section>
+    <aside class="panel" id="controlPanel">
+      <div id="colors"></div>
+      <div id="brushRow">
+        <button class="bbtn" data-size="6"><span class="bdot" style="width:6px;height:6px"></span><span data-i18n="brushS">Nhỏ</span></button>
+        <button class="bbtn sel" data-size="12"><span class="bdot" style="width:12px;height:12px"></span><span data-i18n="brushM">Vừa</span></button>
+        <button class="bbtn" data-size="20"><span class="bdot" style="width:20px;height:20px"></span><span data-i18n="brushL">To</span></button>
+        <button class="bbtn" id="eraserBtn">🧽 <span data-i18n="eraser">Tẩy</span></button>
+      </div>
+      <div id="actionRow">
+        <button class="bbtn" id="undoBtn">↩️ <span data-i18n="undo">Hoàn tác</span></button>
+        <button class="bbtn" id="clearBtn">🗑️ <span data-i18n="clearAll">Xóa hết</span></button>
+      </div>
+      <div id="decoRow"></div>
+      <button id="sellBtn" data-testid="sellBtn" disabled>💰 <span data-i18n="sell">Bán tranh</span></button>
+      <button id="shopBtn" data-testid="shopBtn">🛍️ <span data-i18n="shop">Cửa hàng</span></button>
+    </aside>
+  </main>
+</div>
+
+<div class="overlay" id="resultOverlay">
+  <div class="modal">
+    <h2 id="resTitle">—</h2>
+    <div class="stars" id="resStars">⭐⭐⭐</div>
+    <p id="resComment">—</p>
+    <p class="earn" id="resEarn">+0đ</p>
+    <p id="resDetail" style="font-size:13px;color:#7A6A55"></p>
+    <button class="bigbtn green" id="resNext" data-testid="resNext">➡️ <span data-i18n="nextCustomer">Khách tiếp theo</span></button>
+  </div>
+</div>
+
+<div class="overlay" id="shopOverlay">
+  <div class="modal" style="text-align:left">
+    <h2 style="text-align:center">🛍️ <span data-i18n="shop">Cửa hàng</span> · 💰 <span id="shopCoins">0đ</span></h2>
+    <div id="shopList"></div>
+    <div style="text-align:center">
+      <button class="bigbtn" id="shopClose" data-testid="shopClose">✅ <span data-i18n="done">Xong</span></button>
+      <button class="bigbtn" id="resetBtn" style="background:linear-gradient(180deg,#E74C3C,#C0392B);box-shadow:0 4px 0 #922B21">🔄 <span data-i18n="reset">Chơi lại từ đầu</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="dayOverlay">
+  <div class="modal">
+    <h2 id="dayTitle">🌇 Hết ngày 1!</h2>
+    <p id="daySummary">—</p>
+    <button class="bigbtn green" id="dayNext" data-testid="dayNext">🌅 <span data-i18n="nextDay">Sang ngày mai</span></button>
+  </div>
+</div>
+
+<div class="overlay" id="winOverlay">
+  <div class="modal" style="position:relative;overflow:hidden">
+    <h2>🎉 <span data-i18n="winTitle">Bé cá đã có tiệm vẽ riêng!</span></h2>
+    <p data-i18n="winText">Bé cá dành đủ 5.000đ mua lại tiệm vẽ trên phố! Từ nay khách tới tận tiệm xem tranh. Cảm ơn An đã vẽ cùng bé cá!</p>
+    <p class="earn" id="winStats">—</p>
+    <button class="bigbtn gold" id="winContinue" data-testid="winContinue">🎨 <span data-i18n="keepPlaying">Chơi tiếp tự do</span></button>
+    <button class="bigbtn" id="winReset">🔄 <span data-i18n="reset">Chơi lại từ đầu</span></button>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script>
+"use strict";
+/* ================= Bé Cá Vẽ Tranh — game vẽ tranh kiểu Passpartout 2 =================
+   Vòng lặp: khách tới đặt vẽ -> vẽ lên canvas -> bán tranh (chấm theo luật đo được)
+   -> kiếm tiền -> mua màu/khung/trang trí -> đủ 5.000đ mua tiệm vẽ = thắng.
+   Luật chấm: % pixel đúng màu chính + % diện tích đã tô + số nét. Không dùng AI chấm.
+   Nét vẽ lưu dạng stroke data (tọa độ chuẩn hoá 0..1) nên xoay màn hình / resize
+   chỉ cần vẽ lại từ data — không bao giờ mất tranh. */
+const PAPER = '#FFF8E7';
+const SAVE_KEY = 'becaPaintingV1';
+const GOAL = 5000;
+const PAY = {1:100, 2:200, 3:400};
+
+/* ---------------- i18n ---------------- */
+const I18N = {
+vi:{
+  title:'Bé Cá Vẽ Tranh', day:'Ngày', canvasHint:'Vẽ ở đây nè 🎨',
+  covered:'Đã tô', rightColor:'Đúng màu', strokes:'Nét vẽ',
+  brushS:'Nhỏ', brushM:'Vừa', brushL:'To', eraser:'Tẩy', undo:'Hoàn tác', clearAll:'Xóa hết',
+  sell:'Bán tranh', shop:'Cửa hàng', done:'Xong', reset:'Chơi lại từ đầu',
+  nextCustomer:'Khách tiếp theo', nextDay:'Sang ngày mai',
+  winTitle:'Bé cá đã có tiệm vẽ riêng!',
+  winText:'Bé cá dành đủ 5.000đ mua lại tiệm vẽ trên phố! Từ nay khách tới tận tiệm xem tranh. Cảm ơn An đã vẽ cùng bé cá!',
+  keepPlaying:'Chơi tiếp tự do',
+  rules1:'⭐⭐⭐: đúng màu chính ≥60%, tô ≥8% tranh, ≥5 nét',
+  rules2:'⭐⭐: đúng màu ≥35%, tô ≥4%, ≥3 nét',
+  rules3:'⭐: có vẽ là được chút tiền nè',
+  rules2c:'⭐⭐⭐: mỗi màu cần ≥20% (tổng ≥55%), tô ≥8%, ≥5 nét',
+  rules2c2:'⭐⭐: tổng đúng màu ≥30%, tô ≥4%, ≥3 nét',
+  needDraw:'Vẽ gì đó đã rồi hẵng bán nha!',
+  notEnough:'Chưa đủ tiền, vẽ thêm vài tranh nữa nha!',
+  bought:'Mua rồi nè! 🎉', owned:'Đã có', soldOut:'Đã mua',
+  dayEnd:'Hết ngày {d}!',
+  daySummary:'Hôm nay bé cá bán được {n} tranh, kiếm {m}đ, được {s} sao ⭐',
+  shopGoal:'Mua lại tiệm vẽ',
+  shopGoalDesc:'Đủ 5.000đ là bé cá có tiệm vẽ riêng trên phố! Đã có {m}đ.',
+  buyShop:'Mua tiệm 5.000đ',
+  resetConfirm:'Chơi lại từ đầu? Tiền và đồ đã mua sẽ mất hết đó!',
+  reqTitle:'đặt vẽ:',
+  mood1:'Đang đợi tranh...', mood2:'Háo hức xem tranh!', mood3:'Thích tranh đẹp!',
+  res1:'Khách gật gù...', res2:'Khách mỉm cười!', res3:'Khách mê tít!',
+  detail:'Đúng màu {c}% · Đã tô {a}% · {n} nét vẽ',
+  winStats:'{d} ngày · {n} tranh · {s} sao ⭐',
+  hintLabel:'Gợi ý: ',
+},
+en:{
+  title:'Beca Paints', day:'Day', canvasHint:'Draw here 🎨',
+  covered:'Covered', rightColor:'Right color', strokes:'Strokes',
+  brushS:'Small', brushM:'Medium', brushL:'Big', eraser:'Eraser', undo:'Undo', clearAll:'Clear',
+  sell:'Sell painting', shop:'Shop', done:'Done', reset:'Start over',
+  nextCustomer:'Next customer', nextDay:'Next day',
+  winTitle:'Beca has her own art shop!',
+  winText:'Beca saved 5,000đ and bought the art shop on the street! From now on customers come to the shop to see her paintings. Thanks for drawing with Beca!',
+  keepPlaying:'Keep playing',
+  rules1:'⭐⭐⭐: main color ≥60%, covered ≥8%, ≥5 strokes',
+  rules2:'⭐⭐: main color ≥35%, covered ≥4%, ≥3 strokes',
+  rules3:'⭐: any drawing earns a little',
+  rules2c:'⭐⭐⭐: each color ≥20% (total ≥55%), covered ≥8%, ≥5 strokes',
+  rules2c2:'⭐⭐: total right color ≥30%, covered ≥4%, ≥3 strokes',
+  needDraw:'Draw something first, then sell!',
+  notEnough:'Not enough money yet, paint a few more!',
+  bought:'Bought it! 🎉', owned:'Owned', soldOut:'Bought',
+  dayEnd:'Day {d} is over!',
+  daySummary:'Today Beca sold {n} paintings, earned {m}đ, got {s} stars ⭐',
+  shopGoal:'Buy the art shop',
+  shopGoalDesc:'Save 5,000đ and Beca owns her own art shop! You have {m}đ.',
+  buyShop:'Buy shop 5,000đ',
+  resetConfirm:'Start over? Your money and items will be gone!',
+  reqTitle:'wants:',
+  mood1:'Waiting for the painting...', mood2:'Excited to see it!', mood3:'Loves beautiful art!',
+  res1:'The customer nods...', res2:'The customer smiles!', res3:'The customer loves it!',
+  detail:'Right color {c}% · Covered {a}% · {n} strokes',
+  winStats:'{d} days · {n} paintings · {s} stars ⭐',
+  hintLabel:'Hint: ',
+}};
+function t(k){ return (I18N[state.lang]||I18N.vi)[k] ?? I18N.vi[k] ?? k; }
+
+/* ---------------- dữ liệu game ---------------- */
+const PALETTE = [
+  {hex:'#E74C3C', name:'Đỏ'}, {hex:'#FF9F43', name:'Cam'}, {hex:'#FFD93D', name:'Vàng'},
+  {hex:'#2ECC71', name:'Xanh lá'}, {hex:'#54A0FF', name:'Xanh dương'}, {hex:'#FF6B9D', name:'Hồng'},
+  {hex:'#A5672F', name:'Nâu'},
+];
+const SHOP_COLORS = [
+  {id:'c_purple', hex:'#9B59B6', name:'Tím', price:250},
+  {id:'c_dblue', hex:'#2E5AAC', name:'Xanh đậm', price:250},
+  {id:'c_black', hex:'#2B2B2B', name:'Đen', price:150},
+  {id:'c_white', hex:'#FFFFFF', name:'Trắng', price:150},
+];
+const REQUESTS = [
+  {id:'fish',    vi:'Vẽ cho tôi một con cá vàng!',  en:'Draw me a goldfish!',        colors:['#FFD93D'], c2:'#FF9F43', hintVi:'Cá vàng óng, vây cam càng đẹp', hintEn:'Golden fish, orange fins are even prettier'},
+  {id:'pho',     vi:'Vẽ tô phở bò!',               en:'Draw a bowl of pho!',        colors:['#A5672F'], c2:'#E74C3C', hintVi:'Nước phở màu nâu, ớt đỏ cho cay', hintEn:'Brown broth, red chili for spice'},
+  {id:'flower',  vi:'Vẽ bông hoa!',                en:'Draw a flower!',             colors:['#FF6B9D'], c2:'#FFD93D', hintVi:'Cánh hoa hồng, nhụy vàng', hintEn:'Pink petals, yellow center'},
+  {id:'moon',    vi:'Vẽ mặt trăng!',               en:'Draw the moon!',             colors:['#FFD93D'], c2:'#FF9F43', hintVi:'Trăng tròn vàng ươm', hintEn:'A big round golden moon'},
+  {id:'cat',     vi:'Vẽ con mèo!',                 en:'Draw a cat!',                colors:['#FF9F43'], c2:'#A5672F', hintVi:'Mèo cam mập ú', hintEn:'A chubby orange cat'},
+  {id:'house',   vi:'Vẽ ngôi nhà!',                en:'Draw a house!',              colors:['#E74C3C'], c2:'#54A0FF', hintVi:'Mái nhà đỏ, tường xanh', hintEn:'Red roof, blue walls'},
+  {id:'heart',   vi:'Vẽ trái tim!',                en:'Draw a heart!',              colors:['#FF3B5C'], c2:'#FF6B9D', hintVi:'Trái tim đỏ thật to', hintEn:'A big red heart'},
+  {id:'coconut', vi:'Vẽ cây dừa!',                 en:'Draw a coconut tree!',       colors:['#2ECC71'], c2:'#A5672F', hintVi:'Lá dừa xanh, thân nâu', hintEn:'Green leaves, brown trunk'},
+];
+const CUSTOMERS = [
+  {id:'ba',   name:'Bà Tư',    en:'Grandma Tu',   bg:'#B8A88A', mood:1, kind:'ba'},
+  {id:'mai',  name:'Bé Mai',   en:'Mai',          bg:'#FF9F43', mood:2, kind:'hs'},
+  {id:'tung', name:'Anh Tùng', en:'Tung',         bg:'#2E86DE', mood:2, kind:'ship'},
+  {id:'hoa',  name:'Cô Hoa',   en:'Ms. Hoa',      bg:'#FF6B9D', mood:3, kind:'hoa'},
+  {id:'bay',  name:'Chú Bảy',  en:'Uncle Bay',    bg:'#8E7CC3', mood:1, kind:'bep'},
+  {id:'mimi', name:'Mimi',     en:'Mimi',         bg:'#7BC8A4', mood:3, kind:'meo'},
+];
+const REACTIONS = {
+  3:{vi:['Đẹp quá trời luôn! Tôi treo ngay phòng khách!','Trời ơi đẹp dữ! Đáng đồng tiền!','Bé cá vẽ đỉnh thiệt! Tôi khoe cả phố!'],
+     en:['So beautiful! Hanging it in my living room!','Wow, gorgeous! Worth every coin!','Beca, you are amazing! Showing the whole street!']},
+  2:{vi:['Cũng được đó, dễ thương!','Xinh xinh nè, tôi lấy!','Ổn áp! Cảm ơn bé cá nha!'],
+     en:['Pretty cute, I like it!','Lovely! I will take it!','Nice one! Thanks, Beca!']},
+  1:{vi:['Ừm... cũng có cố gắng ha...','Hơi lạ lạ nhưng thôi tôi lấy...','Lần sau vẽ kỹ hơn nha bé cá!'],
+     en:['Hmm... nice try...','A bit odd, but I will take it...','Draw more carefully next time, Beca!']},
+};
+const SHOP_ITEMS = [
+  {id:'c_purple', kind:'color', hex:'#9B59B6', price:250, vi:'Màu tím', en:'Purple paint', dvi:'Thêm màu tím vào bảng màu', den:'Adds purple to your palette'},
+  {id:'c_dblue',  kind:'color', hex:'#2E5AAC', price:250, vi:'Màu xanh đậm', en:'Dark blue paint', dvi:'Thêm màu xanh đậm vào bảng màu', den:'Adds dark blue to your palette'},
+  {id:'c_black',  kind:'color', hex:'#2B2B2B', price:150, vi:'Màu đen', en:'Black paint', dvi:'Thêm màu đen vào bảng màu', den:'Adds black to your palette'},
+  {id:'c_white',  kind:'color', hex:'#FFFFFF', price:150, vi:'Màu trắng', en:'White paint', dvi:'Thêm màu trắng vào bảng màu', den:'Adds white to your palette'},
+  {id:'brush_big',kind:'brush', price:350, vi:'Cọ khổng lồ', en:'Giant brush', dvi:'Thêm cỡ cọ siêu to (30px) để tô nhanh', den:'Adds a super big brush (30px) for fast filling'},
+  {id:'frame_wood',kind:'frame', price:400, vi:'Khung gỗ', en:'Wooden frame', dvi:'Tranh có khung gỗ, bán được +25đ mỗi tranh', den:'Wooden frame: +25đ per painting'},
+  {id:'frame_gold',kind:'frame', price:800, vi:'Khung vàng', en:'Golden frame', dvi:'Tranh có khung vàng sang chảnh, bán được +50đ mỗi tranh', den:'Golden frame: +50đ per painting'},
+  {id:'deco_lantern',kind:'deco', price:300, vi:'Đèn lồng', en:'Lanterns', dvi:'Treo đèn lồng đỏ trang trí sạp vẽ', den:'Red lanterns decorate your stall'},
+  {id:'deco_flower', kind:'deco', price:250, vi:'Chậu hoa', en:'Flower pot', dvi:'Chậu hoa xinh đặt bên sạp', den:'A pretty flower pot by the stall'},
+  {id:'deco_sign',   kind:'deco', price:350, vi:'Bảng hiệu', en:'Shop sign', dvi:'Bảng hiệu "Tiệm Vẽ Bé Cá" treo trước sạp', den:'A "Beca Paints" sign for your stall'},
+];
+
+/* ---------------- state ---------------- */
+let state = {
+  lang:'vi', sound:true, coins:0, day:1, custIdx:0,
+  customersToday:[], requestsToday:[], owned:[], frame:null,
+  deco:{lantern:false, flower:false, sign:false},
+  won:false, totalPaintings:0, totalStars:0, todayEarned:0, todayStars:0,
+};
+function save(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }catch(e){} }
+function load(){
+  try{
+    const s = JSON.parse(localStorage.getItem(SAVE_KEY));
+    if(s && typeof s==='object'){ state = Object.assign(state, s); state.deco = Object.assign({lantern:false,flower:false,sign:false}, s.deco||{}); }
+  }catch(e){}
+}
+
+/* ---------------- khách SVG ---------------- */
+function custSVG(c){
+  const skin='#FFDDBB', hair={ba:'#D8D8D8', hs:'#3A2E22', ship:'#3A2E22', hoa:'#5B3A29', bep:'#3A2E22', meo:'#FF9F43'}[c.kind];
+  let extra='';
+  if(c.kind==='ba') extra='<circle cx="50" cy="22" r="12" fill="#D8D8D8"/><circle cx="50" cy="52" r="5" fill="#fff" opacity=".7"/><circle cx="50" cy="52" r="5" fill="none" stroke="#999" stroke-width="1.5"/><circle cx="38" cy="52" r="8" fill="none" stroke="#999" stroke-width="1.5"/><circle cx="62" cy="52" r="8" fill="none" stroke="#999" stroke-width="1.5"/>';
+  if(c.kind==='hs') extra='<path d="M22 34 Q50 8 78 34 L78 26 Q50 2 22 26 Z" fill="#E74C3C"/><circle cx="50" cy="14" r="4" fill="#E74C3C"/>';
+  if(c.kind==='ship') extra='<path d="M20 40 Q50 12 80 40 L80 32 Q50 4 20 32 Z" fill="#27AE60"/><rect x="46" y="6" width="8" height="8" rx="2" fill="#F5B301"/>';
+  if(c.kind==='hoa') extra='<g><circle cx="70" cy="26" r="6" fill="#FF6B9D"/><circle cx="70" cy="26" r="2.5" fill="#FFD93D"/></g>';
+  if(c.kind==='bep') extra='<path d="M28 30 Q22 12 38 14 Q50 4 62 14 Q78 12 72 30 Z" fill="#fff" stroke="#ccc" stroke-width="1.5"/>';
+  if(c.kind==='meo') extra='<path d="M28 30 L24 12 L40 24 Z" fill="#FF9F43"/><path d="M72 30 L76 12 L60 24 Z" fill="#FF9F43"/><path d="M30 22 L28 14 L36 20 Z" fill="#FF6B9D"/><path d="M70 22 L72 14 L64 20 Z" fill="#FF6B9D"/>';
+  const whiskers = c.kind==='meo' ? '<line x1="18" y1="60" x2="32" y2="58" stroke="#999" stroke-width="1.5"/><line x1="82" y1="60" x2="68" y2="58" stroke="#999" stroke-width="1.5"/>' : '';
+  return `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="${c.bg}"/>
+    <circle cx="50" cy="54" r="26" fill="${skin}"/>
+    <path d="M24 52 Q26 26 50 26 Q74 26 76 52 Q70 36 50 36 Q30 36 24 52 Z" fill="${hair}"/>
+    ${extra}
+    <circle cx="40" cy="54" r="3.4" fill="#3A2E22"/><circle cx="60" cy="54" r="3.4" fill="#3A2E22"/>
+    <circle cx="41.5" cy="52.5" r="1.2" fill="#fff"/><circle cx="61.5" cy="52.5" r="1.2" fill="#fff"/>
+    <circle cx="33" cy="62" r="4" fill="#FF9FB2" opacity=".7"/><circle cx="67" cy="62" r="4" fill="#FF9FB2" opacity=".7"/>
+    <path d="M43 64 Q50 70 57 64" stroke="#B5651D" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    ${whiskers}</svg>`;
+}
+
+/* ---------------- canvas + nét vẽ ---------------- */
+const canvas = document.getElementById('paintCanvas');
+const ctx = canvas.getContext('2d');
+const wrap = document.getElementById('canvasWrap');
+let strokes = [];          // [{color, size, pts:[[nx,ny],...]}] — tọa độ chuẩn hoá 0..1
+let curStroke = null;
+let curColor = '#E74C3C';
+let curSize = 12;
+let erasing = false;
+let dpr = Math.min(window.devicePixelRatio||1, 2);
+
+function hexRgb(h){ h=h.replace('#',''); return [parseInt(h.substr(0,2),16), parseInt(h.substr(2,2),16), parseInt(h.substr(4,2),16)]; }
+const PAPER_RGB = hexRgb(PAPER);
+
+function fitCanvas(){
+  const w = wrap.clientWidth, h = wrap.clientHeight;
+  if(!w || !h) return;
+  dpr = Math.min(window.devicePixelRatio||1, 2);
+  canvas.width = Math.round(w*dpr); canvas.height = Math.round(h*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  redraw();
+}
+function redraw(){
+  const w = wrap.clientWidth, h = wrap.clientHeight;
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle = PAPER; ctx.fillRect(0,0,w,h);
+  ctx.lineCap='round'; ctx.lineJoin='round';
+  for(const s of strokes){
+    if(s.pts.length===0) continue;
+    ctx.strokeStyle = s.color; ctx.lineWidth = s.size;
+    ctx.beginPath();
+    ctx.moveTo(s.pts[0][0]*w, s.pts[0][1]*h);
+    for(let i=1;i<s.pts.length;i++) ctx.lineTo(s.pts[i][0]*w, s.pts[i][1]*h);
+    if(s.pts.length===1) ctx.lineTo(s.pts[0][0]*w+0.01, s.pts[0][1]*h+0.01);
+    ctx.stroke();
+  }
+  document.getElementById('canvasHint').style.display = strokes.length ? 'none' : 'block';
+  document.getElementById('sellBtn').disabled = strokes.length===0;
+}
+function pos(e){
+  const r = wrap.getBoundingClientRect();
+  return [Math.min(1,Math.max(0,(e.clientX-r.left)/r.width)), Math.min(1,Math.max(0,(e.clientY-r.top)/r.height))];
+}
+canvas.addEventListener('pointerdown', e=>{
+  e.preventDefault();
+  canvas.setPointerCapture(e.pointerId);
+  curStroke = {color: erasing ? PAPER : curColor, size: curSize, pts:[pos(e)]};
+  strokes.push(curStroke);
+  redraw();
+});
+canvas.addEventListener('pointermove', e=>{
+  if(!curStroke) return;
+  e.preventDefault();
+  curStroke.pts.push(pos(e));
+  // vẽ đoạn mới trực tiếp cho mượt, không redraw toàn bộ
+  const w = wrap.clientWidth, h = wrap.clientHeight;
+  const n = curStroke.pts.length;
+  if(n>=2){
+    ctx.strokeStyle = curStroke.color; ctx.lineWidth = curStroke.size;
+    ctx.lineCap='round'; ctx.lineJoin='round';
+    ctx.beginPath();
+    ctx.moveTo(curStroke.pts[n-2][0]*w, curStroke.pts[n-2][1]*h);
+    ctx.lineTo(curStroke.pts[n-1][0]*w, curStroke.pts[n-1][1]*h);
+    ctx.stroke();
+  }
+});
+function endStroke(){
+  if(!curStroke) return;
+  curStroke = null;
+  updateMeters();
+  document.getElementById('sellBtn').disabled = strokes.length===0;
+  document.getElementById('canvasHint').style.display = strokes.length ? 'none' : 'block';
+}
+canvas.addEventListener('pointerup', endStroke);
+canvas.addEventListener('pointercancel', endStroke);
+// ResizeObserver: xoay màn hình / đổi kích thước -> vẽ lại từ stroke data, không mất tranh
+if(window.ResizeObserver){
+  let rto=null;
+  new ResizeObserver(()=>{ clearTimeout(rto); rto=setTimeout(fitCanvas, 60); }).observe(wrap);
+}
+window.addEventListener('resize', ()=>setTimeout(fitCanvas, 80));
+window.addEventListener('orientationchange', ()=>setTimeout(fitCanvas, 250));
+
+/* ---------------- chấm điểm (luật đo được, không AI) ---------------- */
+function colorDist(a,b){ const d0=a[0]-b[0], d1=a[1]-b[1], d2=a[2]-b[2]; return Math.sqrt(d0*d0+d1*d1+d2*d2); }
+function analyze(stride){
+  const w = canvas.width, h = canvas.height;
+  if(!w || !h || strokes.length===0) return {coverage:0, mainPct:0, per:[], painted:0};
+  const img = ctx.getImageData(0,0,w,h).data;
+  const req = currentRequest();
+  const targets = req.colors.map(hexRgb);
+  let painted=0; const hits = targets.map(()=>0);
+  for(let y=0;y<h;y+=stride){
+    for(let x=0;x<w;x+=stride){
+      const i=(y*w+x)*4, r=img[i], g=img[i+1], b=img[i+2];
+      const d = Math.max(Math.abs(r-PAPER_RGB[0]), Math.abs(g-PAPER_RGB[1]), Math.abs(b-PAPER_RGB[2]));
+      if(d<=14) continue;                       // vẫn là màu giấy -> chưa tô
+      painted++;
+      let best=1e9, bi=-1;
+      for(let k=0;k<targets.length;k++){ const dd=colorDist([r,g,b], targets[k]); if(dd<best){best=dd;bi=k;} }
+      if(best<55 && bi>=0) hits[bi]++;          // gần màu yêu cầu
+    }
+  }
+  const total = Math.ceil(w/stride)*Math.ceil(h/stride);
+  const coverage = total ? painted/total*100 : 0;
+  const per = hits.map(v=> painted ? v/painted*100 : 0);
+  const mainPct = per.reduce((a,b)=>a+b,0);
+  return {coverage, mainPct, per, painted};
+}
+function scorePainting(){
+  const a = analyze(3);
+  const req = currentRequest();
+  const two = req.colors.length>1;
+  let stars = 1;
+  if(two){
+    const ok = a.per.every(p=>p>=20) && a.mainPct>=55;
+    const ok2 = a.mainPct>=30 && a.per.every(p=>p>=8);
+    if(a.coverage>=8 && strokes.length>=5 && ok) stars=3;
+    else if(a.coverage>=4 && strokes.length>=3 && ok2) stars=2;
+  }else{
+    if(a.coverage>=8 && strokes.length>=5 && a.mainPct>=60) stars=3;
+    else if(a.coverage>=4 && strokes.length>=3 && a.mainPct>=35) stars=2;
+  }
+  if(a.coverage<0.5) stars=1;
+  const frameBonus = state.frame==='gold' ? 50 : state.frame==='wood' ? 25 : 0;
+  return {stars, money: PAY[stars]+frameBonus, frameBonus, ...a};
+}
+function updateMeters(){
+  const a = analyze(6);
+  document.getElementById('mCover').innerHTML = '🖌️ '+t('covered')+': '+a.coverage.toFixed(0)+'%';
+  document.getElementById('mColor').innerHTML = '🎯 '+t('rightColor')+': '+a.mainPct.toFixed(0)+'%';
+  document.getElementById('mStrokes').innerHTML = '✏️ '+t('strokes')+': '+strokes.length;
+}
+
+/* ---------------- vòng lặp ngày / khách / yêu cầu ---------------- */
+function pickDay(){
+  const ids = [...CUSTOMERS.map(c=>c.id)];
+  const out=[];
+  while(out.length<3){ const i=Math.floor(Math.random()*ids.length); out.push(ids.splice(i,1)[0]); }
+  state.customersToday = out;
+  state.requestsToday = out.map(()=> makeRequest());
+  state.custIdx = 0; state.todayEarned=0; state.todayStars=0;
+}
+function makeRequest(){
+  const r = REQUESTS[Math.floor(Math.random()*REQUESTS.length)];
+  const twoChance = state.day>=5 ? 0.75 : state.day>=3 ? 0.5 : 0;
+  const two = Math.random() < twoChance;
+  return {id:r.id, two, colors: two ? [r.colors[0], r.c2] : [r.colors[0]]};
+}
+function currentCustomer(){ return CUSTOMERS.find(c=>c.id===state.customersToday[state.custIdx]) || CUSTOMERS[0]; }
+function currentRequest(){
+  const rq = state.requestsToday[state.custIdx];
+  const base = REQUESTS.find(r=>r.id===(rq?rq.id:'fish'));
+  return {id:base.id, vi:base.vi, en:base.en, hintVi:base.hintVi, hintEn:base.hintEn, colors: rq?rq.colors:[base.colors[0]]};
+}
+function newCanvas(){ strokes=[]; curStroke=null; redraw(); updateMeters(); }
+
+/* ---------------- render ---------------- */
+function renderHeader(){
+  document.getElementById('coins').textContent = state.coins.toLocaleString('vi-VN')+'đ';
+  document.getElementById('dayNum').textContent = state.day;
+  document.getElementById('custCount').textContent = (state.custIdx+1)+'/3';
+  document.getElementById('soundBtn').textContent = state.sound ? '🔊' : '🔇';
+}
+function renderScene(){
+  const c = currentCustomer(), rq = currentRequest();
+  document.getElementById('custAvatar').innerHTML = custSVG(c);
+  document.getElementById('custName').textContent = c.name;
+  document.getElementById('custMood').textContent = t('mood'+c.mood);
+  document.getElementById('reqText').textContent = c.name+' '+t('reqTitle')+' '+(state.lang==='vi'?rq.vi:rq.en);
+  document.getElementById('reqColors').innerHTML = rq.colors.map(h=>`<span class="dot" style="background:${h}"></span>`).join('');
+  document.getElementById('reqHint').textContent = t('hintLabel')+(state.lang==='vi'?rq.hintVi:rq.hintEn);
+  // khung tranh + trang trí sạp
+  wrap.className = state.frame ? 'framed-'+state.frame : '';
+  wrap.id='canvasWrap';
+  const deco=[];
+  if(state.deco.lantern) deco.push('🏮 '+ (state.lang==='vi'?'Đèn lồng':'Lanterns'));
+  if(state.deco.flower) deco.push('🌸 '+ (state.lang==='vi'?'Chậu hoa':'Flower pot'));
+  if(state.deco.sign) deco.push('🪧 '+ (state.lang==='vi'?'Bảng hiệu Tiệm Vẽ Bé Cá':'Beca Paints sign'));
+  document.getElementById('decoRow').innerHTML = deco.map(d=>`<span class="decoChip">${d}</span>`).join('');
+  renderRules();
+}
+function renderRules(){
+  const two = currentRequest().colors.length>1;
+  document.getElementById('rules').innerHTML =
+    '<b>'+(state.lang==='vi'?'Luật chấm điểm:':'Scoring rules:')+'</b><br>• '+t(two?'rules2c':'rules1')+
+    '<br>• '+t(two?'rules2c2':'rules2')+'<br>• '+t('rules3')+
+    ' · 💰 1⭐ 100đ · 2⭐ 200đ · 3⭐ 400đ'+(state.frame==='gold'?' · 🖼️ +50đ':state.frame==='wood'?' · 🖼️ +25đ':'');
+}
+function renderPalette(){
+  const box = document.getElementById('colors');
+  box.innerHTML='';
+  const all = [...PALETTE, ...SHOP_COLORS.filter(s=>state.owned.includes(s.id)).map(s=>({hex:s.hex, name:s.name, shop:true}))];
+  for(const c of all){
+    const b=document.createElement('button');
+    b.className='swatch'+(curColor===c.hex && !erasing ? ' sel':'');
+    b.style.background=c.hex; b.title=c.name;
+    b.onclick=()=>{ curColor=c.hex; erasing=false; syncTools(); };
+    box.appendChild(b);
+  }
+  // tẩy
+  const e=document.createElement('button');
+  e.className='swatch'+(erasing?' sel':''); e.style.background='repeating-linear-gradient(45deg,#fff 0 4px,#FFD93D 4px 8px)';
+  e.title=t('eraser'); e.textContent='🧽'; e.style.fontSize='15px';
+  e.onclick=()=>{ erasing=true; syncTools(); };
+  box.appendChild(e);
+  // cọ khổng lồ (nếu đã mua)
+  if(state.owned.includes('brush_big')){
+    const g=document.createElement('button');
+    g.className='bbtn'+(curSize===30?' sel':''); g.style.marginTop='2px';
+    g.textContent='🖌️ '+(state.lang==='vi'?'Cọ khổng lồ':'Giant brush');
+    g.onclick=()=>{ curSize=30; syncTools(); };
+    box.appendChild(g);
+  }
+}
+function syncTools(){
+  document.querySelectorAll('#brushRow .bbtn[data-size]').forEach(b=>b.classList.toggle('sel', +b.dataset.size===curSize && !erasing));
+  document.getElementById('eraserBtn').classList.toggle('sel', erasing);
+  renderPalette();
+}
+document.querySelectorAll('#brushRow .bbtn[data-size]').forEach(b=>{
+  b.onclick=()=>{ curSize=+b.dataset.size; erasing=false; syncTools(); };
+});
+document.getElementById('eraserBtn').onclick=()=>{ erasing=true; syncTools(); };
+document.getElementById('undoBtn').onclick=()=>{ strokes.pop(); redraw(); updateMeters(); };
+document.getElementById('clearBtn').onclick=()=>{ strokes=[]; redraw(); updateMeters(); };
+
+/* ---------------- bán tranh ---------------- */
+function ting(){
+  if(!state.sound) return;
+  try{
+    const ac = window._ac || (window._ac = new (window.AudioContext||window.webkitAudioContext)());
+    if(ac.state==='suspended') ac.resume();
+    [880, 1318].forEach((f,i)=>{
+      const o=ac.createOscillator(), g=ac.createGain();
+      o.type='sine'; o.frequency.value=f;
+      g.gain.setValueAtTime(0.0001, ac.currentTime+i*0.09);
+      g.gain.exponentialRampToValueAtTime(0.18, ac.currentTime+i*0.09+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime+i*0.09+0.35);
+      o.connect(g).connect(ac.destination);
+      o.start(ac.currentTime+i*0.09); o.stop(ac.currentTime+i*0.09+0.4);
+    });
+  }catch(e){}
+}
+document.getElementById('sellBtn').onclick=()=>{
+  if(strokes.length===0){ toast(t('needDraw')); return; }
+  const r = scorePainting();
+  state.coins += r.money; state.totalPaintings++; state.totalStars += r.stars;
+  state.todayEarned += r.money; state.todayStars += r.stars;
+  save(); ting();
+  const react = REACTIONS[r.stars][state.lang][Math.floor(Math.random()*3)];
+  document.getElementById('resTitle').textContent = t('res'+r.stars);
+  document.getElementById('resStars').innerHTML =
+    [1,2,3].map(i=>`<span class="${i<=r.stars?'':'off'}">⭐</span>`).join('');
+  document.getElementById('resComment').textContent = '“'+react+'” — '+currentCustomer().name;
+  document.getElementById('resEarn').textContent = '+'+r.money.toLocaleString('vi-VN')+'đ'+(r.frameBonus?' (🖼️ +'+r.frameBonus+'đ)':'');
+  document.getElementById('resDetail').textContent = t('detail')
+    .replace('{c}', r.mainPct.toFixed(0)).replace('{a}', r.coverage.toFixed(0)).replace('{n}', strokes.length);
+  document.getElementById('resNext').querySelector('span').textContent =
+    state.custIdx>=2 ? t('nextDay') : t('nextCustomer');
+  openOverlay('resultOverlay');
+  renderHeader();
+};
+document.getElementById('resNext').onclick=()=>{
+  closeOverlay('resultOverlay');
+  newCanvas();
+  if(state.custIdx>=2){
+    document.getElementById('dayTitle').textContent = '🌇 '+t('dayEnd').replace('{d}', state.day);
+    document.getElementById('daySummary').textContent = t('daySummary')
+      .replace('{n}', 3).replace('{m}', state.todayEarned.toLocaleString('vi-VN')).replace('{s}', state.todayStars);
+    openOverlay('dayOverlay');
+  }else{
+    state.custIdx++; save(); renderHeader(); renderScene();
+  }
+};
+document.getElementById('dayNext').onclick=()=>{
+  closeOverlay('dayOverlay');
+  state.day++; pickDay(); save();
+  newCanvas(); renderHeader(); renderScene();
+};
+
+/* ---------------- shop ---------------- */
+function renderShop(){
+  document.getElementById('shopCoins').textContent = state.coins.toLocaleString('vi-VN')+'đ';
+  const list = document.getElementById('shopList');
+  list.innerHTML='';
+  // thẻ mục tiêu tiệm vẽ
+  const goal = document.createElement('div');
+  goal.className='shopItem'; goal.style.border='3px solid var(--gold)'; goal.style.background='#FFF8E7';
+  goal.innerHTML = `<div class="ic">🏠</div><div class="inf"><div class="nm">${t('shopGoal')}</div>
+    <div class="ds">${t('shopGoalDesc').replace('{m}', state.coins.toLocaleString('vi-VN'))}</div>
+    <div class="progress"><div style="width:${Math.min(100, state.coins/GOAL*100)}%"></div></div></div>`;
+  const gb=document.createElement('button');
+  gb.className='buyBtn'+(state.won?' owned':''); gb.textContent = state.won ? '✅ '+t('owned') : t('buyShop');
+  gb.disabled = state.won || state.coins<GOAL;
+  gb.onclick=()=>{ buyShop(); };
+  goal.appendChild(gb); list.appendChild(goal);
+  for(const it of SHOP_ITEMS){
+    const owned = state.owned.includes(it.id);
+    const div=document.createElement('div');
+    div.className='shopItem';
+    const ic = it.kind==='color' ? `<span class="dot" style="width:26px;height:26px;background:${it.hex}"></span>` :
+      it.kind==='brush' ? '🖌️' : it.kind==='frame' ? '🖼️' : it.id==='deco_lantern' ? '🏮' : it.id==='deco_flower' ? '🌸' : '🪧';
+    div.innerHTML = `<div class="ic">${ic}</div><div class="inf"><div class="nm">${state.lang==='vi'?it.vi:it.en}</div>
+      <div class="ds">${state.lang==='vi'?it.dvi:it.den}</div></div>`;
+    const b=document.createElement('button');
+    b.className='buyBtn'+(owned?' owned':'');
+    b.textContent = owned ? '✅ '+t('owned') : it.price.toLocaleString('vi-VN')+'đ';
+    b.disabled = owned || state.coins<it.price;
+    b.onclick=()=>{ buyItem(it); };
+    div.appendChild(b); list.appendChild(div);
+  }
+}
+function buyItem(it){
+  if(state.owned.includes(it.id) || state.coins<it.price){ toast(t('notEnough')); return; }
+  state.coins -= it.price; state.owned.push(it.id);
+  if(it.kind==='frame') state.frame = it.id==='frame_gold' ? 'gold' : 'wood';
+  if(it.kind==='deco'){
+    if(it.id==='deco_lantern') state.deco.lantern=true;
+    if(it.id==='deco_flower') state.deco.flower=true;
+    if(it.id==='deco_sign') state.deco.sign=true;
+  }
+  save(); ting(); renderShop(); renderHeader(); renderScene(); renderPalette();
+  toast(t('bought'));
+}
+function buyShop(){
+  if(state.won || state.coins<GOAL){ toast(t('notEnough')); return; }
+  state.coins -= GOAL; state.won = true; save(); ting();
+  document.getElementById('winStats').textContent = t('winStats')
+    .replace('{d}', state.day).replace('{n}', state.totalPaintings).replace('{s}', state.totalStars);
+  closeOverlay('shopOverlay');
+  confetti();
+  openOverlay('winOverlay');
+  renderHeader(); renderShop();
+}
+function confetti(){
+  const ov=document.getElementById('winOverlay');
+  ov.querySelectorAll('.confetti').forEach(e=>e.remove());
+  const colors=['#FF6B9D','#FFD93D','#2ECC71','#54A0FF','#FF9F43'];
+  for(let i=0;i<36;i++){
+    const c=document.createElement('div');
+    c.className='confetti';
+    c.style.left=Math.random()*100+'%';
+    c.style.background=colors[i%5];
+    c.style.animationDuration=(2+Math.random()*2.5)+'s';
+    c.style.animationDelay=(Math.random()*1.2)+'s';
+    ov.appendChild(c);
+  }
+}
+document.getElementById('shopBtn').onclick=()=>{ renderShop(); openOverlay('shopOverlay'); };
+document.getElementById('shopClose').onclick=()=>closeOverlay('shopOverlay');
+document.getElementById('winContinue').onclick=()=>closeOverlay('winOverlay');
+function resetGame(){
+  if(!confirm(t('resetConfirm'))) return;
+  localStorage.removeItem(SAVE_KEY);
+  state = {lang:state.lang, sound:state.sound, coins:0, day:1, custIdx:0, customersToday:[], requestsToday:[], owned:[], frame:null, deco:{lantern:false,flower:false,sign:false}, won:false, totalPaintings:0, totalStars:0, todayEarned:0, todayStars:0};
+  pickDay(); save(); newCanvas();
+  closeOverlay('shopOverlay'); closeOverlay('winOverlay');
+  applyLang(); renderHeader(); renderScene(); renderPalette();
+}
+document.getElementById('resetBtn').onclick=resetGame;
+document.getElementById('winReset').onclick=resetGame;
+
+/* ---------------- overlay / toast / lang ---------------- */
+function openOverlay(id){ document.getElementById(id).classList.add('open'); }
+function closeOverlay(id){ document.getElementById(id).classList.remove('open'); }
+let toastT=null;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'), 2200);
+}
+function applyLang(){
+  document.documentElement.lang = state.lang;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent = t(el.dataset.i18n); });
+  document.getElementById('langBtn').textContent = state.lang==='vi' ? 'VI|EN' : 'EN|VI';
+  renderScene(); renderHeader(); updateMeters();
+}
+document.getElementById('langBtn').onclick=()=>{ state.lang = state.lang==='vi' ? 'en' : 'vi'; save(); applyLang(); renderPalette(); };
+document.getElementById('soundBtn').onclick=()=>{ state.sound=!state.sound; save(); renderHeader(); if(state.sound) ting(); };
+
+/* ---------------- init ---------------- */
+load();
+if(!state.customersToday || state.customersToday.length!==3 || !state.requestsToday || state.requestsToday.length!==3) pickDay();
+applyLang(); renderHeader(); renderScene(); renderPalette(); syncTools();
+requestAnimationFrame(()=>{ fitCanvas(); updateMeters(); });
+
+/* debug hooks cho test harness (không ảnh hưởng gameplay) */
+window.__becaPainting = {
+  get state(){ return state; },
+  get strokes(){ return strokes; },
+  score: ()=>scorePainting(),
+  analyze: (s)=>analyze(s||3),
+  meters: ()=>({coverage:analyze(6).coverage, mainPct:analyze(6).mainPct, strokes:strokes.length}),
+  debugSetRequest(id, two){
+    const r = REQUESTS.find(x=>x.id===id);
+    state.requestsToday[state.custIdx] = {id, two:!!two, colors: two?[r.colors[0], r.c2]:[r.colors[0]]};
+    renderScene();
+  },
+  debugSetCoins(n){ state.coins=n; save(); renderHeader(); },
+  debugSetDay(n){ state.day=n; save(); renderHeader(); },
+  debugSetColor(hex){ curColor=hex; erasing=false; syncTools(); },
+  debugSetSize(n){ curSize=n; erasing=false; syncTools(); },
+  sell: ()=>document.getElementById('sellBtn').click(),
+  buy: (id)=>{ if(id==='shop') return buyShop(); const it=SHOP_ITEMS.find(x=>x.id===id); if(it) buyItem(it); },
+  nextDay: ()=>{ state.day++; pickDay(); save(); newCanvas(); renderHeader(); renderScene(); },
+};
+</script>
+</body>
+</html>
