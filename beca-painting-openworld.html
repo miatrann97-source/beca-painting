@@ -3004,6 +3004,14 @@ let becaBone = null;
 function boneInit(){
   const rig = document.getElementById('becaRig');
   rig.innerHTML = '';
+  /* ảnh dự phòng: sprite phẳng (assets-ghibli/beca-sprite.webp, đã có trong
+     repo) — hiện ngay từ đầu trong lúc chờ sheet xương, và ở lại nếu sheet
+     tải lỗi (VD 404 vì chưa upload) để bé cá không bao giờ tàng hình. */
+  boneFallbackImg = document.createElement('img');
+  boneFallbackImg.src = CONFIG.IMAGES.beca;
+  boneFallbackImg.alt = 'Bé cá';
+  boneFallbackImg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:none;';
+  rig.appendChild(boneFallbackImg);
   const host = document.createElement('div');
   host.style.cssText = 'position:absolute;inset:0;overflow:visible;';
   rig.appendChild(host);
@@ -3021,33 +3029,49 @@ function boneInit(){
     cur:null, prev:null,
     pose(){ const p = this.cur || {}; return {facing:this.facing, facingNext:this.facingNext, facingMix:this.facingMix, state:this.state, phase:this.phase, hipL:p.hipL||0, kneeL:p.kneeL||0, hipR:p.hipR||0, kneeR:p.kneeR||0, shoulderL:p.shL||0, elbowL:p.elL||0, blendT:this.blendT}; }
   };
-  /* tải 5 sheet, cắt xong mới hiện (không hiện nửa chừng) */
-  const loads = BONE_FACINGS.map(f=>{
-    return new Promise(res=>{
-      const img = new Image();
-      img.onload = ()=>{ boneSheets[f] = {img, w:img.naturalWidth, h:img.naturalHeight}; res(); };
-      img.onerror = ()=>{ console.warn('[bone] sheet lỗi:', f); res(); };
-      img.src = 'assets-ghibli/' + CONFIG.BECA_BONES.parts[f].sheet;
-    });
-  });
-  Promise.all(loads).then(()=>{
-    for(const f of BONE_FACINGS){
-      if(!boneSheets[f]) continue;
-      boneParts[f] = boneSliceFacing(f);
-      const g = parts[f];
-      for(const name of Object.keys(boneParts[f])){
-        const p = boneParts[f][name];
-        const holder = document.createElement('div');
-        holder.style.cssText = 'position:absolute;left:0;top:0;will-change:transform;';
-        holder.appendChild(p.el);
-        p.el.style.cssText = 'display:block;width:100%;height:100%;';
-        g.appendChild(holder); p.holder = holder;
-      }
-    }
-    parts[becaBone.facing].style.opacity = 1;
-    boneApply(bonePoseFor('idle', 0), becaBone.facing, 1, 1);
-  });
+  /* tải 5 sheet: mỗi góc mặt build NGAY khi sheet của nó về (không chờ đủ 5 —
+     mạng chậm thì bé cá hiện ngay khi sheet đầu tiên tải xong). Sheet nào lỗi
+     thì góc đó dùng sprite dự phòng (xem boneUpdateFallback). */
+  for(const f of BONE_FACINGS){
+    const img = new Image();
+    img.onload = ()=>{ boneSheets[f] = {img, w:img.naturalWidth, h:img.naturalHeight}; boneBuildFacing(f); boneUpdateFallback(); };
+    img.onerror = ()=>{ console.warn('[bone] sheet lỗi:', f); boneFailed[f] = true; boneUpdateFallback(); };
+    img.src = 'assets-ghibli/' + CONFIG.BECA_BONES.parts[f].sheet;
+  }
+  boneUpdateFallback(); /* hiện sprite dự phòng trong lúc chờ sheet đầu tiên */
 }
+/* cắt 1 sheet thành bộ phận + gắn holder, ngay khi sheet đó tải xong */
+let boneFailed = {};
+let boneFallbackImg = null;
+function boneBuildFacing(f){
+  if(!boneSheets[f] || boneParts[f] || !becaBone) return;
+  boneParts[f] = boneSliceFacing(f);
+  const g = becaBone.parts[f];
+  for(const name of Object.keys(boneParts[f])){
+    const p = boneParts[f][name];
+    const holder = document.createElement('div');
+    holder.style.cssText = 'position:absolute;left:0;top:0;will-change:transform;';
+    holder.appendChild(p.el);
+    p.el.style.cssText = 'display:block;width:100%;height:100%;';
+    g.appendChild(holder); p.holder = holder;
+  }
+  if(f===becaBone.facing){
+    g.style.opacity = 1;
+    boneApply(bonePoseFor('idle', 0), f, 1, 1);
+  }
+}
+/* sprite dự phòng hiện khi góc mặt đang dùng chưa có xương (đang tải / tải lỗi) */
+function boneUpdateFallback(){
+  if(!boneFallbackImg || !becaBone) return;
+  const hasParts = !!boneParts[becaBone.facing];
+  boneFallbackImg.style.display = hasParts ? 'none' : '';
+  if(!hasParts){
+    const left = (becaBone.facing==='sideL' || becaBone.facing==='qtrL');
+    boneFallbackImg.style.transform = left ? 'scaleX(-1)' : '';
+  }
+}
+/* trạng thái rig cho test harness */
+window.__boneStatus = ()=>({sheets:Object.keys(boneSheets), parts:Object.keys(boneParts), failed:Object.keys(boneFailed), fallbackVisible: !!(boneFallbackImg && boneFallbackImg.style.display!=='none')});
 function boneFacingFor(dir){
   /* hướng di chuyển -> góc mặt gần nhất (không lật ảnh) */
   if(dir==='right') return 'sideR';
@@ -3177,21 +3201,32 @@ function boneTickBeca(){
     pose = Object.assign({}, pose, {hipL: pose.hipL+Math.max(0,s), kneeL: pose.kneeL+Math.max(0,s)*1.5, hipR: pose.hipR+Math.max(0,-s), kneeR: pose.kneeR+Math.max(0,-s)*1.5});
   }
   /* áp dụng: facing chính + facing kế (crossfade khi đang quay) */
-  const sc = depthScale(beca.y)*stairScale(beca);
+  /* tỉ lệ theo chiều sâu (trên cầu thang thu nhỏ dần về scaleTop); trước đây
+     stairScale(beca) truyền nhầm object -> NaN -> transform bị trình duyệt bỏ */
+  const sc = beca.mode==='stairs' && beca.stair ? stairScale(beca.stair.t) : (beca.mode==='terrace' ? STAIRS.scaleTop : depthScale(beca.y));
   const yOff = becaJump ? becaJump.yOff : 0;
   const sy = becaJump && becaJump.phase==='land' ? 0.94 : 1;
   const rigEl = document.getElementById('becaRig');
   rigEl.style.transform = 'translateY('+(-yOff)+'px) scale('+sc+','+(sc*sy)+')';
   rigEl.style.transformOrigin = '50% 100%';
   const mix = becaBone.turnT>0 ? boneClamp(becaBone.turnT/0.2, 0, 1) : 0;
-  if(mix>0 && becaBone.turnTo!==becaBone.facing){
+  const curHas = !!boneParts[becaBone.facing];
+  const nextHas = (mix>0 && becaBone.turnTo!==becaBone.facing) ? !!boneParts[becaBone.turnTo] : true;
+  if(!curHas || !nextHas){
+    /* góc mặt chưa có xương (đang tải / tải lỗi) -> sprite dự phòng, không mờ dần */
+    for(const f of BONE_FACINGS) becaBone.parts[f].style.opacity = 0;
+    becaBone.facingNext = becaBone.facing; becaBone.facingMix = 0;
+    boneUpdateFallback();
+  } else if(mix>0 && becaBone.turnTo!==becaBone.facing){
     boneApply(pose, becaBone.facing, 1-mix, sc);
     boneApply(pose, becaBone.turnTo, mix, sc);
     becaBone.facingNext = becaBone.turnTo; becaBone.facingMix = mix;
+    boneUpdateFallback();
   } else {
     for(const f of BONE_FACINGS) if(f!==becaBone.facing) becaBone.parts[f].style.opacity = 0;
     boneApply(pose, becaBone.facing, 1, sc);
     becaBone.facingNext = becaBone.facing; becaBone.facingMix = 0;
+    boneUpdateFallback();
   }
   /* bóng dưới chân (theo yOff như cũ) */
   const sh = document.querySelector('#walker .wshadow');
