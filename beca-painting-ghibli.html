@@ -217,15 +217,15 @@ body.map-mode #mapView{display:block}
   position:absolute;width:78px;height:128px;transform:translate(-50%,-100%);
   z-index:6;pointer-events:none;
 }
-#walker .wbody{width:78px;height:128px;display:block;transition:transform .16s ease}
-#walker .wbody img{width:100%;height:100%;display:block;object-fit:contain;filter:drop-shadow(0 2px 2px rgba(20,40,80,.20))}
+#walker .wbody{width:100%;height:100%;display:block;transition:transform .16s ease}
+#walker .wbody .rig{width:100%;height:100%;background-repeat:no-repeat;filter:drop-shadow(0 2px 2px rgba(20,40,80,.20))}
 #walker.face-left .wbody{transform:scaleX(-1)}
 @keyframes bobW{from{transform:translateY(0)}to{transform:translateY(-5px)}}
 @keyframes bobR{from{transform:translateY(0)}to{transform:translateY(-8px)}}
 @keyframes breathe{from{transform:scaleY(1)}to{transform:scaleY(1.02)}}
-#walker.walking .wbody img{animation:bobW .38s ease-in-out infinite alternate}
-#walker.running .wbody img{animation:bobR .2s ease-in-out infinite alternate}
-#walker:not(.walking):not(.running) .wbody img{animation:breathe 1.8s ease-in-out infinite alternate}
+/* bob cũ đã bỏ: khung hình tự đổi theo nhịp bước, nhún nhảy do RIG_JS */
+
+
 #walker .wshadow{
   position:absolute;left:50%;bottom:-6px;width:44px;height:10px;margin-left:-22px;
   background:rgba(0,0,0,.25);border-radius:50%;
@@ -324,6 +324,15 @@ body.map-mode #mapView{display:block}
 #storyDots{font-size:13px;letter-spacing:5px;color:#C9B896;margin-bottom:6px}
 #storyDots .on{color:var(--sea)}
 #storyText{font-size:16px;line-height:1.55}
+
+/* ---- RIG frame-by-frame + cầu thang + nút nhảy (CONFIG.RIGS / STAIRS) ---- */
+.rig{width:100%;height:100%;background-repeat:no-repeat;background-position:0% 0;will-change:background-position,transform}
+#jumpBtn{position:absolute;right:10px;bottom:52px;z-index:9;width:54px;height:54px;border-radius:50%;border:3px solid var(--wood);background:var(--cream);font-size:26px;line-height:1;cursor:pointer;box-shadow:0 3px 8px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;user-select:none;-webkit-user-select:none;touch-action:none}
+#jumpBtn:active{transform:scale(.92)}
+#walker.jumping .wshadow{animation:none}
+.mcAvatar.rigAvatar{width:70px;height:104px;margin:0 auto;border:none;border-radius:0;background:none;box-shadow:none;overflow:visible}
+.mapCust.current .mcAvatar.rigAvatar{outline:none}
+
 </style>
 </head>
 <body class="map-mode">
@@ -348,12 +357,13 @@ body.map-mode #mapView{display:block}
           <div class="mcAvatar" id="landlordAvatarMap"></div>
           <div class="mcName">Ông chủ nhà</div>
         </div>
-        <div id="walker"><div class="wbody"><img id="becaSprite" src="assets-ghibli/beca-sprite.webp" alt="Bé cá"></div><div class="wshadow"></div><div class="wname">🐟 Bé Cá</div></div>
+        <div id="walker"><div class="wbody"><div class="rig" id="becaRig"></div></div><div class="wshadow"></div><div class="wname">🐟 Bé Cá</div></div>
       </div>
       <canvas id="minimap" data-testid="minimap" width="120" height="70"></canvas>
       <div id="dragDot"></div>
       <div id="mapGoal"></div>
       <div id="mapHint"></div>
+      <button id="jumpBtn" data-testid="jumpBtn" title="Nhảy">⬆️</button>
     </div>
     <section class="panel" id="scenePanel">
       <div id="becaBox">
@@ -516,6 +526,8 @@ body.map-mode #mapView{display:block}
    - Đổi vị trí tiệm / công viên / nhà trên bản đồ: CONFIG.BUILDINGS
        (rect = vùng chạm, sign = biển hiệu). Đổi vị trí khách:
        CONFIG.SPOTS. Đổi đài phun nước / vật cản: CONFIG.OBSTACLES.
+   - Đổi rig / cầu thang / cách NPC đi lại: CONFIG.RIGS, CONFIG.STAIRS,
+       CONFIG.WANDER (ghi chú ngay trên từng khối).
    Logic game (đi lại, vẽ, chấm sao, bán, shop, lưu) chỉ ĐỌC từ
    CONFIG — không hardcode tên, giá hay nội dung trong hàm.
    Tiến trình lưu chung key becaPaintingV1 với bản 2D/3D.
@@ -585,6 +597,43 @@ const CONFIG = {
     {id:'bay',  name:'Chú Bảy',  en:'Uncle Bay',  mood:1},
     {id:'mimi', name:'Mimi',     en:'Mimi',       mood:3},
   ],
+  /* ---- rig hoạt hình từng khung hình (frame-by-frame, KHÔNG cắt rời bộ phận) ----
+     Mỗi nhân vật có 2 sheet: walk (6 khung đi bộ) + jump (3 khung: nhún lấy đà,
+     trên không, đáp đất). Mỗi sheet là 1 ảnh ngang, các khung bằng nhau, nền
+     trong suốt, góc nhìn ngang quay phải. Game đổi khung theo nhịp bước (đi chậm
+     = đổi chậm, chạy = đổi nhanh). Muốn đổi nhân vật: thay file sheet trong
+     assets-ghibli/ (giữ đúng tên) hoặc đổi đường dẫn ở đây. height = chiều cao
+     hiển thị (px). idleFrame = khung đứng yên (khung "vượt qua", chân chụm). */
+  RIGS: {
+    beca: { walk:'assets-ghibli/rig-beca-walk.webp', jump:'assets-ghibli/rig-beca-jump.webp', walkFrames:6, jumpFrames:3, idleFrame:1, height:128 },
+    ba:   { walk:'assets-ghibli/rig-ba-walk.webp',   jump:'assets-ghibli/rig-ba-jump.webp',   walkFrames:6, jumpFrames:3, idleFrame:1, height:104 },
+    mai:  { walk:'assets-ghibli/rig-mai-walk.webp',  jump:'assets-ghibli/rig-mai-jump.webp',  walkFrames:6, jumpFrames:3, idleFrame:1, height:96 },
+    tung: { walk:'assets-ghibli/rig-tung-walk.webp', jump:'assets-ghibli/rig-tung-jump.webp', walkFrames:6, jumpFrames:3, idleFrame:1, height:112 },
+    hoa:  { walk:'assets-ghibli/rig-hoa-walk.webp',  jump:'assets-ghibli/rig-hoa-jump.webp',  walkFrames:6, jumpFrames:3, idleFrame:1, height:110 },
+    bay:  { walk:'assets-ghibli/rig-bay-walk.webp',  jump:'assets-ghibli/rig-bay-jump.webp',  walkFrames:6, jumpFrames:3, idleFrame:1, height:112 },
+    mimi: { walk:'assets-ghibli/rig-mimi-walk.webp', jump:'assets-ghibli/rig-mimi-jump.webp', walkFrames:6, jumpFrames:3, idleFrame:1, height:88 },
+    chu:  { walk:'assets-ghibli/rig-chu-walk.webp',  jump:'assets-ghibli/rig-chu-jump.webp',  walkFrames:6, jumpFrames:3, idleFrame:1, height:112 },
+  },
+  /* ---- cầu thang đá lên đài ngắm hải đăng (mép bắc của phố) ----
+     Cầu thang là 1 đoạn thẳng từ chân (x0,y0) lên đỉnh (x1,y1) với `steps` bậc.
+     Nhân vật leo từng bậc: y giảm dần, scale nhỏ dần (lên cao = xa hơn = nhỏ hơn),
+     khung đi bộ đổi theo từng bậc. terrace = sân ngắm ở đỉnh (đứng được, chỉ
+     ra vào bằng cầu thang). Muốn dời cầu thang: đổi tọa độ ở đây + vẽ lại cầu
+     thang trong ảnh nền town-panorama.webp cho khớp. */
+  STAIRS: {
+    x0:1680, y0:1010, x1:2080, y1:620, steps:12, scaleTop:0.82,
+    corridor:100,  /* cách đường cầu thang <100px thì được coi là đang ở cầu thang */
+    terrace:{x0:1980, y0:560, x1:2300, y1:700},
+  },
+  /* ---- NPC đi lại tự nhiên quanh phố (wander AI) ----
+     idleMin/idleMax: giây đứng yên giữa các lần đi; walkSpeed/runSpeed: px/s;
+     hopChance: tỉ lệ nhảy tại chỗ khi đang đứng yên; runChance: tỉ lệ chạy;
+     stairChance: tỉ lệ chọn leo cầu thang thay vì đi dạo;
+     range: đi xa khỏi điểm gốc tối đa bao nhiêu px. */
+  WANDER: {
+    idleMin:2, idleMax:6, walkSpeed:70, runSpeed:165,
+    hopChance:0.10, runChance:0.12, stairChance:0.15, range:280,
+  },
   /* ---- yêu cầu vẽ: colors[0] = màu chính, c2 = màu phụ (ngày 3+) ---- */
   REQUESTS: [
   {id:'fish',    vi:'Vẽ cho tôi một con cá vàng!',  en:'Draw me a goldfish!',        colors:['#FFD93D'], c2:'#FF9F43', hintVi:'Cá vàng óng, vây cam càng đẹp', hintEn:'Golden fish, orange fins are even prettier'},
@@ -706,7 +755,7 @@ vi:{
   toastBakery:'Tiệm bánh thơm quá! Vẽ xong tranh rồi ghé mua bánh nha!',
   toastFlower:'Tiệm hoa xinh quá! Vẽ xong rồi ghé ngắm hoa nha!',
   toastHouses:'Khu nhà ở yên tĩnh — hàng xóm của bé cá!',
-  mapHint:'Kéo nhẹ: đi bộ · Kéo xa: chạy nhanh · Chạm khách để vẽ tranh',
+  mapHint:'Kéo nhẹ: đi bộ · Kéo xa: chạy nhanh · Nhấn ⬆️ để nhảy · Chạm khách để vẽ tranh',
   mapGoal:'Tiệm vẽ: ',
 },
 en:{
@@ -757,7 +806,7 @@ en:{
   toastBakery:'The bakery smells amazing! Come buy bread after painting!',
   toastFlower:'The flower shop is so pretty! Come see the flowers after painting!',
   toastHouses:'A quiet neighborhood — Beca\'s neighbors live here!',
-  mapHint:'Short drag: walk · Long drag: run · Tap a customer to paint',
+  mapHint:'Short drag: walk · Long drag: run · Tap ⬆️ to jump · Tap a customer to paint',
   mapGoal:'Shop goal: ',
 }},
 };
@@ -1074,6 +1123,8 @@ function updateWalker(){
   walker.classList.toggle('walking', animState === 'walk');
   walker.classList.toggle('running', animState === 'run');
   walker.classList.toggle('face-left', facing === 'left');
+  /* rig bé cá: khung hình + nhún nhảy + tỉ lệ cầu thang (RIG_JS) */
+  rigTickBeca();
 }
 function updateCamera(){
   const vw = mapView.clientWidth, vh = mapView.clientHeight;
@@ -1123,6 +1174,12 @@ function mapTapAt(cx, cy){
     if(tid.indexOf('cust-') === 0){ tapCustomer(tid.slice(5)); return true; }
     return true;
   }
+  /* chạm vào cầu thang / sân ngắm -> để endDrag xử lý như chạm để di chuyển
+     (leo cầu thang), không hiện lời thoại công viên (vùng chạm công viên
+     phủ lên cầu thang) — chạm khách vẫn mở khung vẽ vì đã xử lý ở trên */
+  const _wp = screenToWorld(cx, cy);
+  const _st = stairTAt(_wp.x, _wp.y);
+  if((_st.d < STAIRS.corridor && _st.t > 0.02) || inTerrace(_wp.x, _wp.y)) return false;
   const bld = el.closest('.shopHot');
   if(bld && bld.id){ mapTapBuilding(bld.id); return true; }
   return false;
@@ -1132,7 +1189,19 @@ function endDrag(e){
   if(dragMode === 'maybe' && performance.now() - dragT0 < 600){
     if(!mapTapAt(e.clientX, e.clientY)){
       const p = screenToWorld(e.clientX, e.clientY);
-      moveTarget = { x: Math.min(WALK.x1, Math.max(WALK.x0, p.x)), y: Math.min(WALK.y1, Math.max(WALK.y0, p.y)) };
+      const now = performance.now();
+      /* chạm 2 lần nhanh trên đất trống -> nhảy (không phải chạm khách/tòa nhà) */
+      if(now - lastTapT < 350 && beca.mode === 'ground'){ doJump(); lastTapT = 0; }
+      else {
+        lastTapT = now;
+        const st = stairTAt(p.x, p.y);
+        if(st.d < STAIRS.corridor && st.t > 0.02){
+          /* chạm vào cầu thang: leo tới bậc đó */
+          moveTarget = { stair: st.t };
+        } else {
+          moveTarget = { x: Math.min(WALK.x1, Math.max(WALK.x0, p.x)), y: Math.min(WALK.y1, Math.max(WALK.y0, p.y)) };
+        }
+      }
     }
   }
   dragStart = null; dragMode = null; dragVec = null; hideDragDot();
@@ -1157,23 +1226,45 @@ function mapLoop(ts){
     if(d < 8){ moveTarget = null; }
     else { vx = dx / d * SPEED_MAX; vy = dy / d * SPEED_MAX; mag = 1; }
   }
-  walking = !!(vx || vy);
-  curSpeed = walking ? Math.hypot(vx, vy) : 0;
-  animState = !walking ? 'idle' : (mag > 0.55 ? 'run' : 'walk');
-  if(walking){
-    if(vx < -5) facing = 'left';
-    else if(vx > 5) facing = 'right';
-    beca.x = Math.min(WALK.x1, Math.max(WALK.x0, beca.x + vx * dt));
-    beca.y = Math.min(WALK.y1, Math.max(WALK.y0, beca.y + vy * dt));
-    for(const o of OBSTACLES){
-      const dx = beca.x - o.x, dy = beca.y - o.y, d = Math.hypot(dx, dy), min = o.r + 18;
-      if(d < min && d > 0.01){ beca.x = o.x + dx / d * min; beca.y = o.y + dy / d * min; }
+  /* ---- di chuyển: mặt đất / cầu thang / sân ngắm (RIG_JS) ---- */
+  if(beca.mode === 'stairs' || beca.mode === 'terrace'){
+    stepStairsBeca(dt);
+    walking = animState !== 'idle';
+    curSpeed = walking ? SPEED_MAX * 0.5 : 0;
+  } else if(moveTarget && moveTarget.stair != null){
+    /* chạm vào cầu thang: đi bộ tới chân cầu thang rồi mới leo */
+    const dx = STAIRS.x0 - beca.x, dy = STAIRS.y0 - beca.y, d = Math.hypot(dx, dy);
+    if(d < 40){ beca.mode = 'stairs'; beca.stair = {t:0}; walking = false; animState = 'idle'; }
+    else {
+      vx = dx / d * SPEED_MAX * 0.6; vy = dy / d * SPEED_MAX * 0.6;
+      walking = true; curSpeed = SPEED_MAX * 0.6; animState = 'walk';
+      facing = vx < -5 ? 'left' : (vx > 5 ? 'right' : facing);
+      beca.x = Math.min(WALK.x1, Math.max(WALK.x0, beca.x + vx * dt));
+      beca.y = Math.min(WALK.y1, Math.max(WALK.y0, beca.y + vy * dt));
     }
-    updateWalker();
-    updateCamera();
   } else {
-    updateWalker();
+    walking = !!(vx || vy);
+    curSpeed = walking ? Math.hypot(vx, vy) : 0;
+    animState = !walking ? 'idle' : (mag > 0.55 ? 'run' : 'walk');
+    if(walking){
+      if(vx < -5) facing = 'left';
+      else if(vx > 5) facing = 'right';
+      beca.x = Math.min(WALK.x1, Math.max(WALK.x0, beca.x + vx * dt));
+      beca.y = Math.min(WALK.y1, Math.max(WALK.y0, beca.y + vy * dt));
+      for(const o of OBSTACLES){
+        const dx = beca.x - o.x, dy = beca.y - o.y, d = Math.hypot(dx, dy), min = o.r + 18;
+        if(d < min && d > 0.01){ beca.x = o.x + dx / d * min; beca.y = o.y + dy / d * min; }
+      }
+      /* kéo lên-phải vào hành lang cầu thang -> bước lên cầu thang */
+      if(dragVec && dragVec.x > 0.25 && dragVec.y < -0.25){
+        const st = stairTAt(beca.x, beca.y);
+        if(st.d < STAIRS.corridor && st.t > 0.05){ beca.mode = 'stairs'; beca.stair = {t:st.t}; }
+      }
+    }
   }
+  npcTick(dt);
+  updateWalker();
+  updateCamera();
   drawMinimap();
 }
 
@@ -1192,8 +1283,13 @@ function drawMinimap(){
   }
   mmc.fillStyle = '#54A0FF';
   mmc.beginPath(); mmc.arc(1070*MM_S, 1000*MM_S, 4, 0, Math.PI*2); mmc.fill();  // đài phun nước
+  /* cầu thang đá lên đài ngắm hải đăng (CONFIG.STAIRS) */
+  mmc.strokeStyle = '#8A5A2B'; mmc.lineWidth = 3;
+  mmc.beginPath(); mmc.moveTo(CONFIG.STAIRS.x0*MM_S, CONFIG.STAIRS.y0*MM_S);
+  mmc.lineTo(CONFIG.STAIRS.x1*MM_S, CONFIG.STAIRS.y1*MM_S); mmc.stroke();
   for(const id of state.customersToday){
-    const sp = SPOTS[id]; if(!sp) continue;
+    const _n = (typeof npcs !== 'undefined') ? npcs[id] : null;
+    const sp = _n ? [_n.x, _n.y] : SPOTS[id]; if(!sp) continue;
     mmc.fillStyle = '#FF6B9D';
     mmc.beginPath(); mmc.arc(sp[0]*MM_S, sp[1]*MM_S, 2.5, 0, Math.PI*2); mmc.fill();
   }
@@ -1247,9 +1343,14 @@ function renderMap(){
     let bubble = '';
     if(isToday && !served && base) bubble = '<div class="mcBubble">' + (state.lang==='vi' ? base.vi : base.en) + '</div>';
     else if(isToday && served) bubble = '<div class="mcBubble" style="border-color:var(--green)">✅</div>';
-    el.innerHTML = bubble + '<div class="mcAvatar">' + custAvatarHTML(c) + '</div><div class="mcName">' + c.name + '</div>';
+    el.innerHTML = bubble + '<div class="mcAvatar rigAvatar"><div class="rig"></div></div><div class="mcName">' + c.name + '</div>';
     layer.appendChild(el);
+    /* rig NPC: marker dựng lại mỗi lần renderMap, nhưng vị trí đi lại giữ
+       trong npcs (không reset về SPOTS) */
+    const _n = npcs[c.id];
+    if(_n){ _n.marker = el; _n.el = el.querySelector('.rig'); el.style.left = _n.x + 'px'; el.style.top = _n.y + 'px'; }
   }
+  rigLayout();
   updateWalker();
 }
 function tapCustomer(id){
@@ -1475,14 +1576,335 @@ document.getElementById('storyNext').onclick=()=>{
 document.getElementById('storySkip').onclick=finishStory;
 document.getElementById('storyBtn').onclick=openStory;
 
+/* ============================================================
+   RIG — hoạt hình từng khung hình + cầu thang + NPC đi lại
+   An dặn (06:43 19/11): KHÔNG cắt nhân vật thành từng phần rời (dáng đi kỳ),
+   mà làm hoạt hình từng khung hình như clip Veo: mỗi tư thế là 1 hình nguyên
+   con, đổi khung theo nhịp bước.
+   - Sheet: CONFIG.RIGS[id] = {walk (6 khung), jump (3 khung), idleFrame, height}
+   - Cầu thang: CONFIG.STAIRS (x0,y0 -> x1,y1, steps, scaleTop, terrace)
+   - NPC: CONFIG.WANDER (tốc độ, thời gian đứng yên, tỉ lệ nhảy/chạy/leo cầu thang)
+   ============================================================ */
+const RIGS = CONFIG.RIGS, STAIRS = CONFIG.STAIRS, WANDER = CONFIG.WANDER;
+const npcs = {};    /* id -> {x,y,home,mode,target,idleT,marker,el,rig,stair,phase,stairGo,exitStairs,jump,facing,range} */
+const rigImgs = {}; /* id -> {walk:Image, jump:Image, walkAsp, jumpAsp} */
+let lastTapT = 0;   /* thời điểm chạm lần trước (chạm 2 lần nhanh = nhảy) */
+let becaJump = null; /* {phase:'crouch'|'air'|'land', t, vy, yOff} */
+beca.mode = 'ground'; beca.stair = null; beca.exitStairs = false;
+
+function rigPreload(){
+  for(const id of Object.keys(RIGS)){
+    const r = RIGS[id];
+    const o = {walk:new Image(), jump:new Image(), walkAsp:0.62, jumpAsp:0.62};
+    o.walk.onload = ()=>{ o.walkAsp = (o.walk.naturalWidth / r.walkFrames) / o.walk.naturalHeight; rigLayout(); };
+    o.jump.onload = ()=>{ o.jumpAsp = (o.jump.naturalWidth / r.jumpFrames) / o.jump.naturalHeight; rigLayout(); };
+    o.walk.src = r.walk; o.jump.src = r.jump;
+    rigImgs[id] = o;
+  }
+}
+function rigCellAspect(id, sheet){ const o = rigImgs[id]; if(!o) return 0.62; return sheet === 'walk' ? o.walkAsp : o.jumpAsp; }
+function rigNew(id){
+  return {id:id, sheet:'walk', frame:RIGS[id].idleFrame, t:0, interval:0.13, yOff:0, sy:1, flip:false, scale:1, lean:0, last:performance.now()};
+}
+function rigSetSheet(r, sheet){
+  if(r.sheet !== sheet){ r.sheet = sheet; r.frame = 0; r.t = 0; }
+}
+function rigApply(r, el){
+  const cfg = RIGS[r.id], n = r.sheet === 'walk' ? cfg.walkFrames : cfg.jumpFrames;
+  el.style.backgroundImage = 'url(' + cfg[r.sheet] + ')';
+  el.style.backgroundSize = (n * 100) + '% 100%';
+  el.style.backgroundPosition = (n <= 1 ? 0 : r.frame / (n - 1) * 100) + '% 0%';
+  el.style.transform = 'translateY(' + (-r.yOff) + 'px) rotate(' + (r.lean || 0) + 'deg) scale(' + ((r.flip ? -1 : 1) * r.scale) + ',' + (r.scale * r.sy) + ')';
+}
+function rigAdvance(r, dt, action){
+  /* đổi khung theo nhịp: đi 130ms/khung, chạy 70ms/khung */
+  const iv = action === 'run' ? 0.07 : 0.13;
+  r.interval = iv;
+  r.t += dt;
+  if(r.t >= iv){ r.t -= iv; r.frame = (r.frame + 1) % RIGS[r.id].walkFrames; }
+}
+function rigLayout(){
+  /* đặt kích thước div theo tỉ lệ khung thật (ảnh tải xong mới biết tỉ lệ) */
+  const bw = document.getElementById('becaRig');
+  if(bw){
+    const a = rigCellAspect('beca', 'walk'), h = RIGS.beca.height;
+    walker.style.width = Math.round(h * a) + 'px'; walker.style.height = h + 'px';
+  }
+  for(const id of Object.keys(npcs)){
+    const n = npcs[id];
+    if(!n.el) continue;
+    const a = rigCellAspect(id, 'walk'), h = RIGS[id].height;
+    n.el.style.width = Math.round(h * a) + 'px'; n.el.style.height = h + 'px';
+  }
+}
+
+/* ---- cầu thang: hình học ---- */
+function stairScale(t){ return 1 - t * (1 - STAIRS.scaleTop); }
+function stairPoint(t){
+  return {x: STAIRS.x0 + (STAIRS.x1 - STAIRS.x0) * t, y: STAIRS.y0 + (STAIRS.y1 - STAIRS.y0) * t};
+}
+function stairTAt(x, y){
+  const dx = STAIRS.x1 - STAIRS.x0, dy = STAIRS.y1 - STAIRS.y0, len2 = dx * dx + dy * dy;
+  let t = ((x - STAIRS.x0) * dx + (y - STAIRS.y0) * dy) / len2;
+  t = Math.max(0, Math.min(1, t));
+  const px = STAIRS.x0 + dx * t, py = STAIRS.y0 + dy * t;
+  return {t:t, d: Math.hypot(x - px, y - py)};
+}
+function inTerrace(x, y){ const r = STAIRS.terrace; return x >= r.x0 && x <= r.x1 && y >= r.y0 && y <= r.y1; }
+
+/* ---- nhảy của bé cá: nhún -> trên không -> đáp đất ---- */
+function doJump(){
+  if(beca.mode !== 'ground' || becaJump) return false;
+  becaJump = {phase:'crouch', t:0, vy:0, yOff:0};
+  return true;
+}
+const becaRig = rigNew('beca');
+function rigTickBeca(){
+  const el = document.getElementById('becaRig');
+  if(!el) return;
+  const now = performance.now();
+  const dt = Math.min(0.05, (now - becaRig.last) / 1000 || 0.016);
+  becaRig.last = now;
+  walker.classList.toggle('jumping', !!becaJump);
+  if(becaJump){
+    const j = becaJump;
+    j.t += dt;
+    rigSetSheet(becaRig, 'jump');
+    becaRig.lean = 0;
+    if(j.phase === 'crouch'){
+      becaRig.frame = 0; becaRig.sy = 0.85; becaRig.yOff = 0;
+      if(j.t >= 0.12){ j.phase = 'air'; j.t = 0; j.vy = -560; }
+    } else if(j.phase === 'air'){
+      j.vy += 1500 * dt; j.yOff -= j.vy * dt;
+      if(j.yOff <= 0){ j.yOff = 0; j.phase = 'land'; j.t = 0; }
+      becaRig.frame = 1; becaRig.sy = 1.06; becaRig.yOff = j.yOff;
+    } else {
+      becaRig.frame = 2; becaRig.sy = 0.85; becaRig.yOff = 0;
+      if(j.t >= 0.12){ becaJump = null; becaRig.sy = 1; }
+    }
+    rigApply(becaRig, el);
+  } else {
+    const action = beca.mode === 'stairs' ? 'stair' : animState;
+    if(action === 'idle'){
+      rigSetSheet(becaRig, 'walk');
+      becaRig.frame = RIGS.beca.idleFrame;
+      becaRig.sy = 1 + 0.015 * Math.sin(now / 450); /* thở nhẹ */
+      becaRig.yOff = 0; becaRig.lean = 0;
+    } else if(action === 'stair'){
+      rigSetSheet(becaRig, 'walk');
+      /* 1 khung mỗi bậc cầu thang */
+      if(beca.stair) becaRig.frame = Math.floor(beca.stair.t * STAIRS.steps) % RIGS.beca.walkFrames;
+      becaRig.sy = 1; becaRig.yOff = 0; becaRig.lean = 0;
+    } else {
+      rigSetSheet(becaRig, 'walk');
+      rigAdvance(becaRig, dt, action);
+      becaRig.sy = 1; becaRig.yOff = 0;
+      becaRig.lean = action === 'run' ? 5 : 0; /* chạy: nghiêng người về trước */
+    }
+    becaRig.scale = beca.mode === 'stairs' ? stairScale(beca.stair.t) : (beca.mode === 'terrace' ? STAIRS.scaleTop : 1);
+    rigApply(becaRig, el);
+  }
+  /* bóng co lại khi nhảy lên cao / nhỏ dần khi lên cao trên cầu thang */
+  const sh = walker.querySelector('.wshadow');
+  if(sh){
+    const k = becaRig.scale * (1 - Math.min(0.45, becaRig.yOff / 220));
+    sh.style.transform = 'scaleX(' + k + ')'; sh.style.opacity = 0.25 * k;
+  }
+}
+
+/* ---- bé cá trên cầu thang / sân ngắm ---- */
+function stepStairsBeca(dt){
+  const S = STAIRS;
+  if(beca.mode === 'terrace'){
+    if(moveTarget){
+      /* muốn rời sân ngắm: đi về đỉnh cầu thang rồi xuống */
+      const dx = S.x1 - beca.x, dy = S.y1 - beca.y, d = Math.hypot(dx, dy);
+      if(d < 24){ beca.mode = 'stairs'; beca.stair = {t:1}; beca.exitStairs = true; }
+      else {
+        beca.x += dx / d * SPEED_MAX * 0.6 * dt; beca.y += dy / d * SPEED_MAX * 0.6 * dt;
+        animState = 'walk'; facing = dx < -5 ? 'left' : (dx > 5 ? 'right' : facing);
+      }
+    } else if(dragVec){
+      if(dragVec.x < -0.2 && dragVec.y > 0.2){ beca.mode = 'stairs'; beca.stair = {t:1}; beca.exitStairs = true; }
+      else {
+        animState = dragVec.m > 0.55 ? 'run' : 'walk';
+        if(dragVec.x < -0.05) facing = 'left'; else if(dragVec.x > 0.05) facing = 'right';
+        beca.x += dragVec.x * SPEED_MAX * dt; beca.y += dragVec.y * SPEED_MAX * dt;
+        beca.x = Math.min(S.terrace.x1, Math.max(S.terrace.x0, beca.x));
+        beca.y = Math.min(S.terrace.y1, Math.max(S.terrace.y0, beca.y));
+      }
+    } else animState = 'idle';
+    return;
+  }
+  /* đang trên cầu thang */
+  const st = beca.stair;
+  let target = null;
+  if(moveTarget && moveTarget.stair != null) target = moveTarget.stair;
+  else if(beca.exitStairs) target = 0;
+  else if(moveTarget) target = st.t > 0.5 ? 1 : 0; /* muốn ra khỏi cầu thang: lên đỉnh hoặc xuống chân */
+  if(target != null){
+    const dir = target > st.t ? 1 : -1;
+    st.t += dir * 0.28 * dt;
+    animState = 'walk'; facing = dir > 0 ? 'right' : 'left';
+    if((dir > 0 && st.t >= target) || (dir < 0 && st.t <= target)){
+      st.t = target;
+      if(moveTarget && moveTarget.stair != null) moveTarget = null;
+      if(target === 1){ beca.mode = 'terrace'; beca.stair = null; const p = stairPoint(1); beca.x = p.x; beca.y = p.y; animState = 'idle'; return; }
+      if(target === 0){ beca.mode = 'ground'; beca.stair = null; beca.exitStairs = false; const p = stairPoint(0); beca.x = p.x; beca.y = p.y; return; }
+    }
+  } else if(dragVec){
+    const dx = S.x1 - S.x0, dy = S.y1 - S.y0, len = Math.hypot(dx, dy);
+    const along = (dragVec.x * dx + dragVec.y * dy) / len; /* >0 = leo lên, <0 = đi xuống */
+    if(along > 0.25){ st.t += 0.28 * dt; animState = 'walk'; facing = 'right'; }
+    else if(along < -0.25){ st.t -= 0.32 * dt; animState = 'walk'; facing = 'left'; }
+    else animState = 'idle';
+    if(st.t >= 1){ beca.mode = 'terrace'; beca.stair = null; const p = stairPoint(1); beca.x = p.x; beca.y = p.y; animState = 'idle'; return; }
+    if(st.t <= 0){ beca.mode = 'ground'; beca.stair = null; beca.exitStairs = false; const p = stairPoint(0); beca.x = p.x; beca.y = p.y; return; }
+  } else animState = 'idle';
+  const p = stairPoint(st.t);
+  beca.x = p.x; beca.y = p.y;
+}
+
+/* ---- NPC đi lại tự nhiên (wander AI) ---- */
+function npcInit(){
+  for(const c of CUSTOMERS){
+    const s = SPOTS[c.id];
+    npcs[c.id] = {id:c.id, x:s[0], y:s[1], home:[s[0], s[1]], mode:'idle', target:null,
+      idleT: 1 + Math.random() * 4, marker:null, el:null, rig:rigNew(c.id),
+      stair:null, phase:null, stairGo:0.5, exitStairs:false, jump:null,
+      facing:'right', range:WANDER.range};
+  }
+  npcs.chu = {id:'chu', x:LANDLORD_SPOT[0], y:LANDLORD_SPOT[1], home:[LANDLORD_SPOT[0], LANDLORD_SPOT[1]],
+    mode:'idle', target:null, idleT: 2 + Math.random() * 3, marker:null, el:null, rig:rigNew('chu'),
+    stair:null, phase:null, stairGo:0.5, exitStairs:false, jump:null, facing:'right', range:150};
+  npcs.chu.marker = document.getElementById('landlordMarker');
+  npcs.chu.el = document.querySelector('#landlordAvatarMap .rig');
+}
+function npcWanderTarget(n){
+  for(let k = 0; k < 6; k++){
+    const a = Math.random() * Math.PI * 2, d = 60 + Math.random() * n.range;
+    const x = Math.min(WALK.x1, Math.max(WALK.x0, n.home[0] + Math.cos(a) * d));
+    const y = Math.min(WALK.y1, Math.max(WALK.y0, n.home[1] + Math.sin(a) * d));
+    const fo = OBSTACLES[0]; /* đài phun nước: không đi vào */
+    if(Math.hypot(x - fo.x, y - fo.y) > fo.r + 40) return {x:x, y:y};
+  }
+  return {x:n.home[0], y:n.home[1]};
+}
+function npcPick(n){
+  const r = Math.random();
+  if(r < WANDER.stairChance){
+    n.mode = 'stairs'; n.stair = {t:0}; n.phase = 'toBottom';
+    n.stairGo = 0.35 + Math.random() * 0.65; n.exitStairs = false;
+    n.target = {x:STAIRS.x0, y:STAIRS.y0};
+    return;
+  }
+  if(r < WANDER.stairChance + WANDER.hopChance){ n.mode = 'hop'; n.jump = {phase:'crouch', t:0, vy:0, yOff:0}; return; }
+  n.mode = (r < WANDER.stairChance + WANDER.hopChance + WANDER.runChance) ? 'run' : 'walk';
+  n.target = npcWanderTarget(n);
+}
+function npcJumpTick(n, dt){
+  const j = n.jump; if(!j) return;
+  j.t += dt;
+  rigSetSheet(n.rig, 'jump');
+  if(j.phase === 'crouch'){ n.rig.frame = 0; n.rig.sy = 0.85; n.rig.yOff = 0; if(j.t >= 0.1){ j.phase = 'air'; j.t = 0; j.vy = -380; } }
+  else if(j.phase === 'air'){
+    j.vy += 1500 * dt; j.yOff -= j.vy * dt;
+    if(j.yOff <= 0){ j.yOff = 0; j.phase = 'land'; j.t = 0; }
+    n.rig.frame = 1; n.rig.sy = 1.06; n.rig.yOff = j.yOff;
+  } else {
+    n.rig.frame = 2; n.rig.sy = 0.85; n.rig.yOff = 0;
+    if(j.t >= 0.1){ n.jump = null; n.rig.sy = 1; if(n.mode === 'hop'){ n.mode = 'idle'; n.idleT = WANDER.idleMin + Math.random() * 2; } }
+  }
+}
+function npcStairTick(n, dt){
+  if(n.phase === 'toBottom'){
+    const dx = STAIRS.x0 - n.x, dy = STAIRS.y0 - n.y, d = Math.hypot(dx, dy);
+    if(d < 30){ n.phase = 'climb'; n.stair = {t:0}; }
+    else {
+      n.x += dx / d * WANDER.walkSpeed * dt; n.y += dy / d * WANDER.walkSpeed * dt;
+      n.facing = dx < -5 ? 'left' : (dx > 5 ? 'right' : n.facing);
+      rigSetSheet(n.rig, 'walk'); rigAdvance(n.rig, dt, 'walk'); n.rig.sy = 1; n.rig.yOff = 0;
+    }
+    return;
+  }
+  const st = n.stair;
+  if(n.phase === 'climb'){
+    st.t += 0.25 * dt;
+    rigSetSheet(n.rig, 'walk');
+    n.rig.frame = Math.floor(st.t * STAIRS.steps) % RIGS[n.id].walkFrames;
+    if(st.t >= n.stairGo){
+      st.t = n.stairGo;
+      if(n.stairGo >= 0.95){ n.mode = 'terrace'; n.idleT = 2 + Math.random() * 3; }
+      else n.phase = 'descend';
+    }
+  } else {
+    st.t -= 0.3 * dt;
+    rigSetSheet(n.rig, 'walk');
+    n.rig.frame = Math.floor(st.t * STAIRS.steps) % RIGS[n.id].walkFrames;
+    if(st.t <= 0){
+      n.mode = 'idle'; n.idleT = WANDER.idleMin + Math.random() * 2; n.stair = null;
+      const p = stairPoint(0); n.x = p.x; n.y = p.y;
+      return;
+    }
+  }
+  const p = stairPoint(st.t);
+  n.x = p.x; n.y = p.y;
+  n.facing = n.phase === 'climb' ? 'right' : 'left';
+}
+function npcTick(dt){
+  for(const id of Object.keys(npcs)){
+    const n = npcs[id];
+    if(!n.el) continue;
+    if(n.jump) npcJumpTick(n, dt);
+    if(n.mode === 'idle'){
+      n.idleT -= dt;
+      rigSetSheet(n.rig, 'walk');
+      n.rig.frame = RIGS[id].idleFrame;
+      n.rig.sy = 1 + 0.015 * Math.sin(performance.now() / 450 + id.length * 2);
+      n.rig.yOff = 0;
+      if(n.idleT <= 0) npcPick(n);
+    } else if(n.mode === 'walk' || n.mode === 'run'){
+      const sp = n.mode === 'run' ? WANDER.runSpeed : WANDER.walkSpeed;
+      const dx = n.target.x - n.x, dy = n.target.y - n.y, d = Math.hypot(dx, dy);
+      if(d < 10){ n.mode = 'idle'; n.idleT = WANDER.idleMin + Math.random() * (WANDER.idleMax - WANDER.idleMin); }
+      else {
+        n.x += dx / d * sp * dt; n.y += dy / d * sp * dt;
+        n.facing = dx < -5 ? 'left' : (dx > 5 ? 'right' : n.facing);
+        rigSetSheet(n.rig, 'walk');
+        rigAdvance(n.rig, dt, n.mode);
+        n.rig.sy = 1; n.rig.yOff = 0; n.rig.lean = n.mode === 'run' ? 5 : 0;
+      }
+    } else if(n.mode === 'stairs'){
+      npcStairTick(n, dt);
+    } else if(n.mode === 'terrace'){
+      n.idleT -= dt;
+      rigSetSheet(n.rig, 'walk');
+      n.rig.frame = RIGS[id].idleFrame; n.rig.sy = 1; n.rig.yOff = 0;
+      if(n.idleT <= 0){ n.mode = 'stairs'; n.stair = {t:1}; n.phase = 'descend'; n.exitStairs = true; }
+    }
+    /* hop: npcJumpTick ở trên đã xử lý, không cần nhánh riêng */
+    const sc = n.mode === 'stairs' ? stairScale(n.stair.t) : (n.mode === 'terrace' ? STAIRS.scaleTop : 1);
+    n.rig.scale = sc;
+    n.rig.flip = n.facing === 'left';
+    if(n.marker){ n.marker.style.left = n.x + 'px'; n.marker.style.top = n.y + 'px'; }
+    rigApply(n.rig, n.el);
+  }
+}
+
+/* nút nhảy ⬆️ trên bản đồ (pointerdown chặn kéo bản đồ) */
+document.getElementById('jumpBtn').addEventListener('pointerdown', e=>{ e.stopPropagation(); doJump(); });
+document.getElementById('jumpBtn').addEventListener('click', e=>{ e.stopPropagation(); });
+
 /* ---------------- init ---------------- */
 load();
 if(!Array.isArray(state.served)) state.served=[];
 if(!state.customersToday || state.customersToday.length!==3 || !state.requestsToday || state.requestsToday.length!==3) pickDay();
 applyLang(); renderHeader(); renderScene(); renderPalette(); syncTools();
-document.getElementById('landlordAvatarMap').innerHTML = custAvatarHTML(LANDLORD);
+/* ông chủ nhà trên bản đồ cũng dùng rig (khung vẽ vẫn dùng ảnh chân dung) */
+document.getElementById('landlordAvatarMap').innerHTML = '<div class="rig"></div>';
+document.getElementById('landlordAvatarMap').classList.add('rigAvatar');
 document.getElementById('landlordAvatar').innerHTML = custAvatarHTML(LANDLORD);
-renderHotspots(); renderMap(); updateWalker(); updateCamera();
+rigPreload(); npcInit(); renderHotspots(); renderMap(); updateWalker(); updateCamera(); rigLayout();
 requestAnimationFrame(mapLoop);
 requestAnimationFrame(()=>{ fitCanvas(); updateMeters(); });
 if(!state.seenStory) openStory();
@@ -1519,6 +1941,11 @@ window.__becaPainting = {
   debugTeleport(x,y){ beca.x=x; beca.y=y; moveTarget=null; dragVec=null; updateWalker(); updateCamera(); },
   debugUnserve(){ state.served=[]; save(); renderMap(); },
   debugGoMap: ()=>showMap(),
+  rig: ()=>({action: beca.mode==='stairs' ? 'stair' : animState, frame: becaRig.frame, sheet: becaRig.sheet, interval: becaRig.interval, yOff: becaRig.yOff, sy: becaRig.sy, scale: becaRig.scale, mode: beca.mode, stairT: beca.stair ? beca.stair.t : null, jump: becaJump ? becaJump.phase : null, x: beca.x, y: beca.y}),
+  npcs: ()=>Object.keys(npcs).map(id=>({id, x:npcs[id].x, y:npcs[id].y, mode:npcs[id].mode, frame:npcs[id].rig.frame, sheet:npcs[id].rig.sheet, facing:npcs[id].facing})),
+  debugJump: ()=>doJump(),
+  debugClimb: (t)=>{ beca.x=STAIRS.x0; beca.y=STAIRS.y0; beca.mode='stairs'; beca.stair={t:0}; moveTarget={stair:Math.max(0,Math.min(1,t))}; dragVec=null; updateWalker(); updateCamera(); },
+  debugStairs: ()=>({x0:STAIRS.x0, y0:STAIRS.y0, x1:STAIRS.x1, y1:STAIRS.y1, steps:STAIRS.steps, scaleTop:STAIRS.scaleTop, terrace:STAIRS.terrace}),
   debugOpenPaint: (id)=>{ const i = state.customersToday.indexOf(id); if(i>=0){ state.custIdx=i; renderScene(); renderMap(); showPaint(); } },
 };
 </script>
