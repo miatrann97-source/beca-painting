@@ -583,6 +583,7 @@ const CONFIG = {
   IMAGES: {
     town: 'assets-openworld/plaza-bright.webp',   // nền quảng trường (khu 1/3, thế giới 4800x1400)
     beca: 'assets-ghibli/beca-sprite.webp',     // bé cá toàn thân (nền trong)
+    becaEmpty: 'assets-ghibli/beca-sprite-empty.webp', // bé cá TAY KHÔNG (bảng + khay đã xoá) — sprite dự phòng trên bản đồ: tay phải trống ở mọi trạng thái (đứng/đi/chạy); bản beca (cầm bảng+khay) chỉ dùng ở khung truyện / khung cảnh vẽ
     storyBg: 'assets-ghibli/story-bg.webp',     // nền màn truyện
     zones: { plaza:'assets-openworld/plaza-bright.webp', street:'assets-openworld/street-nguyenhue.webp', market:'assets-openworld/market-benthanh.webp' },
     customers: {                                // mặt khách (ảnh vuông)
@@ -612,10 +613,30 @@ const CONFIG = {
     { x: 3060, y: 1000, r: 40 },  // cây cọ phố đi bộ (trước là (2900,1020) lệch trái ~160px)
     /* (2600,960) ĐÃ BỎ: đo lại là giữa đường trống, không có cây — chặn oan đất trống */
     /* (3500,980) ĐÃ BỎ: đo lại là sạp trái cây (đã có stallFrontL chặn) — không phải cây */
-    { x: 250, y: 1100, r: 60 },   // xe hàng rong quảng trường (góc trái dưới)
+    { x: 250, y: 1100, r: 60 },   // xe máy đậu quảng trường (góc trái dưới) — đo lại 19/11: KHÔNG phải xe hàng rong, là xe máy sơn cam (khớp ảnh)
     { x: 370, y: 990, r: 60 },    // xe hàng rong quảng trường (xe mái cam gần tháp đồng hồ)
     { x: 1006, y: 985, r: 60 },   // xe hàng rong quảng trường (xe mái xanh giữa-phải)
     { x: 1090, y: 1080, r: 60 },  // xe hàng rong quảng trường (xe mái xanh bên phải)
+    /* xe hàng rong phố Nguyễn Huệ — đo bằng visual grounding 19/11: 3 xe này
+       KHÔNG có vật cản nên bé cá đi xuyên qua xe, đứng lên mái (lỗi live).
+       SỬA 19/11 (đo lại bằng crop ảnh đầu phố): xe cam KHÔNG ở (1915,1100) —
+       thân xe là x 1781-1941, y 997-1166 (mái vươn tới x 1996), tâm (1885,1090);
+       xe xanh bị cắt ở mép khu, thân x 1600-1879, y 1051-1264, tâm (1700,1160).
+       Bàn cà phê tròn KHÔNG phải hình chữ nhật lớn — nó là 1 bàn nhỏ
+       (x 1739-1801, y 1057-1130) nép SAU 2 xe hàng, dưới ô trắng; mái ô ở
+       trên đầu (y 924-1033) nên KHÔNG chặn. Hình chữ nhật cafeTablesL cũ
+       (x 1620-2000, y 1050-1230) nuốt cả 2 xe → bé cá không tới được xe
+       (bị chặn từ y 1248) — đã XÓA, thay bằng vòng tròn bàn nhỏ. */
+    { x: 1885, y: 1090, r: 105 }, // xe trái cây mái cam (thân x 1781-1941 + mái tới 1996)
+    { x: 1700, y: 1160, r: 110 }, // xe trái cây mái xanh (đầu phố, bị cắt ở mép khu x=1600)
+    { x: 1770, y: 1090, r: 50 },  // bàn cà phê tròn + ghế (dưới ô trắng, nép sau 2 xe hàng)
+    { x: 2083, y: 1025, r: 55 },  // xe hàng nhỏ giữa phố (mái sọc)
+    /* đèn đường phố Nguyễn Huệ (chân cột, đo từ ảnh) */
+    { x: 2640, y: 1050, r: 20 },  // đèn giữa phố
+    { x: 2950, y: 1060, r: 20 },  // đèn phải (gần bàn cà phê)
+    /* chậu cây tròn trước bậc thềm quảng trường (đông, đo từ ảnh): chặn được
+       mà lối qua phố vẫn mở ở y 960-1055 và y 1185-1340 */
+    { x: 1540, y: 1120, r: 65 },  // chậu cây đá tròn + cây non (cạnh cầu thang)
   ],
   /* ---- tòa nhà / điểm chạm trên bản đồ (rect: [x, y, rộng, cao] trong thế giới) ----
      action: 'shop' (mở cửa hàng) | 'landlord' (mở hội thoại ông chủ nhà)
@@ -650,13 +671,27 @@ const CONFIG = {
       sign:{ x:4090, y:680, text:'🥭 Sạp Trái Cây', bg:'#7CB342' } },
     { id:'bldStall2',    testid:'bld-stall2',    action:'toast',    solid:true, rect:[4340, 600, 380, 290], mmColor:'#AB47BC', toastKey:'toastStall',
       sign:{ x:4530, y:680, text:'🌺 Sạp Hoa Quả', bg:'#AB47BC' } },
-    /* sạp chợ mặt tiền (hàng hoá vẽ trên nền, y 980-1300): chặn để không đi xuyên sạp */
-    { id:'stallFrontL', testid:'stall-front-l', action:'none', solid:true, nohot:true, rect:[3200, 980, 300, 320], mmColor:'#7CB342' },
+    /* sạp chợ mặt tiền (hàng hoá vẽ trên nền, y 980-1300): chặn để không đi xuyên sạp.
+       stallFrontL kéo dài tới x=4026 (đo lại 19/11: dãy sạp trái tới x~4026, rect cũ
+       chỉ tới x=3500 nên bé cá đi xuyên sạp trái cây phía đông) */
+    { id:'stallFrontL', testid:'stall-front-l', action:'none', solid:true, nohot:true, rect:[3200, 980, 826, 320], mmColor:'#7CB342' },
     { id:'stallFrontR', testid:'stall-front-r', action:'none', solid:true, nohot:true, rect:[4500, 980, 300, 320], mmColor:'#AB47BC' },
     /* bàn ghế quán cà phê phố Nguyễn Huệ (đo lại 19/11: bàn ghế thật ở x 2911-3200,
        y 1150-1300 — rect cũ (2660,1150) nằm giữa đường trống, chặn oan) */
     { id:'cafeTable1', testid:'cafe-table-1', action:'none', solid:true, nohot:true, rect:[2910, 1150, 140, 130], mmColor:'#8D6E63' },
     { id:'cafeTable2', testid:'cafe-table-2', action:'none', solid:true, nohot:true, rect:[3050, 1180, 150, 120], mmColor:'#8D6E63' },
+    /* bàn ghế cà phê đầu phố (ô trắng phía tây): ĐÃ XÓA rect này 19/11 —
+       nó là hình chữ nhật lớn (x 1620-2000, y 1050-1230) nuốt cả 2 xe trái cây
+       nên bé cá bị chặn từ y 1248, không tới được xe cam (lỗi live: xe "không
+       chặn" thực ra là bé cá không bao giờ tới được xe). Bàn thật chỉ là 1 bàn
+       tròn nhỏ (x 1739-1801, y 1057-1130) — xem vòng tròn OBSTACLES
+       (1770,1090) r50. Mái ô ở trên đầu, không chặn. */
+    /* hàng chậu cây lớn giữa phố Nguyễn Huệ (3 chậu, đo từ ảnh: x 2540-2770,
+       y 1150-1340 — trước đây không có vật cản, bé cá đi xuyên qua chậu) */
+    { id:'plantersStreet', testid:'planters-street', action:'none', solid:true, nohot:true, rect:[2540, 1150, 230, 190], mmColor:'#7CB342' },
+    /* 2 bảng hiệu trắng trên giá gỗ, quảng trường góc dưới-phải (đo từ ảnh:
+       x 1050-1246, y 1180-1340 — trước đây không có vật cản) */
+    { id:'signboardsPlaza', testid:'signboards-plaza', action:'none', solid:true, nohot:true, rect:[1050, 1180, 196, 160], mmColor:'#B0A090' },
     /* tường bao quanh thế giới (chỉ chặn, không hiện vùng chạm để chạm đất vẫn đi được) */
     { id:'wallNorth', testid:'wall-north', action:'none', solid:true, nohot:true, rect:[0, 0, 4800, 880], mmColor:'#B0A090' },
     { id:'wallWest',  testid:'wall-west',  action:'none', solid:true, nohot:true, rect:[0, 0, 40, 1400],  mmColor:'#B0A090' },
@@ -672,22 +707,33 @@ const CONFIG = {
      19/11 (tọa độ khu: x = world_x - zoneX, y = world_y). y = mốc che khuất
      (thường là chân/đáy vật). ---- */
   FG: [
-    /* quảng trường */
+    /* quảng trường — NGUYÊN TẮC: clip CHỈ ôm khối ĐẶC ngang tầm người (thân cây,
+       thân xe, mặt sạp), KHÔNG ôm tán lá / mái che / mái hiên ở trên cao
+       (cao hơn đầu bé cá ~2m: khi cô đứng sau vật, tán lá không được che đầu cô) */
     { id:'fgFountainBasin', zone:'plaza', y:1211, clip:'ellipse(267px 105px at 623px 1211px)' },
     { id:'fgFountainTier',  zone:'plaza', y:1211, clip:'polygon(560px 1221px, 690px 1221px, 675px 1080px, 680px 1000px, 650px 960px, 600px 960px, 570px 1000px, 575px 1080px)' },
-    { id:'fgTreePlazaL',    zone:'plaza', y:1030, clip:'polygon(518px 741px, 627px 848px, 595px 923px, 526px 923px, 526px 1030px, 510px 1030px, 510px 923px, 441px 923px, 409px 848px)' },
-    { id:'fgTreePlazaC',    zone:'plaza', y:1030, clip:'polygon(1067px 732px, 1194px 852px, 1156px 927px, 1075px 927px, 1075px 1030px, 1059px 1030px, 1059px 927px, 978px 927px, 941px 852px)' },
-    { id:'fgCartPlazaOrange', zone:'plaza', y:1022, clip:'inset(921px 1176px 378px 317px)' },
-    { id:'fgCartPlazaTeal',   zone:'plaza', y:1030, clip:'inset(906px 519px 370px 932px)' },
-    { id:'fgCartPlazaRight',  zone:'plaza', y:1150, clip:'inset(1000px 438px 250px 1012px)' },
-    { id:'fgCartPlazaBL',     zone:'plaza', y:1200, clip:'inset(1025px 1188px 200px 162px)' },
+    { id:'fgTreePlazaL',    zone:'plaza', y:1030, clip:'inset(920px 1074px 370px 510px)' },
+    { id:'fgTreePlazaC',    zone:'plaza', y:1030, clip:'inset(920px 525px 370px 1059px)' },
+    { id:'fgCartPlazaOrange', zone:'plaza', y:1022, clip:'inset(960px 1176px 378px 317px)' },
+    { id:'fgCartPlazaTeal',   zone:'plaza', y:1030, clip:'inset(950px 519px 370px 932px)' },
+    { id:'fgCartPlazaRight',  zone:'plaza', y:1150, clip:'inset(1040px 438px 250px 1012px)' },
+    { id:'fgCartPlazaBL',     zone:'plaza', y:1200, clip:'inset(1050px 1188px 200px 162px)' },
+    { id:'fgSignboardsPlaza', zone:'plaza', y:1340, clip:'inset(1180px 354px 60px 1050px)' },
+    { id:'fgPlanterPlaza',    zone:'plaza', y:1187, clip:'ellipse(65px 45px at 1540px 1120px)' },
     /* phố Nguyễn Huệ */
-    { id:'fgTreeStreet',    zone:'street', y:1020, clip:'polygon(400px 606px, 556px 790px, 509px 923px, 408px 923px, 408px 1020px, 392px 1020px, 392px 923px, 291px 923px, 244px 790px)' },
-    { id:'fgPalmStreet',    zone:'street', y:1000, clip:'polygon(1464px 591px, 1610px 775px, 1566px 908px, 1472px 908px, 1472px 1000px, 1456px 1000px, 1456px 908px, 1362px 908px, 1318px 775px)' },
+    { id:'fgTreeStreet',    zone:'street', y:1020, clip:'inset(920px 1192px 380px 392px)' },
+    { id:'fgPalmStreet',    zone:'street', y:1000, clip:'inset(920px 128px 400px 1456px)' },
     { id:'fgCafeTables',    zone:'street', y:1300, clip:'inset(1150px 0px 100px 1310px)' },
-    /* chợ Bến Thành */
-    { id:'fgStallMarketL',  zone:'market', y:1300, clip:'inset(756px 1210px 8px 0px)' },
-    { id:'fgStallMarketR',  zone:'market', y:1300, clip:'inset(742px 0px 3px 1311px)' },
+    { id:'fgCafeTablesL',   zone:'street', y:1150, clip:'inset(1000px 1370px 250px 120px)' }, // bàn tròn nhỏ + ghế + chân ô (x 1720-1830, y 1000-1150); mái ô trên đầu KHÔNG che
+    { id:'fgCartStreetOrange', zone:'street', y:1179, clip:'inset(1060px 1259px 221px 181px)' }, // xe cam: thân x 1781-1941 (dưới mái), y 1060-1179
+    { id:'fgCartStreetTeal',   zone:'street', y:1285, clip:'inset(1130px 1321px 115px 0px)' }, // xe xanh: thân x 1600-1879 (dưới mái), y 1130-1285
+    { id:'fgCartStreetMid',    zone:'street', y:1089, clip:'inset(1010px 1053px 311px 420px)' },
+    { id:'fgPlantersStreet',   zone:'street', y:1340, clip:'inset(1150px 431px 60px 940px)' },
+    { id:'fgLampStreetL',      zone:'street', y:1050, clip:'inset(900px 555px 350px 1035px)' },
+    { id:'fgLampStreetR',      zone:'street', y:1064, clip:'inset(900px 219px 336px 1318px)' },
+    /* chợ Bến Thành — sạp chỉ che phần hàng hoá mặt tiền (y 980-1300), KHÔNG che mái hiên */
+    { id:'fgStallMarketL',  zone:'market', y:1300, clip:'inset(980px 774px 100px 0px)' },
+    { id:'fgStallMarketR',  zone:'market', y:1300, clip:'inset(980px 0px 100px 1300px)' },
   ],
   /* ---- vị trí đứng của từng khách trên bản đồ (tọa độ thế giới) ---- */
   SPOTS: {
@@ -1764,7 +1810,7 @@ const OBSTACLES = CONFIG.OBSTACLES;
 const SPOTS = CONFIG.SPOTS;
 const LANDLORD_SPOT = CONFIG.LANDLORD_SPOT;
 const LANDLORD = CONFIG.LANDLORD;
-let beca = { x: 1100, y: 1250 };  // điểm xuất phát: vỉa hè trống giữa quảng trường, cách xa đài phun nước / xe hàng / Mimi (800,1200 cũ đứng ngay trên vành đài phun nước)
+let beca = { x: 1400, y: 1250 };  // điểm xuất phát: vỉa hè trống giữa quảng trường, cách xa đài phun nước / xe hàng / Mimi (800,1200 cũ đứng ngay trên vành đài phun nước). DỜI từ (1100,1250) 19/11: điểm cũ giờ là 2 bảng hiệu trắng (signboardsPlaza, x 1050-1246) — bé cá sinh ra trong vật cản sẽ bị pushOut đẩy ngay khung đầu tiên
 let camX = 0, camY = 0, dragVec = null, moveTarget = null, walking = false;
 let camYaw = 0, camTargetYaw = 0, camPitch = 0, camTargetPitch = 0; /* camera 360°: yaw = góc xoay, pitch = ngẩng/cúi */
 let animState = 'idle', facing = 'right', curSpeed = 0;
@@ -3050,57 +3096,116 @@ function boneLerp(a,b,t){ return a+(b-a)*t; }
 function boneSmooth(t){ t=boneClamp(t,0,1); return t*t*(3-2*t); }
 function boneDeg(r){ return r*180/Math.PI; }
 function boneRad(d){ return d*Math.PI/180; }
-/* --- tư thế xương (mirror tests/bone-engine.js, đã test 25/25) --- */
+/* --- tư thế xương (mirror tests/bone-engine.js, đã test 25/25) ---
+   ĐÃ PORT Y HỆT engine 19/11 (fix round 2) — bản cũ sai 4 chỗ khiến 2 chân
+   đi như chim cánh cụt (cùng nhịp, không xen kẽ) + gối cong NGƯỢC:
+   1. swing() cũ có chu kỳ 0.5 (s = qq<0.5 ? qq*2 : (qq-0.5)*2) nên
+      swing(q+0.5) === swing(q) -> hipL === hipR, kneeL === kneeR luôn.
+      Engine dùng hipSwing: u=(phase-0.25)%1, stance tuyến tính +A->-A
+      (chân đứng quét đều, không trượt), swing về bằng smoothstep.
+   2. kneeSwing cũ cong gối trong nửa stance; engine kneeFlex chỉ cong khi
+      chân đang VUNG (nửa sau), 0 khi đứng, đỉnh giữa cú vung.
+   3. bob cũ 3.9*|sin f| để cả 2 bàn chân lơ lửng ~7px lúc chạm đất; engine
+      suy chiều cao hông từ hình học chân đứng (hipHeight) — người THẤP NHẤT
+      lúc chạm đất, CAO NHẤT lúc giữa bước.
+   4. Tay cũ vung bằng sin(f) lệch pha; engine vung tay NGƯỢC chân cùng bên
+      bằng cùng profile hipSwing.
+   QUY ƯỚC DẤU BOB: engine bob dương = người thấp xuống (root.y = hipY + bob);
+   boneApply ở đây TRỪ bob (hipY = L.hipY - bob) nên mọi bob port từ engine
+   đều phải ĐỔI DẤU (xem từng nhánh). --- */
+function boneHipSwing(phase, A){
+  const u = (((phase - 0.25) % 1) + 1) % 1;
+  if(u < 0.5) return A * (1 - 4 * u);            /* stance: tuyến tính +A -> -A */
+  return -A + 2 * A * boneSmooth((u - 0.5) / 0.5); /* swing: smooth -A -> +A */
+}
+function boneKneeFlex(phase, K){
+  const u = (((phase - 0.25) % 1) + 1) % 1;
+  if(u < 0.5) return 0; /* stance: chân trụ thẳng */
+  return K * Math.sin(Math.PI * (u - 0.5) / 0.5); /* swing: nửa sin, đỉnh giữa vung */
+}
+function boneHipHeight(pose, phase, isRun){
+  /* chiều cao hông suy từ chân đang đứng: chân nghiêng hip h vươn xuống
+     thigh*cos(h) + shin*cos(h-knee); hông phải ở 140 - vươn xa nhất trong
+     các chân đang đứng để bàn chân chạm đất */
+  const L = BONE_LIMB;
+  const ext = (hip, knee)=> L.upperLeg * Math.cos(boneRad(hip)) + L.lowerLeg * Math.cos(boneRad(hip - knee));
+  const inStance = (ph)=>{ const u = (((ph - 0.25) % 1) + 1) % 1; return u < 0.5; };
+  let best = -1;
+  if(inStance(phase)) best = Math.max(best, ext(pose.hipL, pose.kneeL));
+  if(inStance(phase + 0.5)) best = Math.max(best, ext(pose.hipR, pose.kneeR));
+  if(best < 0) return L.hipY - (isRun ? 5 : 0); /* bay (chạy) / dự phòng */
+  return 140 - best; /* chiều cao rig 140px */
+}
 function bonePoseFor(state, phase, opt){
   opt = opt || {};
-  const p = {hipL:0,kneeL:0,hipR:0,kneeR:0,shL:0,elL:0,shR:0,elR:0,neck:0,tail:0,bob:0,lean:0};
-  const A = state==='run'?42:state==='walk'?28:0;      /* biên độ hông */
-  const SW = state==='run'?38:state==='walk'?24:0;     /* biên độ vai */
+  const p = {hipL:0,kneeL:0,hipR:0,kneeR:0,shL:0,elL:0,shR:0,elR:0,neck:0,tail:0,bob:0,lean:0,squash:1};
   const f = phase*2*Math.PI;
   if(state==='walk'||state==='run'){
     const q = phase%1;
-    /* hông: chân đứng quét tuyến tính +A->-A (không trượt chân), chân vung về bằng smoothstep */
-    const swing = (qq)=>{ const s = qq<0.5 ? qq*2 : (qq-0.5)*2; return s<0.5 ? -1+2*smooth01(s*2) : 1-2*smooth01((s-0.5)*2); };
-    function smooth01(x){ x=boneClamp(x,0,1); return x*x*(3-2*x); }
-    p.hipL = A*swing(q); p.hipR = A*swing((q+0.5)%1);
-    /* gối chỉ cong khi chân đang vung (nửa chu kỳ sau), 0 khi đứng */
-    const kneeSwing = (qq)=>{ const s = qq<0.5 ? qq*2 : (qq-0.5)*2; return s<0.5 ? 0 : Math.sin((s-0.5)*Math.PI)*(state==='run'?70:55); };
-    p.kneeL = kneeSwing(q); p.kneeR = kneeSwing((q+0.5)%1);
-    /* tay vung ngược chân */
-    p.shL = -SW*Math.sin(f); p.shR = SW*Math.sin(f);
-    p.elL = 18+10*Math.sin(f); p.elR = 18+10*Math.sin(f+Math.PI);
-    p.neck = 2*Math.sin(f); p.tail = 14*Math.sin(f);
-    p.bob = 3.9*Math.abs(Math.sin(f)); p.lean = state==='run'?14:6;
+    const A = state==='run'?40:25, K = state==='run'?62:42; /* engine */
+    const S = state==='run'?35:20, E = state==='run'?38:16;
+    /* chân: xen kẽ nửa chu kỳ, gối chỉ cong khi vung */
+    p.hipL = boneHipSwing(q, A); p.hipR = boneHipSwing((q+0.5)%1, A);
+    p.kneeL = boneKneeFlex(q, K); p.kneeR = boneKneeFlex((q+0.5)%1, K);
+    /* tay vung ngược chân cùng bên (cùng profile hipSwing) */
+    p.shL = -boneHipSwing(q, S); p.shR = -boneHipSwing((q+0.5)%1, S);
+    p.elL = 8 + E*Math.max(0, p.shL)/S;
+    p.elR = 8 + E*Math.max(0, p.shR)/S;
+    p.lean = state==='run'?12:4;
+    /* bob: ĐỔI DẤU engine (hipHeight - hipY) vì boneApply trừ bob */
+    p.bob = BONE_LIMB.hipY - boneHipHeight(p, q, state==='run');
+    p.tail = (state==='run'?22:12)*Math.sin(f + Math.PI/2);
+    p.neck = -p.lean*0.4;
   } else if(state==='jump'){
     const jp = opt.jumpPhase!=null?opt.jumpPhase:phase; /* 0..1: crouch->air->land */
-    const crouch = jp<0.25 ? boneSmooth(jp/0.25) : jp<0.7 ? 1-boneSmooth((jp-0.25)/0.25) : 0;
-    const air = jp>=0.25 && jp<0.85 ? boneSmooth((jp-0.25)/0.20)*(1-boneSmooth((jp-0.55)/0.30)) : 0; /* mở/rút chậm (19/11): không giật quá 8°/khung */
-    const land = jp>=0.7 ? boneSmooth((jp-0.7)/0.3)*(1-boneSmooth((jp-0.85)/0.15)) : 0;
-    p.hipL = p.hipR = -30*crouch - 35*air - 22*land;
-    p.kneeL = p.kneeR = 45*crouch + 70*air + 35*land;
-    p.shL = p.shR = -55*air - 20*crouch; p.elL = p.elR = 30*air + 10*crouch;
-    p.neck = -4*air; p.tail = -18*air + 8*crouch; p.bob = -10*air + 5*crouch + 3*land;
-    p.lean = 4*air;
-  } else { /* idle: thở nhẹ */
-    p.shL = p.shR = 4*Math.sin(f*0.5); p.elL = p.elR = 8+4*Math.sin(f*0.5);
-    p.kneeL = p.kneeR = 2; p.neck = 1.5*Math.sin(f*0.5); p.tail = 6*Math.sin(f*0.5);
-    p.bob = 1.3*Math.sin(f*0.5);
+    /* cửa sổ pha engine (đã nới 19/11 để không khớp nào vượt 8°/khung): crouch
+       0..0.25 (nhả 0.25..0.55), air lên 0.25..0.60 nhả 0.58..0.83, land 0.70..0.85 */
+    const crouch = boneSmooth(jp/0.25) * (1 - boneSmooth((jp-0.25)/0.30));
+    const air = boneSmooth((jp-0.25)/0.35) * (1 - boneSmooth((jp-0.58)/0.25));
+    const land = boneSmooth((jp-0.70)/0.15) * (1 - boneSmooth((jp-0.85)/0.15));
+    const bend = 55*crouch + 30*land; /* gối cong khi nhún/đáp */
+    p.hipL = -18*crouch - 22*air - 14*land;
+    p.hipR = -14*crouch - 30*air - 10*land;
+    p.kneeL = bend + 42*air; p.kneeR = bend*0.9 + 50*air;
+    p.shL = p.shR = -30*crouch + 55*air - 10*land;
+    p.elL = p.elR = 25*crouch + 55*air + 15*land;
+    /* bob engine = 21.7*crouch - 10*air + 8.3*land (dương = thấp xuống) -> ĐỔI DẤU */
+    p.bob = -21.7*crouch + 10*air - 8.3*land;
+    p.squash = 1 - 0.10*crouch - 0.04*land;
+    p.tail = -18*air + 8*crouch; p.neck = 4*air; p.lean = 6*air;
+  } else { /* idle: thở nhẹ (engine, đổi dấu bob như trên) */
+    const b = Math.sin(f*0.5);
+    p.bob = 1.0*(0.5 + 0.5*b);
+    p.shL = 6 + 1.5*b; p.shR = 6 - 1.5*b;
+    p.elL = p.elR = 8;
+    p.tail = 6*Math.sin(f*0.5 + 1.2); p.neck = 1.5*b;
   }
+  /* kẹp mọi khớp vào giới hạn (engine LIMITS): gối chỉ cong lùi 0..70,
+     khuỷu chỉ cong tới 0..120, hông/vai ±45 — không bao giờ gãy/vẹo khớp */
+  p.hipL = boneClamp(p.hipL, -45, 45); p.hipR = boneClamp(p.hipR, -45, 45);
+  p.kneeL = boneClamp(p.kneeL, 0, 70); p.kneeR = boneClamp(p.kneeR, 0, 70);
+  p.shL = boneClamp(p.shL, -45, 45); p.shR = boneClamp(p.shR, -45, 45);
+  p.elL = boneClamp(p.elL, 0, 120); p.elR = boneClamp(p.elR, 0, 120);
+  p.neck = boneClamp(p.neck, -12, 12); p.tail = boneClamp(p.tail, -28, 28);
+  p.lean = boneClamp(p.lean, 0, 16);
   return p;
 }
-/* --- forward kinematics: vị trí khớp trong hệ hiển thị (gốc hông, y xuống) --- */
+/* --- forward kinematics: vị trí khớp trong hệ hiển thị (gốc hông, y xuống) ---
+   Đoạn dưới dùng góc a1 - a2 (như limb() của engine): gối cong LÙI (cẳng chân
+   = hông - gối, gót đưa ra sau như người thật), khuỷu tay cũng a1 - a2 theo
+   engine. Bản cũ dùng a1 + a2 khiến cẳng chân cong VỀ TRƯỚC như hồng hạc. */
 function boneFK(pose, facing){
   const L = BONE_LIMB, mir = (facing==='sideL'||facing==='qtrL') ? -1 : 1;
   const s = (ang,len)=>({x: mir*Math.sin(boneRad(ang))*len, y: Math.cos(boneRad(ang))*len});
   const hip = {x:0, y:L.hipY}, sh = {x:0, y:L.shoulderY};
   const kL = {x:hip.x+s(pose.hipL,L.upperLeg).x, y:hip.y+s(pose.hipL,L.upperLeg).y};
-  const fL = {x:kL.x+s(pose.hipL+pose.kneeL,L.lowerLeg).x, y:kL.y+s(pose.hipL+pose.kneeL,L.lowerLeg).y};
+  const fL = {x:kL.x+s(pose.hipL-pose.kneeL,L.lowerLeg).x, y:kL.y+s(pose.hipL-pose.kneeL,L.lowerLeg).y};
   const kR = {x:hip.x+s(pose.hipR,L.upperLeg).x, y:hip.y+s(pose.hipR,L.upperLeg).y};
-  const fR = {x:kR.x+s(pose.hipR+pose.kneeR,L.lowerLeg).x, y:kR.y+s(pose.hipR+pose.kneeR,L.lowerLeg).y};
+  const fR = {x:kR.x+s(pose.hipR-pose.kneeR,L.lowerLeg).x, y:kR.y+s(pose.hipR-pose.kneeR,L.lowerLeg).y};
   const eL = {x:sh.x+s(pose.shL,L.upperArm).x, y:sh.y+s(pose.shL,L.upperArm).y};
-  const hL = {x:eL.x+s(pose.shL+pose.elL,L.lowerArm).x, y:eL.y+s(pose.shL+pose.elL,L.lowerArm).y};
+  const hL = {x:eL.x+s(pose.shL-pose.elL,L.lowerArm).x, y:eL.y+s(pose.shL-pose.elL,L.lowerArm).y};
   const eR = {x:sh.x+s(pose.shR,L.upperArm).x, y:sh.y+s(pose.shR,L.upperArm).y};
-  const hR = {x:eR.x+s(pose.shR+pose.elR,L.lowerArm).x, y:eR.y+s(pose.shR+pose.elR,L.lowerArm).y};
+  const hR = {x:eR.x+s(pose.shR-pose.elR,L.lowerArm).x, y:eR.y+s(pose.shR-pose.elR,L.lowerArm).y};
   return {hip, sh, kL, fL, kR, fR, eL, hL, eR, hR, neck:{x:0,y:L.neckY}, headTop:{x:0,y:0}};
 }
 /* --- cắt sheet thành bộ phận (canvas), tách chi ở tâm khớp có chồng lấn --- */
@@ -3165,11 +3270,14 @@ let becaBone = null;
 function boneInit(){
   const rig = document.getElementById('becaRig');
   rig.innerHTML = '';
-  /* ảnh dự phòng: sprite phẳng (assets-ghibli/beca-sprite.webp, đã có trong
-     repo) — hiện ngay từ đầu trong lúc chờ sheet xương, và ở lại nếu sheet
-     tải lỗi (VD 404 vì chưa upload) để bé cá không bao giờ tàng hình. */
+  /* ảnh dự phòng: sprite TAY KHÔNG (assets-ghibli/beca-sprite-empty.webp) —
+     hiện ngay từ đầu trong lúc chờ sheet xương, và ở lại nếu sheet tải lỗi
+     (VD 404 vì chưa upload) để bé cá không bao giờ tàng hình. BẮT BUỘC dùng
+     bản tay không: bản beca-sprite.webp (cầm bảng + khay) khiến tay cô cầm đồ
+     ở trạng thái đứng yên lúc mới tải (lỗi live 19/11) — bảng/khay chỉ hiện ở
+     chế độ vẽ (boneApply đã ẩn ở map-mode), không bao giờ ở sprite dự phòng. */
   boneFallbackImg = document.createElement('img');
-  boneFallbackImg.src = CONFIG.IMAGES.beca;
+  boneFallbackImg.src = CONFIG.IMAGES.becaEmpty || CONFIG.IMAGES.beca;
   boneFallbackImg.alt = 'Bé cá';
   boneFallbackImg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:none;';
   rig.appendChild(boneFallbackImg);
@@ -3267,19 +3375,19 @@ function boneApply(pose, facing, mix, sc){
   /* thứ tự vẽ: xa -> gần (đuôi, chân xa, tay xa, thân, balo, đầu, chân gần, tay gần, đồ cầm) */
   place(P.tail, cx-6, hipY+6, pose.tail, P.tail.w*0.8, P.tail.h*0.5);
   place(P.legFarUpper, cx+fk.hip.x, hipY, pose.hipR+lean, P.legFarUpper.w/2, 2);
-  place(P.legFarLower, cx+fk.kR.x, hipY+fk.kR.y-hipY, pose.hipR+pose.kneeR+lean, P.legFarLower.pivot.x, P.legFarLower.pivot.y);
+  place(P.legFarLower, cx+fk.kR.x, hipY+fk.kR.y-hipY, pose.hipR-pose.kneeR+lean, P.legFarLower.pivot.x, P.legFarLower.pivot.y);
   place(P.armFarUpper, cx+fk.sh.x, shY, pose.shR+lean, P.armFarUpper.w/2, 2);
-  place(P.armFarLower, cx+fk.eR.x, shY+fk.eR.y-shY, pose.shR+pose.elR+lean, P.armFarLower.pivot.x, P.armFarLower.pivot.y);
+  place(P.armFarLower, cx+fk.eR.x, shY+fk.eR.y-shY, pose.shR-pose.elR+lean, P.armFarLower.pivot.x, P.armFarLower.pivot.y);
   place(P.torso, cx, hipY, lean, P.torso.w/2, P.torso.h);
   place(P.pack, cx, shY, lean, P.pack.w*0.5, P.pack.h*0.5);
   place(P.head, cx, neckY, pose.neck+lean*0.5, P.head.w/2, P.head.h*0.85);
   place(P.legNearUpper, cx+fk.hip.x, hipY, pose.hipL+lean, P.legNearUpper.w/2, 2);
-  place(P.legNearLower, cx+fk.kL.x, hipY+fk.kL.y-hipY, pose.hipL+pose.kneeL+lean, P.legNearLower.pivot.x, P.legNearLower.pivot.y);
+  place(P.legNearLower, cx+fk.kL.x, hipY+fk.kL.y-hipY, pose.hipL-pose.kneeL+lean, P.legNearLower.pivot.x, P.legNearLower.pivot.y);
   place(P.armNearUpper, cx+fk.sh.x, shY, pose.shL+lean, P.armNearUpper.w/2, 2);
-  place(P.armNearLower, cx+fk.eL.x, shY+fk.eL.y-shY, pose.shL+pose.elL+lean, P.armNearLower.pivot.x, P.armNearLower.pivot.y);
+  place(P.armNearLower, cx+fk.eL.x, shY+fk.eL.y-shY, pose.shL-pose.elL+lean, P.armNearLower.pivot.x, P.armNearLower.pivot.y);
   /* khay màu + bảng vẽ đặt ở tay xa (tay cầm đồ), theo tay */
-  place(P.palette, cx+fk.hR.x-8, shY+fk.hR.y-shY+4, pose.shR+pose.elR+lean, P.palette.w/2, P.palette.h/2);
-  place(P.board, cx+fk.hR.x+10, shY+fk.hR.y-shY-6, pose.shR+pose.elR+lean, P.board.w/2, P.board.h/2);
+  place(P.palette, cx+fk.hR.x-8, shY+fk.hR.y-shY+4, pose.shR-pose.elR+lean, P.palette.w/2, P.palette.h/2);
+  place(P.board, cx+fk.hR.x+10, shY+fk.hR.y-shY-6, pose.shR-pose.elR+lean, P.board.w/2, P.board.h/2);
   /* khay màu + bảng vẽ CHỈ hiện ở chế độ vẽ — tay trống khi đi/chạy/đứng/nhảy */
   const painting = !document.body.classList.contains('map-mode');
   if(P.palette && P.palette.holder) P.palette.holder.style.display = painting ? '' : 'none';
@@ -3340,11 +3448,16 @@ function boneTickBeca(){
       else becaBone.turnTo = becaBone.facing;
     }
   }
-  /* nhịp bước suy từ tốc độ (chân bám đất, không trượt) */
-  const speed = st==='run' ? 165 : st==='walk' ? 70 : 0;
-  if(speed>0){
-    const stride = 2*21*Math.sin(boneRad(st==='run'?42:28));
-    becaBone.phase += dt*speed/(2*stride);
+  /* nhịp bước suy từ tốc độ đất thật (engine cadence: f = v / (2*stride),
+     stride = 2*(thigh+shin)*sin(A)) — chân bám đất, không trượt. Tốc độ cố
+     định cũ (walk 70 / run 165 px/s) khiến chân trượt ở mọi tốc độ khác
+     (chạy 340px/s mà nhịp chỉ tính cho 165px/s). curSpeed là tốc độ đất thật
+     do mapLoop tính mỗi khung (0 khi đứng yên). */
+  if(st==='walk' || st==='run'){
+    const A = st==='run'?40:25;
+    const stride = 2*(BONE_LIMB.upperLeg+BONE_LIMB.lowerLeg)*Math.sin(boneRad(A));
+    const speed = Math.min(Math.max(curSpeed||0, 0), SPEED_MAX);
+    if(stride>1 && speed>0) becaBone.phase += dt*speed/(2*stride);
   } else if(st==='idle'){
     becaBone.phase += dt*0.5;
   }
@@ -3466,6 +3579,27 @@ window.__becaPainting = {
   npcFaces: ()=>Object.keys(npcFaceURL),
   zones: ()=>CONFIG.ZONES.map(z=>z.id),
   hitsSolid: (x,y)=>hitsSolid(x,y),
+  /* fix round 2 — hooks cho harness: tư thế xương, FK, sprite dự phòng, DOM stacking */
+  bonePose: (state, phase)=>bonePoseFor(state, phase),
+  boneFK: (pose, facing)=>boneFK(pose, facing),
+  fallbackSrc: ()=>boneFallbackImg ? boneFallbackImg.src : null,
+  fgDom: ()=>{
+    const mw = document.getElementById('mapWorld');
+    const kids = mw ? Array.from(mw.children||[]) : [];
+    const walkerIdx = kids.findIndex(c=>c.id==='walker');
+    return {
+      walkerIdx,
+      walkerParent: walkerIdx>=0 ? 'mapWorld' : null,
+      /* từng FG: có gắn vào #mapWorld không, ở vị trí DOM nào so với #walker,
+         z-index số, có clip-path không — stacking THẬT (cùng parent #mapWorld
+         nên z-index so sánh được; T13/T14 cũ chỉ so số z trên stub) */
+      fgs: (CONFIG.FG||[]).map(f=>{
+        const el = fgEls[f.id];
+        const idx = el ? kids.indexOf(el) : -1;
+        return {id:f.id, y:f.y, attached: idx>=0, domIdx: idx, afterWalker: idx>walkerIdx, z: el ? +el.style.zIndex : null, clip: !!(el && el.style.clipPath)};
+      }),
+    };
+  },
 };
 </script>
 </body>
