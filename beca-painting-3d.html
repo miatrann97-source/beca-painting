@@ -250,6 +250,12 @@ body.paint-mode #mapBtn{display:inline-block}
 #offerThumb{width:100%;max-width:300px;border:3px solid var(--wood);border-radius:12px;margin:6px auto;display:block}
 #landlordAvatar{width:96px;height:96px;margin:0 auto 8px;border-radius:50%;overflow:hidden;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.2)}
 #landlordAvatar svg{display:block;width:100%;height:100%}
+#storyOverlay .modal{
+  background:linear-gradient(rgba(40,25,5,.42),rgba(40,25,5,.68)),url(assets/town-sunset.webp) center/cover;
+}
+#storyOverlay h2,#storyOverlay p{color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.65)}
+#storyOverlay #storyDots{color:rgba(255,255,255,.65)}
+#storyOverlay #storyDots .on{color:#FFD93D}
 #storyImg{
   width:110px;height:110px;object-fit:cover;object-position:top center;border-radius:50%;
   border:3px solid #fff;outline:3px solid var(--sea);box-shadow:0 3px 8px rgba(0,0,0,.25);
@@ -666,7 +672,7 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.12;
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0xffd9b0, 70, 170);
+scene.fog = new THREE.Fog(0xffc9a0, 60, 165);
 const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 400);
 
 /* bầu trời hoàng hôn: vòm gradient (trên xanh nhạt -> chân trời hồng-cam) */
@@ -686,10 +692,10 @@ const sky = new THREE.Mesh(
 scene.add(sky);
 
 /* ánh sáng hoàng hôn: nắng ấm xiên + trời hồng */
-const hemi = new THREE.HemisphereLight(0xffc9d6, 0x9a7a5a, 0.85);
+const hemi = new THREE.HemisphereLight(0xffb3c8, 0x8a6a4a, 1.05);
 scene.add(hemi);
-const sun = new THREE.DirectionalLight(0xffd9a0, 2.3);
-sun.position.set(28, 38, 22);
+const sun = new THREE.DirectionalLight(0xffb36b, 2.6);
+sun.position.set(-35, 24, -28);
 sun.target.position.set(0, 0, 0);
 sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
@@ -698,6 +704,14 @@ sun.shadow.camera.top = 45; sun.shadow.camera.bottom = -45;
 sun.shadow.camera.near = 1; sun.shadow.camera.far = 140;
 sun.shadow.bias = -0.0006;
 scene.add(sun); scene.add(sun.target);
+/* ánh sáng viền ấm từ phía đối diện (bounce hoàng hôn) — rìa vàng cho bé cá + nhà */
+const rimLight = new THREE.DirectionalLight(0xff9e5e, 0.55);
+rimLight.position.set(30, 9, 32);
+scene.add(rimLight); scene.add(rimLight.target);
+/* đèn fill ấm từ phía nam (phía camera) — mặt tiền tiệm hướng nam không bị tối */
+const fillLight = new THREE.DirectionalLight(0xffd9a8, 0.85);
+fillLight.position.set(10, 25, 50);
+scene.add(fillLight); scene.add(fillLight.target);
 
 /* ---------- texture vân cọ / hạt sơn lấm tấm (vẽ bằng canvas, không tải ảnh) ---------- */
 function speckleCanvas(base, dots, n, streaks, grid){
@@ -726,6 +740,28 @@ function speckleCanvas(base, dots, n, streaks, grid){
   g.globalAlpha = 1;
   return c;
 }
+/* mái ngói: hàng vảy ngói xếp chồng (vẽ bằng canvas, không tải ảnh) */
+function tileCanvas(base, tones){
+  const c = document.createElement('canvas'); c.width = c.height = 256;
+  const g = c.getContext('2d');
+  g.fillStyle = base; g.fillRect(0, 0, 256, 256);
+  const rows = 6, rh = 256 / rows, tw = 256 / 5;
+  for (let r = 0; r < rows; r++){
+    for (let i = -1; i < 6; i++){
+      const x = i * tw + (r % 2 ? tw / 2 : 0);
+      g.fillStyle = tones[(Math.random() * tones.length) | 0];
+      g.globalAlpha = 0.85 + Math.random() * 0.15;
+      g.beginPath();
+      g.arc(x + tw / 2, r * rh + rh * 0.6, tw / 2 - 1, Math.PI, 0);
+      g.fill();
+      g.globalAlpha = 0.3;
+      g.strokeStyle = 'rgba(80,25,0,.55)'; g.lineWidth = 2;
+      g.beginPath(); g.arc(x + tw / 2, r * rh + rh * 0.6, tw / 2 - 1, Math.PI, 0); g.stroke();
+    }
+  }
+  g.globalAlpha = 1;
+  return c;
+}
 function ctex(canvas, rx, ry){
   const t = new THREE.CanvasTexture(canvas);
   t.colorSpace = THREE.SRGBColorSpace;
@@ -745,10 +781,10 @@ const MAT = {
   wallPink:  lambert(ctex(speckleCanvas('#FFD9C2', ['#FFC4A8', '#FFE8DC'], 400, 16))),
   wallYellow:lambert(ctex(speckleCanvas('#FFE9A8', ['#FFD98E', '#FFF3D0'], 400, 16))),
   wallRed:   lambert(ctex(speckleCanvas('#E74C3C', ['#D63C2C', '#F06A5A'], 400, 16))),
-  roofOrange:lambert(ctex(speckleCanvas('#E67E22', ['#D35400', '#F39C12', '#C86A12'], 700, 60), 3, 2)),
-  roofRed:   lambert(ctex(speckleCanvas('#C0392B', ['#A93226', '#D35400'], 700, 60), 3, 2)),
-  roofPink:  lambert(ctex(speckleCanvas('#C2185B', ['#A3154A', '#D6336C'], 700, 60), 3, 2)),
-  roofBrown: lambert(ctex(speckleCanvas('#8A5A2B', ['#75491F', '#A5672F'], 700, 60), 3, 2)),
+  roofOrange:lambert(ctex(tileCanvas('#E67E22', ['#D35400', '#F39C12', '#C86A12']), 3, 2)),
+  roofRed:   lambert(ctex(tileCanvas('#C0392B', ['#A93226', '#D35400', '#E74C3C']), 3, 2)),
+  roofPink:  lambert(ctex(tileCanvas('#C2185B', ['#A3154A', '#D6336C', '#E91E63']), 3, 2)),
+  roofBrown: lambert(ctex(tileCanvas('#8A5A2B', ['#75491F', '#A5672F', '#9C6B30']), 3, 2)),
   wood:   lambert(ctex(speckleCanvas('#A5672F', ['#8A4B12', '#C07F3E'], 500, 30))),
   woodDark: lambert(ctex(speckleCanvas('#5B3A1A', ['#4A2E14', '#6B4423'], 400, 20))),
   stone:  lambert(ctex(speckleCanvas('#CFC4AE', ['#B8A88A', '#E3D5BC'], 600, 20))),
@@ -790,6 +826,53 @@ function glowSprite(scale){
   const s = new THREE.Sprite(m); s.scale.set(scale, scale, 1); return s;
 }
 
+/* ---------- texture AI điện ảnh (assets/, tải bất đồng bộ, fallback vân cọ) ----------
+   Ảnh AI do Bom vẽ theo ảnh mẫu An đã duyệt (phố hoàng hôn Ghibli):
+   sky = trời hoàng hôn + biển (backdrop cong phía bắc), shop = mặt tiền tiệm gỗ,
+   house = tường nhà vàng, cobble = đá lát. Tải lỗi -> giữ nguyên vân cọ cũ. */
+const AI_TEX = {
+  sky:    { url: 'assets/sky-panorama.webp', status: 'pending' },
+  shop:   { url: 'assets/shopfront.webp',   status: 'pending' },
+  house:  { url: 'assets/house-wall.webp', status: 'pending' },
+  cobble: { url: 'assets/cobblestone.webp', status: 'pending' },
+};
+const AI_FRONT_MATS = [];  // {mat, key} — mặt tiền nhà/tiệm
+const AI_GROUND_MATS = []; // {mat, key, rx, ry} — quảng trường + đường đá
+function applyAITexture(key){
+  const rec = AI_TEX[key];
+  if (!rec || rec.status !== 'ok' || !rec.tex) return;
+  for (const u of AI_FRONT_MATS){
+    if (u.key !== key) continue;
+    u.mat.map = rec.tex; u.mat.needsUpdate = true;
+  }
+  for (const u of AI_GROUND_MATS){
+    if (u.key !== key) continue;
+    const t = rec.tex.clone(); t.needsUpdate = true; t.repeat.set(u.rx, u.ry);
+    u.mat.map = t; u.mat.needsUpdate = true;
+  }
+}
+let skyBackdrop = null;
+function makeSkyBackdrop(tex){
+  if (skyBackdrop) return;
+  /* mặt cong phía bắc (hướng biển): từ quảng trường đã thấy biển + trời hoàng hôn */
+  const geo = new THREE.CylinderGeometry(170, 170, 70, 32, 1, true, Math.PI - 0.9, 1.8);
+  const mat = new THREE.MeshBasicMaterial({ map: tex, side: THREE.BackSide, fog: false });
+  skyBackdrop = new THREE.Mesh(geo, mat);
+  skyBackdrop.position.y = 25;
+  scene.add(skyBackdrop);
+}
+const texLoader = new THREE.TextureLoader();
+for (const key of Object.keys(AI_TEX)){
+  texLoader.load(AI_TEX[key].url, (tex) => {
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    tex.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+    AI_TEX[key].tex = tex; AI_TEX[key].status = 'ok';
+    if (key === 'sky') makeSkyBackdrop(tex);
+    applyAITexture(key);
+  }, undefined, () => { AI_TEX[key].status = 'error'; });
+}
+
 /* ---------- bố cục phố (đơn vị mét; x: -45..45, z: -28..28) ---------- */
 const BOUNDS = { x0: -42, x1: 42, z0: -24, z1: 26 };
 const OBSTACLES_CIRCLE = []; // {x, z, r}
@@ -823,6 +906,8 @@ function gableRoof(w, d, h, mat){
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.Float32BufferAttribute(v, 3));
   g.setIndex(idx);
+  /* UV: u dọc theo mái (trước-sau), v từ mái hiên lên nóc — vảy ngói xếp đúng chiều */
+  g.setAttribute('uv', new THREE.Float32BufferAttribute([0,0, 0,0, 1,0, 1,0, 0,1, 1,1], 2));
   g.computeVertexNormals();
   const m = new THREE.Mesh(g, mat);
   m.castShadow = true; m.receiveShadow = true;
@@ -838,12 +923,23 @@ const plaza = box(36, 0.14, 20, MAT.plaza, 0, 0.02, 2);
 const streetN = box(70, 0.12, 4, MAT.cobble, 0, 0.02, -12.5);
 const streetE = box(4, 0.12, 34, MAT.cobble, 24, 0.02, 6);
 const streetS = box(70, 0.12, 4, MAT.cobble, 0, 0.02, 16.5);
+/* mặt đất dùng texture đá lát AI khi tải xong (đá tròn ~0.5u/viên, mịn hơn) */
+AI_GROUND_MATS.push({ mat: MAT.plaza, key: 'cobble', rx: 7, ry: 4 });
+AI_GROUND_MATS.push({ mat: MAT.cobble, key: 'cobble', rx: 10, ry: 2.5 });
 
 /* ---------- cửa hàng ---------- */
 function makeBuilding(o){
   const g = new THREE.Group();
   g.position.set(o.x, 0, o.z);
-  const walls = new THREE.Mesh(new THREE.BoxGeometry(o.w, o.h, o.d), o.wall);
+  /* mặt có texture AI: tiệm -> mặt trước (+z) hướng quảng trường;
+     nhà dân -> mặt sau (-z) + hai hông (mặt trước có cửa 3D, giữ tường trơn).
+     Trước khi texture tải xong, mặt AI dùng tạm map vân cọ của chính tường đó. */
+  const aiMat = lambert(o.wall.map);
+  AI_FRONT_MATS.push({ mat: aiMat, key: o.shop ? 'shop' : 'house' });
+  const mats = o.shop
+    ? [o.wall, o.wall, o.wall, o.wall, aiMat, o.wall]
+    : [aiMat, aiMat, o.wall, o.wall, o.wall, aiMat];
+  const walls = new THREE.Mesh(new THREE.BoxGeometry(o.w, o.h, o.d), mats);
   walls.position.y = o.h / 2; walls.castShadow = true; walls.receiveShadow = true;
   g.add(walls);
   const roof = gableRoof(o.w + 0.8, o.d + 0.8, o.h * 0.7, o.roof);
@@ -864,16 +960,18 @@ function makeBuilding(o){
   return g;
 }
 const BLD = {};
-BLD.paintshop = makeBuilding({ id: 'paintshop', x: -30, z: -17, w: 10, d: 6, h: 5, wall: MAT.wallYellow, roof: MAT.roofOrange, sign: '🎨 Tiệm Màu', signBg: '#E09E00' });
-BLD.pho = makeBuilding({ id: 'pho', x: -16, z: -17, w: 9, d: 6, h: 5, wall: MAT.wallPink, roof: MAT.roofRed, sign: '🍜 Quán Phở', signBg: '#E74C3C' });
-BLD.studio = makeBuilding({ id: 'studio', x: 0, z: -17.5, w: 12, d: 7, h: 6, wall: MAT.wallRed, roof: MAT.roofRed, sign: '🏠 TIỆM VẼ BÁN', signBg: '#C0392B' });
-BLD.bakery = makeBuilding({ id: 'bakery', x: 15, z: -17, w: 9, d: 6, h: 5, wall: MAT.wallCream, roof: MAT.roofOrange, sign: '🥐 Tiệm Bánh', signBg: '#D35400' });
-BLD.flower = makeBuilding({ id: 'flower', x: 28, z: -17, w: 9, d: 6, h: 5, wall: MAT.wallPink, roof: MAT.roofPink, sign: '🌸 Tiệm Hoa', signBg: '#C2185B' });
+BLD.paintshop = makeBuilding({ id: 'paintshop', shop: true, x: -30, z: -17, w: 10, d: 6, h: 5, wall: MAT.wallYellow, roof: MAT.roofOrange, sign: '🎨 Tiệm Màu', signBg: '#E09E00' });
+BLD.pho = makeBuilding({ id: 'pho', shop: true, x: -16, z: -17, w: 9, d: 6, h: 5, wall: MAT.wallPink, roof: MAT.roofRed, sign: '🍜 Quán Phở', signBg: '#E74C3C' });
+BLD.studio = makeBuilding({ id: 'studio', shop: true, x: 0, z: -17.5, w: 12, d: 7, h: 6, wall: MAT.wallRed, roof: MAT.roofRed, sign: '🏠 TIỆM VẼ BÁN', signBg: '#C0392B' });
+BLD.bakery = makeBuilding({ id: 'bakery', shop: true, x: 15, z: -17, w: 9, d: 6, h: 5, wall: MAT.wallCream, roof: MAT.roofOrange, sign: '🥐 Tiệm Bánh', signBg: '#D35400' });
+BLD.flower = makeBuilding({ id: 'flower', shop: true, x: 28, z: -17, w: 9, d: 6, h: 5, wall: MAT.wallPink, roof: MAT.roofPink, sign: '🌸 Tiệm Hoa', signBg: '#C2185B' });
+/* nhà dân dời sang mép tây/đông (không còn ở mép nam — camera thấp sẽ bị mái nhà
+   ngay trước ống kính che mất khung hình khi bé cá ở nửa nam bản đồ) */
 const HOUSES = [
-  { id: 'house1', x: -30, z: 23, w: 9, d: 6, h: 4.5, wall: MAT.wallCream, roof: MAT.roofOrange },
-  { id: 'house2', x: -14, z: 23, w: 9, d: 6, h: 4.5, wall: MAT.wallYellow, roof: MAT.roofBrown },
-  { id: 'house3', x: 2, z: 23, w: 9, d: 6, h: 4.5, wall: MAT.wallPink, roof: MAT.roofOrange },
-  { id: 'house4', x: 18, z: 23, w: 9, d: 6, h: 4.5, wall: MAT.wallCream, roof: MAT.roofBrown },
+  { id: 'house1', x: -40, z: -4, w: 9, d: 6, h: 4.5, wall: MAT.wallCream, roof: MAT.roofOrange },
+  { id: 'house2', x: -40, z: 8, w: 9, d: 6, h: 4.5, wall: MAT.wallYellow, roof: MAT.roofBrown },
+  { id: 'house3', x: -40, z: 18, w: 9, d: 6, h: 4.5, wall: MAT.wallPink, roof: MAT.roofOrange },
+  { id: 'house4', x: 40, z: -4, w: 9, d: 6, h: 4.5, wall: MAT.wallCream, roof: MAT.roofBrown },
 ];
 for (const h of HOUSES) makeBuilding(h);
 
@@ -913,8 +1011,8 @@ function makeTree(x, z, s){
 }
 const trees = [
   makeTree(30, 6, 1.1), makeTree(36, 12, 1.3), makeTree(40, 18, 1.0),
-  makeTree(32, 20, 1.2), makeTree(38, 4, 0.9), makeTree(-40, -6, 1.0),
-  makeTree(41, -6, 1.1), makeTree(-41, 20, 1.1),
+  makeTree(32, 20, 1.2), makeTree(38, 4, 0.9), makeTree(-33, -10, 1.0),
+  makeTree(33, -8, 1.1), makeTree(-33, 22, 1.1),
 ];
 function makeBench(x, z, rotY){
   const g = new THREE.Group();
@@ -944,10 +1042,10 @@ function makeLantern(x, z){
   g.position.set(x, 0, z);
   cyl(0.09, 0.12, 3.1, MAT.woodDark, 0, 1.55, 0, 8, g);
   const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.42, 12, 10),
-    new THREE.MeshLambertMaterial({ color: 0xE74C3C, emissive: 0xB03A1A, emissiveIntensity: 0.55 }));
+    new THREE.MeshLambertMaterial({ color: 0xE74C3C, emissive: 0xB03A1A, emissiveIntensity: 0.85 }));
   lamp.scale.set(1, 1.25, 1); lamp.position.y = 2.9; lamp.castShadow = true; g.add(lamp);
   const cap = cyl(0.2, 0.28, 0.14, MAT.gold, 0, 3.42, 0, 8, g);
-  const glow = glowSprite(2.4); glow.position.y = 2.9; g.add(glow);
+  const glow = glowSprite(3.0); glow.position.y = 2.9; g.add(glow);
   town.add(g);
   OBSTACLES_CIRCLE.push({ x, z, r: 0.4 });
   lanterns.push({ g, lamp, glow, phase: Math.random() * 6 });
@@ -1010,10 +1108,17 @@ makeCloud(-14, 24, 14, 1.8); makeCloud(40, 25, -12, 1.5); makeCloud(-38, 21, 8, 
 function lam(color, extra){
   return new THREE.MeshLambertMaterial(Object.assign({ color }, extra || {}));
 }
+/* chất liệu render mềm cho bé cá (Standard: có điểm sáng nhẹ như ảnh mẫu Pixar) */
+function std(color, extra){
+  return new THREE.MeshStandardMaterial(Object.assign({ color, roughness: 0.55, metalness: 0 }, extra || {}));
+}
 const MATC = {
-  hood: lam(0x54A0FF), hoodDark: lam(0x2E86DE), skin: lam(0xFFDDBB),
-  hair: lam(0x5B3A29), white: lam(0xFFFFFF), shoeWhite: lam(0xF5F5F5),
-  eye: lam(0x2B2B2B), blush: lam(0xFF9FB2), mouth: lam(0xB5651D),
+  hood: std(0x54A0FF, { roughness: 0.5 }), hoodDark: std(0x2E86DE, { roughness: 0.5 }),
+  skin: std(0xFFDDBB, { roughness: 0.6 }), hair: std(0x5B3A29, { roughness: 0.7 }),
+  white: std(0xFFFFFF, { roughness: 0.45 }), shoeWhite: std(0xF5F5F5, { roughness: 0.5 }),
+  eye: std(0x4A2E1A, { roughness: 0.25 }),
+  blush: std(0xFF9FB2, { roughness: 0.7, transparent: true, opacity: 0.85 }),
+  mouth: lam(0xB5651D),
 };
 function capsule(r, len, mat){
   const m = new THREE.Mesh(new THREE.CapsuleGeometry(r, len, 4, 10), mat);
@@ -1070,13 +1175,18 @@ function buildBeca(){
     const tooth = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.09, 0.04), MATC.white);
     tooth.position.set(tx, 0.3, 0.4); P.head.add(tooth);
   }
+  /* viền trắng mềm quanh mặt (như ảnh render mẫu) — vòng ôm đúng bề mặt hood */
+  const trim = new THREE.Mesh(new THREE.TorusGeometry(0.34, 0.045, 10, 20), MATC.white);
+  trim.position.set(0, 0.02, 0.25); P.head.add(trim);
   for (const ex of [-0.13, 0.13]){
-    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.065, 10, 8), MATC.eye);
+    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.075, 10, 8), MATC.eye);
     eye.position.set(ex, 0.02, 0.42); P.head.add(eye);
-    const hl2 = new THREE.Mesh(new THREE.SphereGeometry(0.022, 8, 6), MATC.white);
+    const hl2 = new THREE.Mesh(new THREE.SphereGeometry(0.03, 8, 6), MATC.white);
     hl2.position.set(ex + 0.02, 0.05, 0.48); P.head.add(hl2);
+    const hl3 = new THREE.Mesh(new THREE.SphereGeometry(0.013, 6, 6), MATC.white);
+    hl3.position.set(ex - 0.025, -0.02, 0.48); P.head.add(hl3);
     const bl = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 6), MATC.blush);
-    bl.scale.set(1, 0.7, 0.4); bl.position.set(ex * 1.9, -0.08, 0.38); P.head.add(bl);
+    bl.scale.set(1.15, 0.8, 0.4); bl.position.set(ex * 1.85, -0.09, 0.38); P.head.add(bl);
   }
   const smile = new THREE.Mesh(new THREE.TorusGeometry(0.07, 0.018, 8, 12, Math.PI), MATC.mouth);
   smile.position.set(0, -0.1, 0.44); smile.rotation.z = Math.PI; P.head.add(smile);
@@ -1264,8 +1374,8 @@ for (const h of HOUSES) { /* nhà dân không mở gì, chỉ chạm đất */ }
 let dragStart = null, dragMode = null, dragT0 = 0, dragVec = null, moveTarget = null;
 let phase = 0, walkPhase = 0;
 const tapLog = { down: 0, up: 0, taps: 0, lastTap: null };
-const camPos = new THREE.Vector3(0, 26, 25);
-const camLook = new THREE.Vector3(0, 0.5, 5);
+const camPos = new THREE.Vector3(0, 17, 32);
+const camLook = new THREE.Vector3(0, 1.5, -2);
 
 function resizeGL(){
   const w = mapWrap.clientWidth, h = mapWrap.clientHeight;
@@ -1444,16 +1554,17 @@ function updateGame(dt, tSec){
     if (cl.g.position.x > 70) cl.g.position.x = -70;
   }
   lightBall.material.color.setHex(Math.sin(tSec * 2) > 0 ? 0xFFE082 : 0xFFF6C8);
-  /* --- camera góc cao theo bé cá (lerp mượt, KHÔNG rung) --- */
+  /* --- camera góc thấp kiểu Passpartout 2 (nghiêng ~24°): từ quảng trường
+     đã thấy hải đăng + trời hoàng hôn trên mái nhà; bé cá ở 1/3 dưới khung --- */
   if (inMap){
     const desX = beca.x, desZ = beca.z;
     camPos.x += (desX - camPos.x) * (1 - Math.exp(-4 * dt));
-    camPos.z += (desZ + 17 - camPos.z) * (1 - Math.exp(-4 * dt));
-    camPos.y += (26 - camPos.y) * (1 - Math.exp(-4 * dt));
+    camPos.z += (desZ + 24 - camPos.z) * (1 - Math.exp(-4 * dt));
+    camPos.y += (17 - camPos.y) * (1 - Math.exp(-4 * dt));
     camLook.x += (beca.x - camLook.x) * (1 - Math.exp(-5 * dt));
-    camLook.z += (beca.z - 3 - camLook.z) * (1 - Math.exp(-5 * dt));
+    camLook.z += (beca.z - 10 - camLook.z) * (1 - Math.exp(-5 * dt));
     camera.position.copy(camPos);
-    camera.lookAt(camLook.x, 0.5, camLook.z);
+    camera.lookAt(camLook.x, 1.5, camLook.z);
   }
 }
 function renderFrame(){
@@ -2001,13 +2112,14 @@ window.__becaPainting3d = {
   buy: (id) => { if (id === 'shop') return buyShop(); const it = SHOP_ITEMS.find(x => x.id === id); if (it) buyItem(it); },
   nextDay: () => { state.day++; pickDay(); save(); newCanvas(); renderHeader(); renderScene(); renderMap3D(); showMap(); },
   story: () => ({ open: $('storyOverlay').classList.contains('open'), page: storyPage, seen: !!state.seenStory }),
+  assets: () => ({ done: Object.values(AI_TEX).every(r => r.status === 'ok' || r.status === 'error'), list: Object.fromEntries(Object.entries(AI_TEX).map(([k, r]) => [k, r.status])) }),
   map: () => ({ x: beca.x, z: beca.z, camX: camPos.x, camZ: camPos.z, mode: document.body.classList.contains('map-mode') ? 'map' : 'paint', walking: beca.anim !== 'idle', anim: beca.anim, facing: beca.angle, speed: beca.speed, world: { w: 90, h: 56 } }),
   minimap: () => ({ x: mmX(beca.x), y: mmZ(beca.z) }),
   debugGoto(id){
     const spots = { ba: [-20, 8], mai: [14, 6], tung: [-8, 18], hoa: [16, 18], bay: [0, 16], mimi: [-12, -2], paintshop: [-30, -11], landlord: [0, -11.5], studio: [0, -11.5], pho: [-16, -11], park: [34, 12] };
     const s = spots[id] || [0, 8];
     beca.x = s[0]; beca.z = s[1]; moveTarget = null; dragVec = null;
-    camPos.set(beca.x, 26, beca.z + 17); camLook.set(beca.x, 0.5, beca.z - 3);
+    camPos.set(beca.x, 17, beca.z + 24); camLook.set(beca.x, 1.5, beca.z - 10);
   },
   debugTeleport(x, z){ beca.x = x; beca.z = z; moveTarget = null; dragVec = null; },
   debugUnserve(){ state.served = []; save(); renderMap3D(); },
