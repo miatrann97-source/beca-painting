@@ -226,14 +226,14 @@ body.map-mode #mapView{display:block}
 
 
 #walker .wshadow{
-  position:absolute;left:50%;bottom:-6px;width:38px;height:9px;margin-left:-19px;
-  background:rgba(0,0,0,.25);border-radius:50%;
+  position:absolute;left:50%;bottom:-6px;width:56px;height:12px;margin-left:-28px;
+  background:rgba(0,0,0,.38);border-radius:50%;
 }
 #walker.walking .wshadow{animation:shPulse .38s ease-in-out infinite alternate}
 #walker.running .wshadow{animation:shPulse .2s ease-in-out infinite alternate}
 #walker:not(.walking):not(.running) .wshadow{animation:shIdle 1.8s ease-in-out infinite alternate}
-@keyframes shPulse{from{transform:scaleX(1);opacity:.28}to{transform:scaleX(.78);opacity:.15}}
-@keyframes shIdle{from{transform:scaleX(1);opacity:.25}to{transform:scaleX(.94);opacity:.21}}
+@keyframes shPulse{from{transform:scaleX(1);opacity:.45}to{transform:scaleX(.78);opacity:.28}}
+@keyframes shIdle{from{transform:scaleX(1);opacity:.42}to{transform:scaleX(.94);opacity:.34}}
 #walker .wname{
   position:absolute;left:50%;top:-20px;transform:translateX(-50%);font-size:11px;font-weight:800;
   color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.7);white-space:nowrap;
@@ -334,6 +334,10 @@ body.map-mode #mapView{display:block}
 
 /* ---------- thế giới mở: 3 khu + joystick + camera 360° + nhiệm vụ + ngày/đêm ---------- */
 .zoneLayer{position:absolute;pointer-events:none}
+/* Lớp tiền cảnh (che khuất): bản sao ảnh nền khu, chỉ hiện bóng của 1 vật qua
+   clip-path (xem CONFIG.FG). z-index xếp theo y ở updateDepthSort: vật che
+   người khi người đứng sau nó, người che vật khi đứng trước nó. */
+.fgObj{position:absolute;left:0;top:0;width:1600px;height:1400px;pointer-events:none}
 #questLayer{position:absolute;inset:0;pointer-events:none}
 .questItem{position:absolute;width:44px;height:44px;margin:-22px 0 0 -22px;font-size:30px;text-align:center;cursor:pointer;pointer-events:auto;z-index:8;animation:custBob 2s ease-in-out infinite;filter:drop-shadow(0 2px 2px rgba(0,0,0,.3))}
 #joystick{position:absolute;width:110px;height:110px;margin:-55px 0 0 -55px;border-radius:50%;border:3px solid rgba(255,255,255,.75);background:rgba(46,134,222,.18);display:none;pointer-events:none;z-index:7}
@@ -593,20 +597,25 @@ const CONFIG = {
   },
   /* ---- bản đồ: kích thước thế giới, vùng đi được, tốc độ ---- */
   WORLD: { w: 4800, h: 1400 },
-  WALK: { x0: 60, y0: 900, x1: 4740, y1: 1340 },  // vùng bé cá đi được (3 khu ngang)
+  WALK: { x0: 60, y0: 960, x1: 4740, y1: 1340 },  // vùng bé cá đi được (3 khu ngang) — y0=960: chân luôn đứng trên vỉa hè, cách chân tường tiệm 70px nên không bao giờ "đứng trên mặt tiền" như y0=900 cũ
   SPEED_MAX: 340,  // px/s khi kéo xa (chạy); kéo nhẹ = đi bộ chậm
   OBSTACLES: [      // vật cản tròn: bé cá không đi xuyên qua được
-    { x: 550, y: 1180, r: 165 },  // đài phun nước giữa quảng trường (căn theo ảnh nền plaza-bright)
-    { x: 350, y: 980, r: 45 },    // cây quảng trường
-    { x: 1300, y: 960, r: 45 },   // cây quảng trường
-    { x: 2000, y: 980, r: 40 },   // cây phố đi bộ
-    { x: 2600, y: 960, r: 40 },   // cây phố đi bộ
-    { x: 2900, y: 1020, r: 40 },  // cây phố đi bộ
-    { x: 3500, y: 980, r: 40 },   // cây chợ
-    { x: 250, y: 1100, r: 45 },   // xe hàng rong quảng trường
-    { x: 450, y: 950, r: 40 },    // xe hàng rong quảng trường
-    { x: 900, y: 950, r: 40 },    // xe hàng rong quảng trường
-    { x: 1050, y: 1050, r: 45 },  // xe hàng rong quảng trường
+    /* đài phun nước: đo lại bằng visual grounding 19/11 — bồn thật là ellipse
+       ~535x210 tâm (623,1211) (KHÔNG phải (762,1250) như đo cũ) -> 2 vòng tròn
+       (495,1215)+(755,1215) r135 ôm đúng bồn; vòng cũ lệch phải ~140px nên bé
+       cá đi được lên vành trái + bị chặn oan trên đất trống bên phải */
+    { x: 495, y: 1215, r: 135 },  // đài phun nước (nửa trái)
+    { x: 755, y: 1215, r: 135 },  // đài phun nước (nửa phải)
+    { x: 518, y: 1030, r: 45 },   // cây quảng trường (tán tròn giữa-trái, gốc đo từ ảnh)
+    { x: 1067, y: 1030, r: 45 },  // cây quảng trường (tán tròn giữa, gốc đo từ ảnh)
+    { x: 2000, y: 980, r: 40 },   // cây phố đi bộ (khớp ảnh)
+    { x: 3060, y: 1000, r: 40 },  // cây cọ phố đi bộ (trước là (2900,1020) lệch trái ~160px)
+    /* (2600,960) ĐÃ BỎ: đo lại là giữa đường trống, không có cây — chặn oan đất trống */
+    /* (3500,980) ĐÃ BỎ: đo lại là sạp trái cây (đã có stallFrontL chặn) — không phải cây */
+    { x: 250, y: 1100, r: 60 },   // xe hàng rong quảng trường (góc trái dưới)
+    { x: 370, y: 990, r: 60 },    // xe hàng rong quảng trường (xe mái cam gần tháp đồng hồ)
+    { x: 1006, y: 985, r: 60 },   // xe hàng rong quảng trường (xe mái xanh giữa-phải)
+    { x: 1090, y: 1080, r: 60 },  // xe hàng rong quảng trường (xe mái xanh bên phải)
   ],
   /* ---- tòa nhà / điểm chạm trên bản đồ (rect: [x, y, rộng, cao] trong thế giới) ----
      action: 'shop' (mở cửa hàng) | 'landlord' (mở hội thoại ông chủ nhà)
@@ -643,12 +652,42 @@ const CONFIG = {
       sign:{ x:4530, y:680, text:'🌺 Sạp Hoa Quả', bg:'#AB47BC' } },
     /* sạp chợ mặt tiền (hàng hoá vẽ trên nền, y 980-1300): chặn để không đi xuyên sạp */
     { id:'stallFrontL', testid:'stall-front-l', action:'none', solid:true, nohot:true, rect:[3200, 980, 300, 320], mmColor:'#7CB342' },
-    { id:'stallFrontR', testid:'stall-front-r', action:'none', solid:true, nohot:true, rect:[4300, 980, 460, 320], mmColor:'#AB47BC' },
+    { id:'stallFrontR', testid:'stall-front-r', action:'none', solid:true, nohot:true, rect:[4500, 980, 300, 320], mmColor:'#AB47BC' },
+    /* bàn ghế quán cà phê phố Nguyễn Huệ (đo lại 19/11: bàn ghế thật ở x 2911-3200,
+       y 1150-1300 — rect cũ (2660,1150) nằm giữa đường trống, chặn oan) */
+    { id:'cafeTable1', testid:'cafe-table-1', action:'none', solid:true, nohot:true, rect:[2910, 1150, 140, 130], mmColor:'#8D6E63' },
+    { id:'cafeTable2', testid:'cafe-table-2', action:'none', solid:true, nohot:true, rect:[3050, 1180, 150, 120], mmColor:'#8D6E63' },
     /* tường bao quanh thế giới (chỉ chặn, không hiện vùng chạm để chạm đất vẫn đi được) */
     { id:'wallNorth', testid:'wall-north', action:'none', solid:true, nohot:true, rect:[0, 0, 4800, 880], mmColor:'#B0A090' },
     { id:'wallWest',  testid:'wall-west',  action:'none', solid:true, nohot:true, rect:[0, 0, 40, 1400],  mmColor:'#B0A090' },
     { id:'wallEast',  testid:'wall-east',  action:'none', solid:true, nohot:true, rect:[4760, 0, 40, 1400], mmColor:'#B0A090' },
     { id:'wallSouth', testid:'wall-south', action:'none', solid:true, nohot:true, rect:[0, 1360, 4800, 40], mmColor:'#B0A090' },
+  ],
+  /* ---- lớp tiền cảnh (che khuất / occlusion): thế giới phải CÓ VẬT THỂ, không
+     phải phông nền phẳng. Mỗi FG là 1 bản sao của ảnh nền khu đó (cùng ảnh, cùng
+     vị trí, cùng cover) nhưng chỉ hiện đúng bóng của 1 vật qua clip-path; game
+     xếp z-index theo y (y càng lớn = càng gần camera = càng trên) nên khi bé cá
+     đi SAU vật (y nhỏ hơn) thì vật che phần dưới người cô, khi đi TRƯỚC vật
+     (y lớn hơn) thì cô che vật. clip-path đo từ ảnh nền bằng visual grounding
+     19/11 (tọa độ khu: x = world_x - zoneX, y = world_y). y = mốc che khuất
+     (thường là chân/đáy vật). ---- */
+  FG: [
+    /* quảng trường */
+    { id:'fgFountainBasin', zone:'plaza', y:1211, clip:'ellipse(267px 105px at 623px 1211px)' },
+    { id:'fgFountainTier',  zone:'plaza', y:1211, clip:'polygon(560px 1221px, 690px 1221px, 675px 1080px, 680px 1000px, 650px 960px, 600px 960px, 570px 1000px, 575px 1080px)' },
+    { id:'fgTreePlazaL',    zone:'plaza', y:1030, clip:'polygon(518px 741px, 627px 848px, 595px 923px, 526px 923px, 526px 1030px, 510px 1030px, 510px 923px, 441px 923px, 409px 848px)' },
+    { id:'fgTreePlazaC',    zone:'plaza', y:1030, clip:'polygon(1067px 732px, 1194px 852px, 1156px 927px, 1075px 927px, 1075px 1030px, 1059px 1030px, 1059px 927px, 978px 927px, 941px 852px)' },
+    { id:'fgCartPlazaOrange', zone:'plaza', y:1022, clip:'inset(921px 1176px 378px 317px)' },
+    { id:'fgCartPlazaTeal',   zone:'plaza', y:1030, clip:'inset(906px 519px 370px 932px)' },
+    { id:'fgCartPlazaRight',  zone:'plaza', y:1150, clip:'inset(1000px 438px 250px 1012px)' },
+    { id:'fgCartPlazaBL',     zone:'plaza', y:1200, clip:'inset(1025px 1188px 200px 162px)' },
+    /* phố Nguyễn Huệ */
+    { id:'fgTreeStreet',    zone:'street', y:1020, clip:'polygon(400px 606px, 556px 790px, 509px 923px, 408px 923px, 408px 1020px, 392px 1020px, 392px 923px, 291px 923px, 244px 790px)' },
+    { id:'fgPalmStreet',    zone:'street', y:1000, clip:'polygon(1464px 591px, 1610px 775px, 1566px 908px, 1472px 908px, 1472px 1000px, 1456px 1000px, 1456px 908px, 1362px 908px, 1318px 775px)' },
+    { id:'fgCafeTables',    zone:'street', y:1300, clip:'inset(1150px 0px 100px 1310px)' },
+    /* chợ Bến Thành */
+    { id:'fgStallMarketL',  zone:'market', y:1300, clip:'inset(756px 1210px 8px 0px)' },
+    { id:'fgStallMarketR',  zone:'market', y:1300, clip:'inset(742px 0px 3px 1311px)' },
   ],
   /* ---- vị trí đứng của từng khách trên bản đồ (tọa độ thế giới) ---- */
   SPOTS: {
@@ -688,7 +727,7 @@ const CONFIG = {
     tung: { walk:'assets-ghibli/rig-tung-walk.webp', jump:'assets-ghibli/rig-tung-jump.webp', walkFrames:6, jumpFrames:3, idleFrame:1, height:154 },
     hoa:  { walk:'assets-ghibli/rig-hoa-walk.webp',  jump:'assets-ghibli/rig-hoa-jump.webp',  walkFrames:6, jumpFrames:3, idleFrame:1, height:141 },
     bay:  { walk:'assets-ghibli/rig-bay-walk.webp',  jump:'assets-ghibli/rig-bay-jump.webp',  walkFrames:6, jumpFrames:3, idleFrame:1, height:154 },
-    mimi: { walk:'assets-ghibli/rig-mimi-walk.webp', jump:'assets-ghibli/rig-mimi-jump.webp', walkFrames:6, jumpFrames:3, idleFrame:1, height:70 },
+    mimi: { walk:'assets-openworld/rig-mimi-walk.webp', jump:'assets-ghibli/rig-mimi-jump.webp', walkFrames:6, jumpFrames:3, idleFrame:1, height:90 },
     chu:  { walk:'assets-ghibli/rig-chu-walk.webp',  jump:'assets-ghibli/rig-chu-jump.webp',  walkFrames:6, jumpFrames:3, idleFrame:1, height:154 },
     /* NPC mới (sheet nền trắng đục -> game tự tách trắng thành trong suốt lúc tải) */
     lan:  { walk:'assets-openworld/rig-lan-walk.webp', jump:'assets-openworld/rig-lan-walk.webp', walkFrames:6, jumpFrames:6, idleFrame:1, height:141 },
@@ -1176,7 +1215,7 @@ const CONFIG = {
      Vùng đi được y 900->1340: 0.85 ở y=900, 1.00 ở y~1150, 1.12 ở y=1340.
      Bé cá cao 140px ở tỉ lệ 1.0 (DESIGN.md §11.1). Muốn đổi độ dốc phối cảnh:
      đổi s0/s1 ở đây (không sửa logic). */
-  DEPTH: { y0:900, s0:0.85, y1:1340, s1:1.12 },
+  DEPTH: { y0:960, s0:0.85, y1:1340, s1:1.12 },
   /* ---- NPC đi lại tự nhiên quanh phố (wander AI) ----
      idleMin/idleMax: giây đứng yên giữa các lần đi; walkSpeed/runSpeed: px/s;
      hopChance: tỉ lệ nhảy tại chỗ khi đang đứng yên; runChance: tỉ lệ chạy;
@@ -1612,7 +1651,16 @@ function pickDay(){
   const out=[];
   while(out.length<3){ const i=Math.floor(Math.random()*ids.length); out.push(ids.splice(i,1)[0]); }
   state.customersToday = out;
-  state.requestsToday = out.map(()=> makeRequest());
+  /* mỗi ngày 3 yêu cầu KHÁC NHAU (rút không hoàn lại): trước đây rút ngẫu nhiên
+     có hoàn lại nên 2 khách hay trùng 1 yêu cầu -> cùng 1 bong bóng
+     "Vẽ cho tôi một con cá vàng!" hiện 2 chỗ */
+  const pool = [...REQUESTS];
+  state.requestsToday = out.map(()=>{
+    const r = pool.splice(Math.floor(Math.random()*pool.length), 1)[0];
+    const twoChance = state.day>=5 ? CONFIG.SCORING.twoChance.day5 : state.day>=3 ? CONFIG.SCORING.twoChance.day3 : 0;
+    const two = Math.random() < twoChance;
+    return {id:r.id, two, colors: two ? [r.colors[0], r.c2] : [r.colors[0]]};
+  });
   state.custIdx = 0; state.todayEarned=0; state.todayStars=0; state.served=[];
 }
 function makeRequest(){
@@ -1716,7 +1764,7 @@ const OBSTACLES = CONFIG.OBSTACLES;
 const SPOTS = CONFIG.SPOTS;
 const LANDLORD_SPOT = CONFIG.LANDLORD_SPOT;
 const LANDLORD = CONFIG.LANDLORD;
-let beca = { x: 800, y: 1200 };
+let beca = { x: 1100, y: 1250 };  // điểm xuất phát: vỉa hè trống giữa quảng trường, cách xa đài phun nước / xe hàng / Mimi (800,1200 cũ đứng ngay trên vành đài phun nước)
 let camX = 0, camY = 0, dragVec = null, moveTarget = null, walking = false;
 let camYaw = 0, camTargetYaw = 0, camPitch = 0, camTargetPitch = 0; /* camera 360°: yaw = góc xoay, pitch = ngẩng/cúi */
 let animState = 'idle', facing = 'right', curSpeed = 0;
@@ -1869,8 +1917,8 @@ function endDrag(e){
       else {
         lastTapT = now;
         const st = stairTAt(p.x, p.y);
-        if(st.d < STAIRS.corridor && st.t > 0.02){
-          /* chạm vào cầu thang: leo tới bậc đó */
+        if(STAIRS.enabled && st.d < STAIRS.corridor && st.t > 0.02){
+          /* chạm vào cầu thang: leo tới bậc đó (chỉ khi cầu thang đang bật) */
           moveTarget = { stair: st.t };
         } else {
           moveTarget = { x: Math.min(WALK.x1, Math.max(WALK.x0, p.x)), y: Math.min(WALK.y1, Math.max(WALK.y0, p.y)) };
@@ -1884,6 +1932,45 @@ function endDrag(e){
 window.addEventListener('pointerup', endDrag);
 window.addEventListener('pointercancel', ()=>{ dragStart=null; dragMode=null; dragVec=null; camDrag=null; hideDragDot(); document.getElementById('joystick').style.display='none'; });
 
+/* ---- lớp tiền cảnh (che khuất): bản sao ảnh nền khu, chỉ hiện bóng 1 vật ----
+   Mỗi FG là 1 div full-khu (1600x1400) với cùng ảnh nền + cover như zoneLayer
+   (căn khớp tuyệt đối, không cần ảnh mới), chỉ khác clip-path ôm đúng bóng
+   vật (xem CONFIG.FG). z-index xếp theo y ở updateDepthSort. */
+const fgEls = {}; /* id -> div tiền cảnh */
+function buildForegroundLayers(){
+  const urls = (CONFIG.IMAGES && CONFIG.IMAGES.zones) || {};
+  for(const fg of (CONFIG.FG || [])){
+    const z = (CONFIG.ZONES || []).find(zz => zz.id === fg.zone);
+    const url = urls[fg.zone];
+    if(!z || !url || fgEls[fg.id]) continue;
+    const d = document.createElement('div');
+    d.className = 'fgObj';
+    d.id = fg.id;
+    d.style.left = z.x0 + 'px';
+    d.style.top = '0px';
+    d.style.background = 'url(' + url + ') center/cover no-repeat';
+    d.style.clipPath = fg.clip;
+    d.style.webkitClipPath = fg.clip;
+    d.style.zIndex = Math.round(fg.y);
+    mapWorld.appendChild(d);
+    fgEls[fg.id] = d;
+  }
+}
+/* Xếp lớp theo chiều sâu (y-sort): y càng lớn = càng gần camera = càng trên.
+   Bé cá, NPC và vật tiền cảnh đều xếp bằng y (chân/đáy) nên vật che người khi
+   người đứng SAU nó, và người che vật khi đứng TRƯỚC nó — thế giới có vật thể
+   thật thay vì phông nền phẳng. Gọi mỗi khung hình trong mapLoop. */
+function updateDepthSort(){
+  walker.style.zIndex = Math.round(beca.y);
+  for(const id of Object.keys(npcs)){
+    const n = npcs[id];
+    if(n.marker) n.marker.style.zIndex = Math.round(n.y);
+  }
+  for(const fg of (CONFIG.FG || [])){
+    const el = fgEls[fg.id];
+    if(el) el.style.zIndex = Math.round(fg.y);
+  }
+}
 let lastT = 0;
 function mapLoop(ts){
   requestAnimationFrame(mapLoop);
@@ -1904,10 +1991,18 @@ function mapLoop(ts){
   }
   /* ---- di chuyển: mặt đất / cầu thang / sân ngắm (RIG_JS) ---- */
   if(beca.mode === 'stairs' || beca.mode === 'terrace'){
-    stepStairsBeca(dt);
+    /* cầu thang đã TẮT (STAIRS.enabled=false): bé cá không bao giờ vào mode này
+       nữa (chỉ còn NPC leo cầu thang bằng npcStairTick riêng); nếu lỡ vào thì
+       đưa cô về mặt đất ngay thay vì để cô đi trên cầu thang / sân ngắm */
+    if(!STAIRS.enabled){ beca.mode = 'ground'; beca.stair = null; beca.exitStairs = false; const p = stairPoint(0); beca.x = p.x; beca.y = Math.max(WALK.y0, p.y); }
+    else stepStairsBeca(dt);
     walking = animState !== 'idle';
     curSpeed = walking ? SPEED_MAX * 0.5 : 0;
   } else if(moveTarget && moveTarget.stair != null){
+    /* cầu thang đã tắt: chạm vào cầu thang chỉ đi tới chân cầu thang rồi dừng
+       (không leo), như chạm vào một điểm đất trống */
+    if(!STAIRS.enabled){ moveTarget = { x: STAIRS.x0, y: Math.max(WALK.y0, STAIRS.y0) }; }
+    else {
     /* chạm vào cầu thang: đi bộ tới chân cầu thang rồi mới leo */
     const dx = STAIRS.x0 - beca.x, dy = STAIRS.y0 - beca.y, d = Math.hypot(dx, dy);
     if(d < 40){ beca.mode = 'stairs'; beca.stair = {t:0}; walking = false; animState = 'idle'; }
@@ -1917,6 +2012,7 @@ function mapLoop(ts){
       facing = vx < -5 ? 'left' : (vx > 5 ? 'right' : facing);
       beca.x = Math.min(WALK.x1, Math.max(WALK.x0, beca.x + vx * dt));
       beca.y = Math.min(WALK.y1, Math.max(WALK.y0, beca.y + vy * dt));
+    }
     }
   } else {
     walking = !!(vx || vy);
@@ -1935,11 +2031,22 @@ function mapLoop(ts){
       else if(wx > 5) facing = 'right';
       /* va chạm rắn (§4): đi từng trục + đẩy ra khỏi vật cản -> trượt dọc vật */
       moveWithCollision(wx * dt, wy * dt);
-      pushOut();
       /* cầu thang đã tắt ở bản thế giới mở (STAIRS.enabled=false) */
     }
   }
+  /* KẸP CỨNG + ĐẨY RA mỗi khung hình: ở chế độ mặt đất, bé cá KHÔNG BAO GIỜ
+     được ra khỏi vùng đi được hay ở trong vật cản — dù pushOut hay đường đi
+     nào đẩy cô ra ngoài / vào trong vật (vd vành đài phun nước) thì khung sau
+     cô cũng bị kéo về / đẩy ra ngay, chân luôn chạm đất. pushOut chạy CẢ KHI
+     ĐỨNG YÊN (trước đây chỉ chạy khi đang đi nên bé cá bị kẹt trong vật cản
+     nếu lỡ lọt vào mà không di chuyển) */
+  if(beca.mode === 'ground'){
+    beca.x = Math.min(WALK.x1, Math.max(WALK.x0, beca.x));
+    beca.y = Math.min(WALK.y1, Math.max(WALK.y0, beca.y));
+    pushOut();
+  }
   npcTick(dt);
+  updateDepthSort();
   npcChatTick(dt);
   questTick();
   dayNightTick(dt);
@@ -1962,15 +2069,15 @@ function drawMinimap(){
   mmc.clearRect(0, 0, 160, 48);
   mmc.fillStyle = '#E8C99A'; mmc.fillRect(0, 0, 160, 48);
   /* 3 khu: quảng trường / phố đi bộ / chợ */
-  mmc.fillStyle = '#F3EAD8'; mmc.fillRect(0, 900*MM_S, 1600*MM_S, 500*MM_S);
-  mmc.fillStyle = '#E8DCC8'; mmc.fillRect(1600*MM_S, 900*MM_S, 1600*MM_S, 500*MM_S);
-  mmc.fillStyle = '#EFD9B0'; mmc.fillRect(3200*MM_S, 900*MM_S, 1600*MM_S, 500*MM_S);
+  mmc.fillStyle = '#F3EAD8'; mmc.fillRect(0, WALK.y0*MM_S, 1600*MM_S, (WALK.y1-WALK.y0)*MM_S);
+  mmc.fillStyle = '#E8DCC8'; mmc.fillRect(1600*MM_S, WALK.y0*MM_S, 1600*MM_S, (WALK.y1-WALK.y0)*MM_S);
+  mmc.fillStyle = '#EFD9B0'; mmc.fillRect(3200*MM_S, WALK.y0*MM_S, 1600*MM_S, (WALK.y1-WALK.y0)*MM_S);
   for(const b of CONFIG.BUILDINGS){
     mmc.fillStyle = b.mmColor || '#C98A4B';
     mmc.fillRect(b.rect[0]*MM_S, b.rect[1]*MM_S, b.rect[2]*MM_S, b.rect[3]*MM_S);
   }
   mmc.fillStyle = '#54A0FF';
-  mmc.beginPath(); mmc.arc(700*MM_S, 1080*MM_S, 4, 0, Math.PI*2); mmc.fill();  // đài phun nước
+  mmc.beginPath(); mmc.arc(760*MM_S, 1225*MM_S, 4, 0, Math.PI*2); mmc.fill();  // đài phun nước
   for(const id of state.customersToday){
     const _n = (typeof npcs !== 'undefined') ? npcs[id] : null;
     const sp = _n ? [_n.x, _n.y] : SPOTS[id]; if(!sp) continue;
@@ -2075,16 +2182,23 @@ function hitsSolid(x, y){
   return false;
 }
 function moveWithCollision(dx, dy){
-  const nx = beca.x + dx;
-  if(nx >= WALK.x0 && nx <= WALK.x1 && !hitsSolid(nx, beca.y)) beca.x = nx;
-  const ny = beca.y + dy;
-  if(ny >= WALK.y0 && ny <= WALK.y1 && !hitsSolid(beca.x, ny)) beca.y = ny;
+  /* kẹp CỨNG vào vùng đi được (snap, không phải reject): nếu bé cá từng bị đẩy
+     ra ngoài vùng đi được (vd pushOut) thì bước sau kéo cô về ngay, thay vì
+     kẹt ngoài đó; vật cản vẫn chặn theo kiểu reject (đứng yên trục đó) */
+  const nx = Math.min(WALK.x1, Math.max(WALK.x0, beca.x + dx));
+  if(!hitsSolid(nx, beca.y)) beca.x = nx;
+  const ny = Math.min(WALK.y1, Math.max(WALK.y0, beca.y + dy));
+  if(!hitsSolid(beca.x, ny)) beca.y = ny;
 }
 function pushOutPoint(p){
   const beca = p; /* bí danh để dùng chung code đẩy ra khỏi vật cản */
+  /* lặp tới khi ổn định (tối đa 3 vòng): 2 vật cản chồng nhau (vd 2 vòng tròn
+     đài phun nước) có thể đẩy cô từ vòng này sang vòng kia, 1 vòng không đủ */
+  for(let iter = 0; iter < 3; iter++){
+    let moved = false;
   for(const o of OBSTACLES){
     const dx = beca.x - o.x, dy = beca.y - o.y, d = Math.hypot(dx, dy), min = o.r + 18;
-    if(d < min && d > 0.01){ beca.x = o.x + dx/d*min; beca.y = o.y + dy/d*min; }
+    if(d < min && d > 0.01){ beca.x = o.x + dx/d*min; beca.y = o.y + dy/d*min; moved = true; }
   }
   for(const b of CONFIG.BUILDINGS){
     if(!b.solid) continue;
@@ -2094,7 +2208,10 @@ function pushOutPoint(p){
       const m = Math.min(dl, dr, dt2, db);
       if(m === dl) beca.x = r[0]-18; else if(m === dr) beca.x = r[0]+r[2]+18;
       else if(m === dt2) beca.y = r[1]-18; else beca.y = r[1]+r[3]+18;
+      moved = true;
     }
+  }
+    if(!moved) break;
   }
 }
 function pushOut(){ pushOutPoint(beca); }
@@ -2522,8 +2639,8 @@ function rigPreload(){
   for(const id of Object.keys(RIGS)){
     const r = RIGS[id];
     const o = {walk:new Image(), jump:new Image(), walkAsp:0.62, jumpAsp:0.62};
-    o.walk.onload = ()=>{ o.walkAsp = (o.walk.naturalWidth / r.walkFrames) / o.walk.naturalHeight; if(id==='lan'||id==='nam') deWhiteRigSheet(id, 'walk'); rigLayout(); };
-    o.jump.onload = ()=>{ o.jumpAsp = (o.jump.naturalWidth / r.jumpFrames) / o.jump.naturalHeight; if(id==='lan'||id==='nam') deWhiteRigSheet(id, 'jump'); rigLayout(); };
+    o.walk.onload = ()=>{ o.walkAsp = (o.walk.naturalWidth / r.walkFrames) / o.walk.naturalHeight; if(id==='lan'||id==='nam'||id==='mimi') deWhiteRigSheet(id, 'walk'); rigLayout(); };
+    o.jump.onload = ()=>{ o.jumpAsp = (o.jump.naturalWidth / r.jumpFrames) / o.jump.naturalHeight; if(id==='lan'||id==='nam'||id==='mimi') deWhiteRigSheet(id, 'jump'); rigLayout(); };
     o.walk.src = r.walk; o.jump.src = r.jump;
     rigImgs[id] = o;
   }
@@ -2540,8 +2657,52 @@ function deWhiteRigSheet(id, which){
     const clean = boneDeWhite(img);
     (rigSheetURL[id] = rigSheetURL[id] || {})[which] = clean.toDataURL('image/png');
     (rigSheetCanvas[id] = rigSheetCanvas[id] || {})[which] = clean;
+    /* Mimi 4 chân: sheet đi bộ mới có khung cao, khoảng trống trên/dưới mèo ->
+       cắt từng khung theo đúng mèo, xếp lại căn ĐÁY (chân chạm đất) để mèo
+       không lơ lửng khi đổi khung (xem cropRigSheetContent) */
+    if(id === 'mimi' && which === 'walk') cropRigSheetContent(id, which);
     if(which==='walk') makeNpcFace(id);
   }catch(e){ console.warn('[rig] dewhite lỗi:', id, e); }
+}
+/* Cắt sheet rig theo đúng nội dung từng khung rồi xếp lại, căn ĐÁY + căn giữa
+   ngang: khung nào chân cũng chạm đúng đáy khung (không lơ lửng), thân không
+   nhảy lên/xuống khi đổi khung. Dùng cho sheet vẽ mới có khoảng trống lớn
+   quanh nhân vật (Mimi 4 chân). Cập nhật luôn walkAsp/jumpAsp để rigLayout
+   tính đúng kích thước ô hiển thị. */
+function cropRigSheetContent(id, which){
+  const src = rigSheetCanvas[id] && rigSheetCanvas[id][which];
+  const cfg = RIGS[id];
+  if(!src || !cfg) return;
+  const n = which === 'walk' ? cfg.walkFrames : cfg.jumpFrames;
+  const fw = Math.floor(src.width / n), fh = src.height;
+  const sx = src.getContext('2d');
+  const data = sx.getImageData(0, 0, src.width, src.height).data;
+  const boxes = [];
+  for(let f = 0; f < n; f++){
+    let x0 = fw, x1 = -1, y0 = fh, y1 = -1;
+    for(let y = 0; y < fh; y++){
+      for(let x = 0; x < fw; x++){
+        const a = data[((y * src.width) + f * fw + x) * 4 + 3];
+        if(a > 10){ if(x < x0) x0 = x; if(x > x1) x1 = x; if(y < y0) y0 = y; if(y > y1) y1 = y; }
+      }
+    }
+    if(x1 < 0){ x0 = 0; x1 = fw - 1; y0 = 0; y1 = fh - 1; } /* khung trống: giữ nguyên */
+    boxes.push({x0, x1, y0, y1});
+  }
+  const cw = Math.max.apply(null, boxes.map(b => b.x1 - b.x0 + 1));
+  const ch = Math.max.apply(null, boxes.map(b => b.y1 - b.y0 + 1));
+  const out = document.createElement('canvas');
+  out.width = cw * n; out.height = ch;
+  const ox = out.getContext('2d');
+  boxes.forEach((b, f) => {
+    const w = b.x1 - b.x0 + 1, h = b.y1 - b.y0 + 1;
+    const dx = f * cw + Math.floor((cw - w) / 2), dy = ch - h; /* căn đáy: chân chạm đất */
+    ox.drawImage(src, f * fw + b.x0, b.y0, w, h, dx, dy, w, h);
+  });
+  (rigSheetCanvas[id] = rigSheetCanvas[id] || {})[which] = out;
+  (rigSheetURL[id] = rigSheetURL[id] || {})[which] = out.toDataURL('image/png');
+  const o = rigImgs[id];
+  if(o){ if(which === 'walk') o.walkAsp = cw / ch; else o.jumpAsp = cw / ch; }
 }
 /* mặt NPC mới (Chị Lan / Cô Năm): cắt đầu từ khung 1 của sheet đi bộ để làm ảnh đại diện hội thoại */
 function makeNpcFace(id){
@@ -3218,12 +3379,18 @@ function boneTickBeca(){
     becaBone.facingNext = becaBone.facing; becaBone.facingMix = 0;
     boneUpdateFallback();
   } else if(mix>0 && becaBone.turnTo!==becaBone.facing){
-    boneApply(pose, becaBone.facing, 1-mix, sc);
+    /* quay mặt: lớp cũ GIỮ NGUYÊN độ mờ 1 (không mờ dần) + lớp mới mờ dần
+       lên TRÊN (zIndex 2) — trước đây 2 lớp cùng mờ (1-mix / mix) nên giữa
+       lúc quay bé cá trong suốt như ma (đi trên không) */
+    boneApply(pose, becaBone.facing, 1, sc);
+    becaBone.parts[becaBone.facing].style.zIndex = 1;
     boneApply(pose, becaBone.turnTo, mix, sc);
+    becaBone.parts[becaBone.turnTo].style.zIndex = 2;
     becaBone.facingNext = becaBone.turnTo; becaBone.facingMix = mix;
     boneUpdateFallback();
   } else {
     for(const f of BONE_FACINGS) if(f!==becaBone.facing) becaBone.parts[f].style.opacity = 0;
+    becaBone.parts[becaBone.facing].style.zIndex = 2;
     boneApply(pose, becaBone.facing, 1, sc);
     becaBone.facingNext = becaBone.facing; becaBone.facingMix = 0;
     boneUpdateFallback();
@@ -3242,7 +3409,7 @@ applyLang(); renderHeader(); renderScene(); renderPalette(); syncTools();
 document.getElementById('landlordAvatarMap').innerHTML = '<div class="rig"></div>';
 document.getElementById('landlordAvatarMap').classList.add('rigAvatar');
 document.getElementById('landlordAvatar').innerHTML = custAvatarHTML(LANDLORD);
-rigPreload(); npcInit(); boneInit(); renderHotspots(); renderMap(); updateWalker(); updateCamera(); rigLayout();
+rigPreload(); npcInit(); boneInit(); renderHotspots(); renderMap(); buildForegroundLayers(); updateWalker(); updateCamera(); rigLayout();
 requestAnimationFrame(mapLoop);
 requestAnimationFrame(()=>{ fitCanvas(); updateMeters(); });
 if(!state.seenStory) openStory();
@@ -3292,6 +3459,8 @@ window.__becaPainting = {
   debugQuest: (id)=>{ const st = questState(id); st.status='active'; if(id==='qSign' && state.customersToday.indexOf('nam') < 0 && state.served.length < 3){ state.customersToday[2] = 'nam'; state.requestsToday[2] = {id:'pho', two:false, colors:['#A5672F']}; } save(); renderQuestPanel(); renderQuestItems(); renderMap(); },
   debugSetPhase: (n)=>{ state.timePhase = n; save(); updateDayNight(); },
   colliders: ()=>({circles: OBSTACLES, rects: CONFIG.BUILDINGS.filter(b=>b.solid).map(b=>b.rect)}),
+  fg: ()=>(CONFIG.FG||[]).map(f=>({id:f.id, zone:f.zone, y:f.y, z: fgEls[f.id] ? +fgEls[f.id].style.zIndex : null, built: !!fgEls[f.id]})),
+  depth: ()=>({walker: +walker.style.zIndex, walkerY: beca.y, npcs: Object.keys(npcs).map(id=>({id, y: Math.round(npcs[id].y), z: npcs[id].marker ? +npcs[id].marker.style.zIndex : null}))}),
   debugDrag: (dx,dy,m)=>{ dragVec = {x:dx, y:dy, m}; },
   debugStopDrag: ()=>{ dragVec = null; },
   npcFaces: ()=>Object.keys(npcFaceURL),
