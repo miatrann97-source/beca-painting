@@ -188,9 +188,11 @@ body.map-mode #mapView{display:block}
 }
 .mapCust{
   position:absolute;width:78px;transform:translate(-50%,-100%);text-align:center;
-  cursor:pointer;z-index:5;animation:custBob 2.8s ease-in-out infinite;
+  cursor:pointer;z-index:5;
+  /* ROUND 3 (vật lý): KHÔNG bob — người/thú đứng yên thì chân phải dính đất.
+     custBob nâng cả marker (gồm chân + bóng) lên ~4px nhịp nhàng nên nhìn như
+     lơ lửng. Chỉ .questItem (biểu tượng nhiệm vụ bay) mới được bob. */
 }
-.mapCust:nth-child(even){animation-delay:-1.4s}
 @keyframes custBob{from{transform:translate(-50%,-100%)}to{transform:translate(-50%,-103%)}}
 .mapCust::before{
   content:"";position:absolute;left:50%;bottom:-6px;width:46px;height:10px;margin-left:-23px;
@@ -334,6 +336,16 @@ body.map-mode #mapView{display:block}
 
 /* ---------- thế giới mở: 3 khu + joystick + camera 360° + nhiệm vụ + ngày/đêm ---------- */
 .zoneLayer{position:absolute;pointer-events:none}
+/* Mây parallax (ROUND 3): 4 đám mây CSS trong #mapWorld, trôi chậm hơn thế
+   giới (đi cùng 0.38x) nên khi camera pan/xoay hoặc bé cá đi bộ, mây dịch
+   chuyển SO VỚI nền — thế giới có chiều sâu thật, không còn là phông nền
+   phẳng. Mây ở vùng trời cao (y 40-300) nên không bao giờ che nhà cửa. */
+.cloud{position:absolute;pointer-events:none;z-index:2;opacity:.85;
+  background:
+    radial-gradient(ellipse 90px 34px at 30% 55%, rgba(255,255,255,.95), rgba(255,255,255,0) 70%),
+    radial-gradient(ellipse 70px 26px at 68% 45%, rgba(255,255,255,.9), rgba(255,255,255,0) 70%),
+    radial-gradient(ellipse 55px 22px at 50% 70%, rgba(255,255,255,.85), rgba(255,255,255,0) 70%);
+  filter:blur(.4px);}
 /* Lớp tiền cảnh (che khuất): bản sao ảnh nền khu, chỉ hiện bóng của 1 vật qua
    clip-path (xem CONFIG.FG). z-index xếp theo y ở updateDepthSort: vật che
    người khi người đứng sau nó, người che vật khi đứng trước nó. */
@@ -375,6 +387,10 @@ body.map-mode #mapView{display:block}
         <div class="zoneLayer" id="zonePlaza" style="left:0;top:0;width:1600px;height:1400px;background:url(assets-openworld/plaza-bright.webp) center/cover no-repeat"></div>
         <div class="zoneLayer" id="zoneStreet" style="left:1600px;top:0;width:1600px;height:1400px;background:url(assets-openworld/street-nguyenhue.webp) center/cover no-repeat"></div>
         <div class="zoneLayer" id="zoneMarket" style="left:3200px;top:0;width:1600px;height:1400px;background:url(assets-openworld/market-benthanh.webp) center/cover no-repeat"></div>
+        <div class="cloud" style="left:350px;top:70px;width:260px;height:90px"></div>
+        <div class="cloud" style="left:1250px;top:150px;width:220px;height:80px"></div>
+        <div class="cloud" style="left:2100px;top:60px;width:280px;height:95px"></div>
+        <div class="cloud" style="left:3900px;top:120px;width:240px;height:85px"></div>
         <div id="questLayer"></div>
         <div id="mapHotspots"></div>
         <div id="mapCustLayer"></div>
@@ -598,7 +614,23 @@ const CONFIG = {
   },
   /* ---- bản đồ: kích thước thế giới, vùng đi được, tốc độ ---- */
   WORLD: { w: 4800, h: 1400 },
-  WALK: { x0: 60, y0: 960, x1: 4740, y1: 1340 },  // vùng bé cá đi được (3 khu ngang) — y0=960: chân luôn đứng trên vỉa hè, cách chân tường tiệm 70px nên không bao giờ "đứng trên mặt tiền" như y0=900 cũ
+  WALK: { x0: 60, y0: 960, x1: 4740, y1: 1340 },  // vùng bé cá đi được (3 khu ngang) — y0=960 là SÀN (mép trên thấp nhất); mép trên thật theo từng x xem CONFIG.GROUND
+  /* ---- đường chân tường (ground-line profile) — ROUND 3, ĐO TỪ ẢNH THẬT ----
+     Mép trên vùng đi được KHÔNG phải đường thẳng y=960: mặt tiền tiệm ở 2 bên
+     phố gần camera hơn nên chân tường của chúng THẤP HƠN (y lớn hơn) trong ảnh.
+     Đo bằng visual grounding (đáy khung nhà/tiệm trong ảnh nền, +15px biên):
+     plaza: tiệm trái 1112, nhà vàng 937, Nhà hát Lớn 832, nhà phải 840;
+     street: nhà cam trái 1190, Nhà hát Lớn 832, nhà phải ~1200-1295;
+     market: sạp trái 1093, tháp đồng hồ 860, sạp phải ~1100.
+     groundTopY(x) nội suy tuyến tính + kẹp sàn WALK.y0 — người đi ở mép trên
+     luôn đứng TRÊN vỉa hè TRƯỚC mặt tiền, chân chạm đất, không bao giờ đứng
+     trên mặt tiền/tiệm. Blender 3D (f=50mm, H=6.5m) chiếu lại các chân tường
+     này đúng vị trí đã đo (tests/blender-layout.py). */
+  GROUND: [
+    [0,1127],[60,1100],[200,975],[500,952],[800,860],[1100,847],[1400,855],[1600,855],
+    [1600,1205],[1900,1190],[2100,1050],[2400,847],[2700,1050],[2900,1150],[3100,1200],[3200,1310],
+    [3200,1108],[3500,1105],[3800,1100],[4000,875],[4200,1000],[4500,1110],[4800,1115],
+  ],
   SPEED_MAX: 340,  // px/s khi kéo xa (chạy); kéo nhẹ = đi bộ chậm
   OBSTACLES: [      // vật cản tròn: bé cá không đi xuyên qua được
     /* đài phun nước: đo lại bằng visual grounding 19/11 — bồn thật là ellipse
@@ -637,6 +669,7 @@ const CONFIG = {
     /* chậu cây tròn trước bậc thềm quảng trường (đông, đo từ ảnh): chặn được
        mà lối qua phố vẫn mở ở y 960-1055 và y 1185-1340 */
     { x: 1540, y: 1120, r: 65 },  // chậu cây đá tròn + cây non (cạnh cầu thang)
+    { x: 1426, y: 1140, r: 35 },  // cọ phải quảng trường (thân — ROUND 3: trước đây không có vật cản, đi xuyên thân cọ)
   ],
   /* ---- tòa nhà / điểm chạm trên bản đồ (rect: [x, y, rộng, cao] trong thế giới) ----
      action: 'shop' (mở cửa hàng) | 'landlord' (mở hội thoại ông chủ nhà)
@@ -714,6 +747,13 @@ const CONFIG = {
     { id:'fgFountainTier',  zone:'plaza', y:1211, clip:'polygon(560px 1221px, 690px 1221px, 675px 1080px, 680px 1000px, 650px 960px, 600px 960px, 570px 1000px, 575px 1080px)' },
     { id:'fgTreePlazaL',    zone:'plaza', y:1030, clip:'inset(920px 1074px 370px 510px)' },
     { id:'fgTreePlazaC',    zone:'plaza', y:1030, clip:'inset(920px 525px 370px 1059px)' },
+    /* BLENDER 3D (14:30, phần mềm thứ 3 can thiệp): tán lá KHÔNG BAO GIỜ che
+       người đứng trên đất — tán cọ ở cao 3,2-4,7m, tán cây ở 2,6-4,2m, còn
+       đầu bé cá chỉ cao 1,58m; tia nhìn từ camera tới đầu cô đi DƯỚI tán
+       (ray-cast Blender: mọi điểm trên người đều chạm BÉ CÁ, không chạm tán).
+       FG tán ellipse (đợt 3) đã giấu TRỌN bé cá khi cô đứng dưới tán (CDP:
+       vô hình ở tây bồn đá + sau cây giữa) — ĐÃ XÓA. Chỉ thân cây mới che
+       người (dải hẹp, đã có fgTree*), đúng vật lý 3D. */
     { id:'fgCartPlazaOrange', zone:'plaza', y:1022, clip:'inset(960px 1176px 378px 317px)' },
     { id:'fgCartPlazaTeal',   zone:'plaza', y:1030, clip:'inset(950px 519px 370px 932px)' },
     { id:'fgCartPlazaRight',  zone:'plaza', y:1150, clip:'inset(1040px 438px 250px 1012px)' },
@@ -768,16 +808,16 @@ const CONFIG = {
      hơn bé cá một chút, cô Hoa ngang bé cá, bà Tư thấp hơn, bé Mai nhỏ nhất
      (trừ mèo Mimi). idleFrame = khung đứng yên (khung "vượt qua", chân chụm). */
   RIGS: {
-    ba:   { walk:'assets-ghibli/rig-ba-walk.webp',   jump:'assets-ghibli/rig-ba-jump.webp',   walkFrames:6, jumpFrames:3, idleFrame:1, height:132 },
-    mai:  { walk:'assets-ghibli/rig-mai-walk.webp',  jump:'assets-ghibli/rig-mai-jump.webp',  walkFrames:6, jumpFrames:3, idleFrame:1, height:114 },
-    tung: { walk:'assets-ghibli/rig-tung-walk.webp', jump:'assets-ghibli/rig-tung-jump.webp', walkFrames:6, jumpFrames:3, idleFrame:1, height:154 },
-    hoa:  { walk:'assets-ghibli/rig-hoa-walk.webp',  jump:'assets-ghibli/rig-hoa-jump.webp',  walkFrames:6, jumpFrames:3, idleFrame:1, height:141 },
-    bay:  { walk:'assets-ghibli/rig-bay-walk.webp',  jump:'assets-ghibli/rig-bay-jump.webp',  walkFrames:6, jumpFrames:3, idleFrame:1, height:154 },
-    mimi: { walk:'assets-openworld/rig-mimi-walk.webp', jump:'assets-ghibli/rig-mimi-jump.webp', walkFrames:6, jumpFrames:3, idleFrame:1, height:90 },
-    chu:  { walk:'assets-ghibli/rig-chu-walk.webp',  jump:'assets-ghibli/rig-chu-jump.webp',  walkFrames:6, jumpFrames:3, idleFrame:1, height:154 },
+    ba:   { walk:'assets-ghibli/rig-ba-walk.webp',   jump:'assets-ghibli/rig-ba-jump.webp',   walkFrames:6, jumpFrames:3, idleFrame:1, height:132, stepPx:44 },
+    mai:  { walk:'assets-ghibli/rig-mai-walk.webp',  jump:'assets-ghibli/rig-mai-jump.webp',  walkFrames:6, jumpFrames:3, idleFrame:1, height:100, stepPx:40 }, /* ZELDA/GENSHIN (19/11): trẻ con 65-70% người lớn cùng độ sâu — Mai 1,15m = 100px, KHÔNG 114px; bước 0.4*h */
+    tung: { walk:'assets-ghibli/rig-tung-walk.webp', jump:'assets-ghibli/rig-tung-jump.webp', walkFrames:6, jumpFrames:3, idleFrame:1, height:154, stepPx:62 },
+    hoa:  { walk:'assets-ghibli/rig-hoa-walk.webp',  jump:'assets-ghibli/rig-hoa-jump.webp',  walkFrames:6, jumpFrames:3, idleFrame:1, height:141, stepPx:48 },
+    bay:  { walk:'assets-ghibli/rig-bay-walk.webp',  jump:'assets-ghibli/rig-bay-jump.webp',  walkFrames:6, jumpFrames:3, idleFrame:1, height:154, stepPx:60 },
+    mimi: { walk:'assets-openworld/rig-mimi-walk.webp', jump:'assets-ghibli/rig-mimi-jump.webp', walkFrames:6, jumpFrames:3, idleFrame:1, height:90, stepPx:42 },
+    chu:  { walk:'assets-ghibli/rig-chu-walk.webp',  jump:'assets-ghibli/rig-chu-jump.webp',  walkFrames:6, jumpFrames:3, idleFrame:1, height:154, stepPx:62 },
     /* NPC mới (sheet nền trắng đục -> game tự tách trắng thành trong suốt lúc tải) */
-    lan:  { walk:'assets-openworld/rig-lan-walk.webp', jump:'assets-openworld/rig-lan-walk.webp', walkFrames:6, jumpFrames:6, idleFrame:1, height:141 },
-    nam:  { walk:'assets-openworld/rig-nam-walk.webp', jump:'assets-openworld/rig-nam-walk.webp', walkFrames:6, jumpFrames:6, idleFrame:1, height:132 },
+    lan:  { walk:'assets-openworld/rig-lan-walk.webp', jump:'assets-openworld/rig-lan-walk.webp', walkFrames:6, jumpFrames:6, idleFrame:1, height:141, stepPx:56 },
+    nam:  { walk:'assets-openworld/rig-nam-walk.webp', jump:'assets-openworld/rig-nam-walk.webp', walkFrames:6, jumpFrames:6, idleFrame:1, height:132, stepPx:53 },
   },
   /* ---- rig xương THẬT cho bé cá (bone rig, KHÔNG lật ảnh) ----
      Bé cá được dựng từ các bộ phận rời nối bằng khớp (đầu, thân, tay trên/cẳng
@@ -1256,12 +1296,13 @@ const CONFIG = {
     terrace:{x0:4700, y0:0, x1:4790, y1:40},
     enabled:false,
   },
-  /* ---- tỉ lệ theo chiều sâu (depth): nhân vật càng xuống dưới (gần camera)
-     càng to, càng lên trên (xa) càng nhỏ — khớp phối cảnh của ảnh nền.
-     Vùng đi được y 900->1340: 0.85 ở y=900, 1.00 ở y~1150, 1.12 ở y=1340.
-     Bé cá cao 140px ở tỉ lệ 1.0 (DESIGN.md §11.1). Muốn đổi độ dốc phối cảnh:
-     đổi s0/s1 ở đây (không sửa logic). */
-  DEPTH: { y0:960, s0:0.85, y1:1340, s1:1.12 },
+  /* ---- tỉ lệ theo chiều sâu (depth) — ROUND 3, TÍNH BẰNG SỐ ĐO, KHÔNG ƯỚC MẮT:
+     Mô hình pinhole (fit bình phương tối thiểu trên 7 điểm đo thật từ ảnh nền
+     + kiểm bằng Blender f=50mm, H=6.5m, pitch 3.2°): chân trời y_h=575,
+     Bé Cá 1.58m = 140px @ y=1150 (tỉ lệ 1.0). Blender: 92.3/136.8/180.2px
+     vs mô hình 93.7/140/186.3px (-1.4%..-3.3%); chân trời 576 vs 575.
+     s0=0.67 @y=960, s1=1.33 @y=1340 (xa:gần = 1:2). */
+  DEPTH: { y0:960, s0:0.67, y1:1340, s1:1.33 },
   /* ---- NPC đi lại tự nhiên quanh phố (wander AI) ----
      idleMin/idleMax: giây đứng yên giữa các lần đi; walkSpeed/runSpeed: px/s;
      hopChance: tỉ lệ nhảy tại chỗ khi đang đứng yên; runChance: tỉ lệ chạy;
@@ -1289,7 +1330,7 @@ const CONFIG = {
       titleVi:'Giao tranh cho quán cà phê', titleEn:'Deliver a painting to the café',
       descVi:'Chị Lan nhờ mang bức tranh mặt trăng tới treo ở quán Cà Phê Sữa Đá.', descEn:'Lan asks you to bring the moon painting to hang at the iced-coffee shop.',
       reward:250, rewardVi:'+250đ · Chị Lan mời 1 ly sữa đá', rewardEn:'+250 coins · Lan treats you to an iced coffee',
-      target:{x:1850, y:1150} },
+      target:{x:1850, y:1250} }, /* ROUND 3: (1850,1150) cũ nằm TRONG mặt tiền nhà cam (đường chân tường ở x=1850 là y~1190) nên không bao giờ tới được — dời ra vỉa hè trước quán */
     { id:'qSign', type:'paint', giver:'nam',
       titleVi:'Vẽ biển hiệu cho tiệm phở', titleEn:'Paint a sign for the pho shop',
       descVi:'Cô Năm muốn một biển hiệu phở bò thật đẹp cho tiệm của cô.', descEn:'Ms. Nam wants a beautiful pho sign for her shop.',
@@ -1441,7 +1482,7 @@ vi:{
   toastComTam:'Cơm tấm thơm quá! Ăn trưa ở đây ngon lắm!',
   toastTea:'Trà sữa ngọt mát — Bé Mai mê nhất!',
   toastOc:'Quán ốc của chú Bảy — tối ra đây ăn là đúng bài!',
-  toastMarket:'Chợ Bến Thành đông quá trời! Mặc cả khéo nha!',
+  toastMarket:'Chợ Bến Thành đông quá trời! Chợ xây từ 1912–1914, tháp đồng hồ là biểu tượng của Sài Gòn đó!',
   toastStall:'Sạp này bán đủ thứ hay ho!',
 },
 en:{
@@ -1507,7 +1548,7 @@ en:{
   toastComTam:'The broken rice smells amazing! Great lunch spot!',
   toastTea:'Sweet cool milk tea — Mai loves it most!',
   toastOc:"Uncle Bay's snail shop — the evening spot!",
-  toastMarket:'Ben Thanh Market is so busy! Bargain well!',
+  toastMarket:'Ben Thanh Market is so busy! Built in 1912–1914 — its clock tower is the symbol of Saigon!',
   toastStall:'This stall sells all kinds of fun stuff!',
 }},
 };
@@ -1610,6 +1651,7 @@ canvas.addEventListener('pointermove', e=>{
   if(!curStroke) return;
   e.preventDefault();
   curStroke.pts.push(pos(e));
+  sfx('brush', 120);
   // vẽ đoạn mới trực tiếp cho mượt, không redraw toàn bộ
   const w = wrap.clientWidth, h = wrap.clientHeight;
   const n = curStroke.pts.length;
@@ -1838,7 +1880,9 @@ function showPaint(){
 /* thông số transform của camera (dùng chung cho updateCamera + screenToWorld) */
 function camTransform(){
   const yawN = ((camYaw % 360) + 360) % 360;
-  return { yawN, tilt: -5 * Math.sin(yawN * Math.PI / 180), zoom: 1.15 + camPitch * 0.003 };
+  /* ROUND 3: nghiêng ±7° (cũ ±5°) + zoom theo pitch rộng hơn — camera xoay
+     thì thế giới nghiêng/zoom theo rõ hơn, hết cảm giác phông nền đứng yên */
+  return { yawN, tilt: -7 * Math.sin(yawN * Math.PI / 180), zoom: 1.15 + camPitch * 0.004 };
 }
 function screenToWorld(cx, cy){
   const r = mapView.getBoundingClientRect();
@@ -1871,8 +1915,11 @@ function updateCamera(){
   mapWorld.style.transformOrigin = (camX + vw / 2) + 'px ' + (camY + vh / 2) + 'px';
   mapWorld.style.transform = 'translate(' + (-camX) + 'px, ' + (-camY) + 'px) rotate(' + tilt.toFixed(2) + 'deg) scale(' + zoom.toFixed(3) + ')';
   updateCompass(yawN);
-  /* parallax: mây trôi chậm hơn lớp gần (đi cùng 0.38x thay vì 1x) -> có chiều sâu */
-  for(const c of clouds) c.style.transform = 'translate(' + (camX * 0.62) + 'px, ' + (camY * 0.55) + 'px)';
+  /* parallax: mây trôi chậm hơn lớp gần (đi cùng 0.38x thay vì 1x) -> có chiều sâu.
+     ROUND 3: mây còn dịch theo yaw/pitch (xoay camera thì bầu trời xoay theo,
+     nhìn lên thì mây trôi xuống) — bối cảnh THAY ĐỔI theo góc camera, không
+     phải phông nền xanh đứng yên. */
+  for(const c of clouds) c.style.transform = 'translate(' + (camX * 0.62 + camYaw * 1.5) + 'px, ' + (camY * 0.55 + camPitch * 1.2) + 'px)';
 }
 function showDragDot(cx, cy){
   const r = mapView.getBoundingClientRect();
@@ -1967,7 +2014,7 @@ function endDrag(e){
           /* chạm vào cầu thang: leo tới bậc đó (chỉ khi cầu thang đang bật) */
           moveTarget = { stair: st.t };
         } else {
-          moveTarget = { x: Math.min(WALK.x1, Math.max(WALK.x0, p.x)), y: Math.min(WALK.y1, Math.max(WALK.y0, p.y)) };
+          moveTarget = { x: Math.min(WALK.x1, Math.max(WALK.x0, p.x)), y: Math.min(WALK.y1, Math.max(groundTopY(p.x), p.y)) };
         }
       }
     }
@@ -2040,14 +2087,14 @@ function mapLoop(ts){
     /* cầu thang đã TẮT (STAIRS.enabled=false): bé cá không bao giờ vào mode này
        nữa (chỉ còn NPC leo cầu thang bằng npcStairTick riêng); nếu lỡ vào thì
        đưa cô về mặt đất ngay thay vì để cô đi trên cầu thang / sân ngắm */
-    if(!STAIRS.enabled){ beca.mode = 'ground'; beca.stair = null; beca.exitStairs = false; const p = stairPoint(0); beca.x = p.x; beca.y = Math.max(WALK.y0, p.y); }
+    if(!STAIRS.enabled){ beca.mode = 'ground'; beca.stair = null; beca.exitStairs = false; const p = stairPoint(0); beca.x = p.x; beca.y = Math.max(groundTopY(p.x), p.y); }
     else stepStairsBeca(dt);
     walking = animState !== 'idle';
     curSpeed = walking ? SPEED_MAX * 0.5 : 0;
   } else if(moveTarget && moveTarget.stair != null){
     /* cầu thang đã tắt: chạm vào cầu thang chỉ đi tới chân cầu thang rồi dừng
        (không leo), như chạm vào một điểm đất trống */
-    if(!STAIRS.enabled){ moveTarget = { x: STAIRS.x0, y: Math.max(WALK.y0, STAIRS.y0) }; }
+    if(!STAIRS.enabled){ moveTarget = { x: STAIRS.x0, y: Math.max(groundTopY(STAIRS.x0), STAIRS.y0) }; }
     else {
     /* chạm vào cầu thang: đi bộ tới chân cầu thang rồi mới leo */
     const dx = STAIRS.x0 - beca.x, dy = STAIRS.y0 - beca.y, d = Math.hypot(dx, dy);
@@ -2088,9 +2135,11 @@ function mapLoop(ts){
      nếu lỡ lọt vào mà không di chuyển) */
   if(beca.mode === 'ground'){
     beca.x = Math.min(WALK.x1, Math.max(WALK.x0, beca.x));
-    beca.y = Math.min(WALK.y1, Math.max(WALK.y0, beca.y));
+    beca.y = Math.min(WALK.y1, Math.max(groundTopY(beca.x), beca.y));
     pushOut();
   }
+  /* tiếng bước chân theo nhịp đi (chỉ khi đang đi/chạy trên đất) */
+  if(beca.mode === 'ground' && (animState === 'walk' || animState === 'run')) sfx('step', animState === 'run' ? 260 : 380);
   npcTick(dt);
   updateDepthSort();
   npcChatTick(dt);
@@ -2118,6 +2167,11 @@ function drawMinimap(){
   mmc.fillStyle = '#F3EAD8'; mmc.fillRect(0, WALK.y0*MM_S, 1600*MM_S, (WALK.y1-WALK.y0)*MM_S);
   mmc.fillStyle = '#E8DCC8'; mmc.fillRect(1600*MM_S, WALK.y0*MM_S, 1600*MM_S, (WALK.y1-WALK.y0)*MM_S);
   mmc.fillStyle = '#EFD9B0'; mmc.fillRect(3200*MM_S, WALK.y0*MM_S, 1600*MM_S, (WALK.y1-WALK.y0)*MM_S);
+  /* ROUND 3: mép trên vùng đi được theo đường chân tường (không phải đường thẳng) */
+  mmc.strokeStyle = '#B08A4B'; mmc.lineWidth = 1;
+  mmc.beginPath();
+  for(let x = 0; x <= 4800; x += 100){ const y = groundTopY(x); if(x === 0) mmc.moveTo(0, y*MM_S); else mmc.lineTo(x*MM_S, y*MM_S); }
+  mmc.stroke();
   for(const b of CONFIG.BUILDINGS){
     mmc.fillStyle = b.mmColor || '#C98A4B';
     mmc.fillRect(b.rect[0]*MM_S, b.rect[1]*MM_S, b.rect[2]*MM_S, b.rect[3]*MM_S);
@@ -2233,7 +2287,9 @@ function moveWithCollision(dx, dy){
      kẹt ngoài đó; vật cản vẫn chặn theo kiểu reject (đứng yên trục đó) */
   const nx = Math.min(WALK.x1, Math.max(WALK.x0, beca.x + dx));
   if(!hitsSolid(nx, beca.y)) beca.x = nx;
-  const ny = Math.min(WALK.y1, Math.max(WALK.y0, beca.y + dy));
+  /* ROUND 3: mép trên theo đường chân tường tại x hiện tại (không phải y0 phẳng) */
+  const topY = groundTopY(beca.x);
+  const ny = Math.min(WALK.y1, Math.max(topY, beca.y + dy));
   if(!hitsSolid(beca.x, ny)) beca.y = ny;
 }
 function pushOutPoint(p){
@@ -2251,9 +2307,15 @@ function pushOutPoint(p){
     const r = b.rect;
     if(beca.x > r[0]-18 && beca.x < r[0]+r[2]+18 && beca.y > r[1]-18 && beca.y < r[1]+r[3]+18){
       const dl = beca.x - (r[0]-18), dr = (r[0]+r[2]+18) - beca.x, dt2 = beca.y - (r[1]-18), db = (r[1]+r[3]+18) - beca.y;
-      const m = Math.min(dl, dr, dt2, db);
-      if(m === dl) beca.x = r[0]-18; else if(m === dr) beca.x = r[0]+r[2]+18;
-      else if(m === dt2) beca.y = r[1]-18; else beca.y = r[1]+r[3]+18;
+      /* ROUND 3: không đẩy ra mép TRÊN nếu mép đó nằm trong vùng mặt tiền
+         (trên đường chân tường) — đẩy lên đó là đứng lơ lửng trên mặt tiền
+         (lỗi T22b: teleport vào sạp chợ bị đẩy lên y=962, trên đường chân
+         tường 1103). Chỉ đẩy ra các mép còn lại (trái/phải/dưới). */
+      const topOk = (r[1]-18) >= groundTopY(beca.x);
+      let m = Math.min(dl, dr, db), side = m === dl ? 'l' : m === dr ? 'r' : 'b';
+      if(topOk && dt2 < m){ m = dt2; side = 't'; }
+      if(side === 'l') beca.x = r[0]-18; else if(side === 'r') beca.x = r[0]+r[2]+18;
+      else if(side === 't') beca.y = r[1]-18; else beca.y = r[1]+r[3]+18;
       moved = true;
     }
   }
@@ -2483,6 +2545,44 @@ function ting(){
       o.connect(g).connect(ac.destination);
       o.start(ac.currentTime+i*0.09); o.stop(ac.currentTime+i*0.09+0.4);
     });
+  }catch(e){}
+}
+let _sfxLast = {};
+/* ÂM NHẠC (ROUND 3): mỗi hành động có 1 tiếng riêng — nhảy / bước chân /
+   cọ vẽ / chạm nút — không phải 1 tiếng beep chung cho mọi thứ. ting() ở trên
+   giữ nguyên = tiếng tiền xu (bán tranh, nhiệm vụ xong). */
+function sfx(name, minGap){
+  if(!state.sound) return;
+  try{
+    const now = performance.now();
+    if(minGap && now - (_sfxLast[name] || 0) < minGap) return;
+    _sfxLast[name] = now;
+    const ac = window._ac || (window._ac = new (window.AudioContext||window.webkitAudioContext)());
+    if(ac.state==='suspended') ac.resume();
+    const t0 = ac.currentTime;
+    function tone(f0, f1, dur, type, vol){
+      const o=ac.createOscillator(), g=ac.createGain();
+      o.type=type; o.frequency.setValueAtTime(f0, t0);
+      if(f1 && f1!==f0) o.frequency.exponentialRampToValueAtTime(f1, t0+dur);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(vol, t0+0.015);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+      o.connect(g).connect(ac.destination);
+      o.start(t0); o.stop(t0+dur+0.05);
+    }
+    if(name==='jump') tone(280, 620, 0.16, 'triangle', 0.12);      /* vút lên */
+    else if(name==='step') tone(95, 70, 0.07, 'sine', 0.05);      /* bước chân chạm đất */
+    else if(name==='click') tone(660, 660, 0.05, 'sine', 0.08);   /* chạm nút */
+    else if(name==='brush'){                                         /* cọ quẹt: sột nhẹ */
+      const len = Math.floor(ac.sampleRate * 0.06);
+      const buf = ac.createBuffer(1, len, ac.sampleRate);
+      const d = buf.getChannelData(0);
+      for(let i=0;i<len;i++) d[i] = (Math.random()*2-1) * (1 - i/len);
+      const src = ac.createBufferSource(); src.buffer = buf;
+      const fl = ac.createBiquadFilter(); fl.type='lowpass'; fl.frequency.value=900;
+      const g = ac.createGain(); g.gain.value=0.05;
+      src.connect(fl).connect(g).connect(ac.destination); src.start(t0);
+    }
   }catch(e){}
 }
 /* -------- bán tranh: khung thoại đề nghị (ảnh thu nhỏ + giá + đồng ý/từ chối) -------- */
@@ -2780,9 +2880,15 @@ function rigApply(r, el){
   el.style.backgroundPosition = (n <= 1 ? 0 : r.frame / (n - 1) * 100) + '% 0%';
   el.style.transform = 'translateY(' + (-r.yOff) + 'px) rotate(' + (r.lean || 0) + 'deg) scale(' + ((r.flip ? -1 : 1) * r.scale) + ',' + (r.scale * r.sy) + ')';
 }
-function rigAdvance(r, dt, action){
-  /* đổi khung theo nhịp: đi 130ms/khung, chạy 70ms/khung */
-  const iv = action === 'run' ? 0.07 : 0.13;
+function rigAdvance(r, dt, action, speed){
+  /* ROUND 3 (chuyên nghiệp — không trượt chân): nhịp khung suy từ TỐC ĐỘ ĐẤT
+     và bước chân VẼ SẴN trong sheet (RIGS stepPx, đo bằng PIL): 1 chu kỳ 6 khung
+     = 2 bước; thời gian/chu kỳ = 2*stepPx/speed; thời gian/khung = stepPx/(3*speed).
+     Tốc độ cố định cũ (130ms đi / 70ms chạy) khiến chân trượt ~30px/bước vì thân
+     chỉ tiến 27px/bước mà chân vẽ bước 60px. speed lấy từ npcTick (tốc độ thật). */
+  const step = (RIGS[r.id] && RIGS[r.id].stepPx) || 50;
+  const sp = speed || (action === 'run' ? WANDER.runSpeed : WANDER.walkSpeed);
+  const iv = Math.max(0.05, Math.min(0.5, step / (3 * Math.max(1, sp))));
   r.interval = iv;
   r.t += dt;
   if(r.t >= iv){ r.t -= iv; r.frame = (r.frame + 1) % RIGS[r.id].walkFrames; }
@@ -2804,6 +2910,24 @@ function rigLayout(){
 /* ---- cầu thang: hình học ---- */
 /* tỉ lệ theo chiều sâu (CONFIG.DEPTH): y càng lớn (càng gần camera) càng to */
 function depthScale(y){ const d = CONFIG.DEPTH; const t = Math.max(0, Math.min(1, (y - d.y0) / (d.y1 - d.y0))); return d.s0 + t * (d.s1 - d.s0); }
+/* ---- đường chân tường (ROUND 3): mép trên vùng đi được tại x ----
+   Nội suy tuyến tính CONFIG.GROUND (đo từ ảnh thật) rồi kẹp sàn WALK.y0:
+   mép trên chỉ được CAO HƠN 960 (nhà/tiệm 2 bên phố gần camera), không bao giờ
+   thấp hơn — xa nhà hát/tháp đồng hồ vẫn giữ 960 như cũ. Mọi đường đi (bé cá,
+   NPC, tap-to-move, nhiệm vụ) đều kẹp qua hàm này, không dùng WALK.y0 trực tiếp. */
+function groundTopY(x){
+  const g = CONFIG.GROUND || [];
+  if(!g.length) return WALK.y0;
+  if(x <= g[0][0]) return Math.max(WALK.y0, g[0][1]);
+  for(let i = 1; i < g.length; i++){
+    if(x <= g[i][0]){
+      const x0 = g[i-1][0], y0 = g[i-1][1], x1 = g[i][0], y1 = g[i][1];
+      const t = (x - x0) / Math.max(1, x1 - x0);
+      return Math.max(WALK.y0, y0 + t * (y1 - y0));
+    }
+  }
+  return Math.max(WALK.y0, g[g.length-1][1]);
+}
 /* trên cầu thang: từ tỉ lệ ở chân cầu thang thu nhỏ dần về scaleTop ở sân ngắm */
 function stairScale(t){ return depthScale(STAIRS.y0) + t * (STAIRS.scaleTop - depthScale(STAIRS.y0)); }
 function stairPoint(t){
@@ -2821,6 +2945,7 @@ function inTerrace(x, y){ const r = STAIRS.terrace; return x >= r.x0 && x <= r.x
 /* ---- nhảy của bé cá: nhún -> trên không -> đáp đất ---- */
 function doJump(){
   if(beca.mode !== 'ground' || becaJump) return false;
+  sfx('jump');
   becaJump = {phase:'crouch', t:0, vy:0, yOff:0};
   return true;
 }
@@ -2945,15 +3070,26 @@ function npcInit(){
     stair:null, phase:null, stairGo:0.5, exitStairs:false, jump:null, facing:'right', range:150};
   npcs.chu.marker = document.getElementById('landlordMarker');
   npcs.chu.el = document.querySelector('#landlordAvatarMap .rig');
+  /* SINH HỌC (ROUND 3): Mimi là mèo — đi từng đợt ngắn quanh nhà, nghỉ dài
+     (mèo ngủ ~70% thời gian); hoàng hôn (phase 1) mèo tỉnh hơn (loài hoàng hôn).
+     range nhỏ + idleMul xem npcIdleMul(). */
+  if(npcs.mimi){ npcs.mimi.range = 150; }
+}
+/* Hệ số nghỉ theo loài: người = 1; Mimi (mèo) nghỉ gấp 2.5 lần ban ngày,
+   hoàng hôn (phase 1, mèo hoạt động mạnh) chỉ gấp 1.2 lần. */
+function npcIdleMul(n){
+  if(!n || n.id !== 'mimi') return 1;
+  return (typeof state !== 'undefined' && state.timePhase === 1) ? 1.2 : 2.5;
 }
 function npcWanderTarget(n){
   for(let k = 0; k < 6; k++){
     const a = Math.random() * Math.PI * 2, d = 60 + Math.random() * n.range;
     const x = Math.min(WALK.x1, Math.max(WALK.x0, n.home[0] + Math.cos(a) * d));
-    const y = Math.min(WALK.y1, Math.max(WALK.y0, n.home[1] + Math.sin(a) * d));
+    /* ROUND 3: NPC cũng kẹp theo đường chân tường — không đi lên mặt tiền/tán cây */
+    const y = Math.min(WALK.y1, Math.max(groundTopY(x), n.home[1] + Math.sin(a) * d));
     if(!hitsSolid(x, y)) return {x:x, y:y}; /* không đi vào vật cản (đài phun nước, cây, nhà) */
   }
-  return {x:n.home[0], y:n.home[1]};
+  return {x:n.home[0], y:Math.max(groundTopY(n.home[0]), n.home[1])};
 }
 function npcPick(n){
   const r = Math.random();
@@ -2978,7 +3114,7 @@ function npcJumpTick(n, dt){
     n.rig.frame = 1; n.rig.sy = 1.06; n.rig.yOff = j.yOff;
   } else {
     n.rig.frame = 2; n.rig.sy = 0.85; n.rig.yOff = 0;
-    if(j.t >= 0.1){ n.jump = null; n.rig.sy = 1; if(n.mode === 'hop'){ n.mode = 'idle'; n.idleT = WANDER.idleMin + Math.random() * 2; } }
+    if(j.t >= 0.1){ n.jump = null; n.rig.sy = 1; if(n.mode === 'hop'){ n.mode = 'idle'; n.idleT = (WANDER.idleMin + Math.random() * 2) * npcIdleMul(n); } }
   }
 }
 function npcStairTick(n, dt){
@@ -3021,6 +3157,8 @@ function npcTick(dt){
     const n = npcs[id];
     if(!n.el) continue;
     pushOutPoint(n); /* NPC không bao giờ kẹt trong vật cản */
+    /* ROUND 3: NPC không bao giờ đứng trên mặt tiền/tán cây (kẹp chân xuống vỉa hè) */
+    if(n.y < groundTopY(n.x)) n.y = groundTopY(n.x);
     if(n.jump) npcJumpTick(n, dt);
     if(n.mode === 'idle'){
       n.idleT -= dt;
@@ -3032,15 +3170,15 @@ function npcTick(dt){
     } else if(n.mode === 'walk' || n.mode === 'run'){
       const sp = n.mode === 'run' ? WANDER.runSpeed : WANDER.walkSpeed;
       const dx = n.target.x - n.x, dy = n.target.y - n.y, d = Math.hypot(dx, dy);
-      if(d < 10){ n.mode = 'idle'; n.idleT = WANDER.idleMin + Math.random() * (WANDER.idleMax - WANDER.idleMin); }
+      if(d < 10){ n.mode = 'idle'; n.idleT = (WANDER.idleMin + Math.random() * (WANDER.idleMax - WANDER.idleMin)) * npcIdleMul(n); }
       else {
         const nx = n.x + dx / d * sp * dt, ny = n.y + dy / d * sp * dt;
-        if(hitsSolid(nx, ny)){ n.mode = 'idle'; n.idleT = WANDER.idleMin + Math.random() * 2; n.target = null; }
+        if(hitsSolid(nx, ny)){ n.mode = 'idle'; n.idleT = (WANDER.idleMin + Math.random() * 2) * npcIdleMul(n); n.target = null; }
         else {
           n.x = nx; n.y = ny;
           n.facing = dx < -5 ? 'left' : (dx > 5 ? 'right' : n.facing);
           rigSetSheet(n.rig, 'walk');
-          rigAdvance(n.rig, dt, n.mode);
+          rigAdvance(n.rig, dt, n.mode, sp);
           n.rig.sy = 1; n.rig.yOff = 0; n.rig.lean = n.mode === 'run' ? 5 : 0;
         }
       }
@@ -3053,6 +3191,26 @@ function npcTick(dt){
       if(n.idleT <= 0){ n.mode = 'stairs'; n.stair = {t:1}; n.phase = 'descend'; n.exitStairs = true; }
     }
     /* hop: npcJumpTick ở trên đã xử lý, không cần nhánh riêng */
+    /* PHASER ARCADE (chuẩn vật lý, còn tồn từ trước: NPC chưa có va chạm với
+       bé cá): NPC là vật thể động — tách 2 hình tròn (NPC r=22, mèo r=18, bé cá
+       r=22) dọc trục xuyên tối thiểu; NPC nhường (bé cá do người điều khiển,
+       không đẩy ngược lại tay người chơi). Không áp cho NPC trên cầu thang/sân
+       thượng (khác tầng, không chạm được bé cá). */
+    if(n.mode !== 'stairs' && n.mode !== 'terrace'){
+      const nr = n.id === 'mimi' ? 18 : 22, minD = nr + 22;
+      let dx = n.x - beca.x, dy = n.y - beca.y, d = Math.hypot(dx, dy);
+      if(d <= 0.01){ dx = minD; dy = 0; d = minD; }
+      if(d < minD){
+        n.x = beca.x + dx / d * minD;
+        n.y = beca.y + dy / d * minD;
+        /* kẹp vào vùng đi được (cả 4 biên) trước + sau pushOut: cú đẩy tách
+           có thể hất NPC ra ngoài biên dưới/phải (T8 từng bắt Nam ở y≈1340.4,
+           ngoài WALK.y1=1340) — "chân luôn có đất" thì NPC cũng không được
+           ra khỏi dải đất. */
+        const clampWalk = ()=>{ n.x = Math.min(WALK.x1, Math.max(WALK.x0, n.x)); n.y = Math.min(WALK.y1, Math.max(groundTopY(n.x), n.y)); };
+        clampWalk(); pushOutPoint(n); clampWalk();
+      }
+    }
     const sc = n.mode === 'stairs' ? stairScale(n.stair.t) : (n.mode === 'terrace' ? STAIRS.scaleTop : depthScale(n.y));
     n.rig.scale = sc;
     n.rig.flip = n.facing === 'left';
@@ -3551,7 +3709,7 @@ window.__becaPainting = {
   minimap: ()=>({x: beca.x*MM_S, y: beca.y*MM_S}),
   mapToWorld: (x,y)=>screenToWorld(x,y),
   debugGoto(id){
-    const spots = Object.assign({}, CONFIG.SPOTS, {paintshop:[210,1000], landlord:CONFIG.LANDLORD_SPOT, studio:CONFIG.LANDLORD_SPOT, pho:[530,1000], park:[1850,1150], cafe:[1850,1000], market:[3550,1000], street:[2400,1200]});
+    const spots = Object.assign({}, CONFIG.SPOTS, {paintshop:[210,1000], landlord:CONFIG.LANDLORD_SPOT, studio:CONFIG.LANDLORD_SPOT, pho:[530,1000], park:[1850,1250], cafe:[1850,1250], market:[3550,1160], street:[2400,1200]}); /* ROUND 3: cafe/park/market cũ nằm TRONG mặt tiền/sạp (đường chân tường ở đó là y~1190/1105) — dời ra vỉa hè */
     const s = spots[id] || [560,620];
     beca.x = s[0]; beca.y = s[1]; moveTarget=null; dragVec=null;
     updateWalker(); updateCamera();
@@ -3579,9 +3737,19 @@ window.__becaPainting = {
   npcFaces: ()=>Object.keys(npcFaceURL),
   zones: ()=>CONFIG.ZONES.map(z=>z.id),
   hitsSolid: (x,y)=>hitsSolid(x,y),
+  /* fix round 3 — hooks cho harness: phối cảnh, đường chân tường, mây, sinh học, âm thanh, kinh tế, bước chân */
+  depthScale: (y)=>depthScale(y),
+  groundTopY: (x)=>groundTopY(x),
+  clouds: ()=>clouds.map(e=>e.style.transform || ''),
+  npcIdleMul: (id)=>npcIdleMul(npcs[id]),
+  sfxTest: (name)=>{ sfx(name); return true; },
+  debugSetSound: (v)=>{ state.sound = !!v; },
+  rigs: ()=>JSON.parse(JSON.stringify(RIGS)),
+  economy: ()=>({goal: GOAL, pay: PAY, shop: SHOP_ITEMS.map(i=>({id:i.id, price:i.price})), quests: CONFIG.QUESTS.map(q=>({id:q.id, reward:q.reward}))}),
   /* fix round 2 — hooks cho harness: tư thế xương, FK, sprite dự phòng, DOM stacking */
   bonePose: (state, phase)=>bonePoseFor(state, phase),
   boneFK: (pose, facing)=>boneFK(pose, facing),
+  boneBlend: (a, b, t)=>bonePoseBlend(a, b, t),
   fallbackSrc: ()=>boneFallbackImg ? boneFallbackImg.src : null,
   fgDom: ()=>{
     const mw = document.getElementById('mapWorld');
