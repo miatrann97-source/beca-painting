@@ -345,24 +345,24 @@ function makeSeamStrip(scene, zid, bx){
    crop từ bg-town.png FINAL (sha d031ee1a, composite 0 pixel khác nền).
    add.image(anchor).setDepth(foot_y) — Y-sort thật (LAYOUT-FG.md §2/§4). */
 var FG3D = [
-  {id:'fgtower', key:'fg3d-tower', file:'map3d/fg-town-tower-c.png', ax:891, ay:782, depth:1433, zone:'town'},
-  {id:'fgpalace', key:'fg3d-palace', file:'map3d/fg-town-palace-c.png', ax:78, ay:1521, depth:1950, zone:'town'},
-  {id:'fgpagoda', key:'fg3d-pagoda', file:'map3d/fg-town-pagoda-c.png', ax:1836, ay:1116, depth:1763, zone:'town'},
-  {id:'fghousesbitexco', key:'fg3d-houses-bitexco', file:'map3d/fg-town-houses-bitexco-c.png', ax:1598, ay:1041, depth:1158, zone:'town'},
-  {id:'fghousesleft', key:'fg3d-houses-left', file:'map3d/fg-town-houses-left-c.png', ax:81, ay:1274, depth:1448, zone:'town'},
-  {id:'fghousesmid', key:'fg3d-houses-mid', file:'map3d/fg-town-houses-mid-c.png', ax:1491, ay:1476, depth:1643, zone:'town'},
-  {id:'fghousesbr', key:'fg3d-houses-br', file:'map3d/fg-town-houses-br-c.png', ax:1506, ay:1761, depth:1913, zone:'town'},
-  {id:'fgbushpalace', key:'fg3d-bush-palace', file:'map3d/fg-town-bush-palace-c.png', ax:132, ay:1406, depth:1607, zone:'town'},
-  {id:'fgtreetower1', key:'fg3d-tree-tower-1', file:'map3d/fg-town-tree-tower-1-c.png', ax:494, ay:1326, depth:1436, zone:'town'},
-  {id:'fgtreetower2', key:'fg3d-tree-tower-2', file:'map3d/fg-town-tree-tower-2-c.png', ax:858, ay:1348, depth:1440, zone:'town'},
-  {id:'fgtreetower3', key:'fg3d-tree-tower-3', file:'map3d/fg-town-tree-tower-3-c.png', ax:1073, ay:1356, depth:1440, zone:'town'},
-  {id:'fgtreetower4', key:'fg3d-tree-tower-4', file:'map3d/fg-town-tree-tower-4-c.png', ax:1261, ay:1350, depth:1440, zone:'town'},
-  {id:'fgtreetower5', key:'fg3d-tree-tower-5', file:'map3d/fg-town-tree-tower-5-c.png', ax:1461, ay:1356, depth:1440, zone:'town'},
-  {id:'fgtreemidl', key:'fg3d-tree-mid-l', file:'map3d/fg-town-tree-mid-l-c.png', ax:1441, ay:1547, depth:1628, zone:'town'},
-  {id:'fgtreemidr', key:'fg3d-tree-mid-r', file:'map3d/fg-town-tree-mid-r-c.png', ax:1738, ay:1554, depth:1635, zone:'town'},
-  {id:'fgtreebrl', key:'fg3d-tree-br-l', file:'map3d/fg-town-tree-br-l-c.png', ax:1529, ay:1776, depth:1890, zone:'town'},
-  {id:'fgtreebrr', key:'fg3d-tree-br-r', file:'map3d/fg-town-tree-br-r-c.png', ax:2273, ay:1776, depth:1889, zone:'town'},
-  {id:'fgtreebitexco3', key:'fg3d-tree-bitexco-3', file:'map3d/fg-town-tree-bitexco-3-c.png', ax:2196, ay:952, depth:1151, zone:'town'},
+  {id:'fgtower', key:'fg3d-tower', file:'map3d/fg-town-tower-c.png?v=r10', ax:1351, ay:1151, depth:1803, zone:'town'},
+  {id:'fgpalace', key:'fg3d-palace', file:'map3d/fg-town-palace-c.png?v=r10', ax:161, ay:2799, depth:3228, zone:'town'},
+  {id:'fgpagoda', key:'fg3d-pagoda', file:'map3d/fg-town-pagoda-c.png?v=r10', ax:2650, ay:1250, depth:1897, zone:'town'},
+  {id:'fghousesbitexco', key:'fg3d-houses-bitexco', file:'map3d/fg-town-houses-bitexco-c.png?v=r10', ax:1932, ay:1150, depth:1268, zone:'town'},
+  {id:'fghousesleft', key:'fg3d-houses-left', file:'map3d/fg-town-houses-left-c.png?v=r10', ax:550, ay:2186, depth:2362, zone:'town'},
+  {id:'fghousesmid', key:'fg3d-houses-mid', file:'map3d/fg-town-houses-mid-c.png?v=r10', ax:2850, ay:2200, depth:2367, zone:'town'},
+  {id:'fghousesbr', key:'fg3d-houses-br', file:'map3d/fg-town-houses-br-c.png?v=r10', ax:1600, ay:2800, depth:2952, zone:'town'},
+  {id:'fgbushpalace', key:'fg3d-bush-palace', file:'map3d/fg-town-bush-palace-c.png?v=r10', ax:216, ay:2684, depth:2885, zone:'town'},
+  {id:'fgtreetower1', key:'fg3d-tree-tower-1', file:'map3d/fg-town-tree-tower-1-c.png?v=r10', ax:945, ay:1696, depth:1806, zone:'town'},
+  {id:'fgtreetower2', key:'fg3d-tree-tower-2', file:'map3d/fg-town-tree-tower-2-c.png?v=r10', ax:1318, ay:1718, depth:1810, zone:'town'},
+  {id:'fgtreetower3', key:'fg3d-tree-tower-3', file:'map3d/fg-town-tree-tower-3-c.png?v=r10', ax:1533, ay:1726, depth:1810, zone:'town'},
+  {id:'fgtreetower4', key:'fg3d-tree-tower-4', file:'map3d/fg-town-tree-tower-4-c.png?v=r10', ax:1721, ay:1720, depth:1810, zone:'town'},
+  {id:'fgtreetower5', key:'fg3d-tree-tower-5', file:'map3d/fg-town-tree-tower-5-c.png?v=r10', ax:1921, ay:1726, depth:1810, zone:'town'},
+  {id:'fgtreemidl', key:'fg3d-tree-mid-l', file:'map3d/fg-town-tree-mid-l-c.png?v=r10', ax:2799, ay:2268, depth:2352, zone:'town'},
+  {id:'fgtreemidr', key:'fg3d-tree-mid-r', file:'map3d/fg-town-tree-mid-r-c.png?v=r10', ax:3097, ay:2278, depth:2359, zone:'town'},
+  {id:'fgtreebrl', key:'fg3d-tree-br-l', file:'map3d/fg-town-tree-br-l-c.png?v=r10', ax:1623, ay:2815, depth:2929, zone:'town'},
+  {id:'fgtreebrr', key:'fg3d-tree-br-r', file:'map3d/fg-town-tree-br-r-c.png?v=r10', ax:2366, ay:2815, depth:2929, zone:'town'},
+  {id:'fgtreebitexco3', key:'fg3d-tree-bitexco-3', file:'map3d/fg-town-tree-bitexco-3-c.png?v=r10', ax:2566, ay:951, depth:1152, zone:'town'},
 ];
 function buildForeground(scene){
   FG3D.forEach(function(f){
@@ -374,7 +374,7 @@ function buildForeground(scene){
 }
 function buildClouds(scene){
   makeCloudTexture(scene);
-  [[525,105,390,135],[1875,225,330,120]] /* SINGLE-TOWN: 2 mây trong khu 2400 (R9 x1.5) */.forEach(function(cd){
+  [[788,105,390,135],[2813,225,330,120]] /* SINGLE-TOWN: 2 mây trong khu 2400 (R9 x1.5) */.forEach(function(cd){
     var im = scene.add.image(cd[0], cd[1], 'cloudSoft');
     im.setOrigin(0, 0);
     im.setDisplaySize(cd[2], cd[3]);
@@ -884,7 +884,7 @@ function lwMakeTextures(scene){
    Vẽ 1 lần thành texture, cuộn chậm (scrollFactor 0.15) ở đỉnh màn hình. */
 function lwSkylineTexture(scene){
   if(scene.textures.exists('lw-skyline')) return 'lw-skyline';
-  var W = 2400, H = 90;
+  var W = 3600, H = 90;
   var c = document.createElement('canvas'); c.width = W; c.height = H;
   var x = c.getContext('2d');
   /* dãy nhà xa mờ (rất nhạt — phối cảnh khí quyển) */
@@ -905,20 +905,20 @@ function lwSkylineTexture(scene){
   for(var w=0; w<W; w+=110){ x.fillRect(w+20, H-6, 40, 1); }
   /* tháp đồng hồ Bến Thành (1912-1914) */
   x.fillStyle = 'rgba(140,155,200,0.65)';
-  x.fillRect(330, H-10-58, 40, 58);
-  x.beginPath(); x.moveTo(327, H-10-58); x.lineTo(350, H-10-76); x.lineTo(373, H-10-58); x.closePath(); x.fill();
+  x.fillRect(495, H-10-58, 40, 58);
+  x.beginPath(); x.moveTo(490, H-10-58); x.lineTo(525, H-10-76); x.lineTo(560, H-10-58); x.closePath(); x.fill();
   x.fillStyle = 'rgba(255,250,230,0.9)';
-  x.beginPath(); x.arc(350, H-10-44, 10, 0, Math.PI*2); x.fill();
+  x.beginPath(); x.arc(525, H-10-44, 10, 0, Math.PI*2); x.fill();
   /* Bitexco (2010): tháp vát */
   x.fillStyle = 'rgba(135,150,195,0.6)';
-  x.beginPath(); x.moveTo(880, H-10); x.lineTo(892, H-10-78); x.lineTo(918, H-10-78); x.lineTo(930, H-10); x.closePath(); x.fill();
+  x.beginPath(); x.moveTo(1320, H-10); x.lineTo(1338, H-10-78); x.lineTo(1377, H-10-78); x.lineTo(1395, H-10); x.closePath(); x.fill();
   /* Nhà thờ Đức Bà (1877-1880): 2 tháp chuông */
   x.fillStyle = 'rgba(145,160,200,0.65)';
-  [1500, 1552].forEach(function(tx){
+  [2250, 2328].forEach(function(tx){
     x.fillRect(tx, H-10-48, 26, 48);
     x.beginPath(); x.moveTo(tx-2, H-10-48); x.lineTo(tx+13, H-10-68); x.lineTo(tx+28, H-10-48); x.closePath(); x.fill();
   });
-  x.fillRect(1496, H-10-30, 82, 30);
+  x.fillRect(2244, H-10-30, 82, 30);
   scene.textures.addCanvas('lw-skyline', c);
   return 'lw-skyline';
 }
@@ -967,17 +967,16 @@ function buildNightLights(scene){
      nhà phố trái / chân Bitexco / giữa-phải / dưới-phải, tháp đồng hồ, rose window
      + cửa vòm nhà thờ, Dinh Độc Lập. s = cỡ quầng (cửa nhỏ 45, tháp/Dinh 50, rose 90). */
   var spots = [
-    {x:150, y:1358, s:68}, {x:234, y:1358, s:68}, {x:308, y:1358, s:68}, {x:376, y:1358, s:68}, {x:462, y:1358, s:68},
-    {x:186, y:1410, s:68}, {x:270, y:1410, s:68}, {x:375, y:1410, s:68},
-    {x:1738, y:1100, s:68}, {x:1810, y:1100, s:68}, {x:1870, y:1100, s:68}, {x:2084, y:1100, s:68}, {x:2157, y:1100, s:68}, {x:2220, y:1100, s:68},
-    {x:1760, y:1131, s:68}, {x:2104, y:1131, s:68},
-    {x:1539, y:1536, s:68}, {x:1610, y:1536, s:68}, {x:1692, y:1536, s:68}, {x:1762, y:1536, s:68},
-    {x:1575, y:1587, s:68}, {x:1726, y:1587, s:68},
-    {x:1640, y:1812, s:68}, {x:1750, y:1812, s:68}, {x:1824, y:1812, s:68}, {x:1978, y:1812, s:68}, {x:2066, y:1812, s:68}, {x:2158, y:1812, s:68}, {x:2236, y:1812, s:68},
-    {x:1824, y:1868, s:68}, {x:2122, y:1868, s:68}, {x:2198, y:1868, s:68},
-    {x:1092, y:981, s:75}, {x:1306, y:981, s:75}, {x:1160, y:1052, s:75}, {x:1239, y:1053, s:75}, {x:992, y:1287, s:75}, {x:1395, y:1284, s:75},
-    {x:724, y:765, s:135}, {x:444, y:945, s:75}, {x:612, y:945, s:75}, {x:830, y:945, s:75},
-    {x:578, y:1626, s:75}, {x:638, y:1626, s:75}, {x:579, y:1755, s:75}, {x:676, y:1755, s:75}, {x:172, y:1725, s:75}, {x:1032, y:1725, s:75},
+    {x:619, y:2272, s:68}, {x:703, y:2272, s:68}, {x:777, y:2272, s:68}, {x:845, y:2272, s:68}, {x:931, y:2272, s:68},
+    {x:655, y:2324, s:68}, {x:739, y:2324, s:68}, {x:844, y:2324, s:68}, {x:2072, y:1209, s:68}, {x:2144, y:1209, s:68},
+    {x:2204, y:1209, s:68}, {x:2418, y:1209, s:68}, {x:2491, y:1209, s:68}, {x:2554, y:1209, s:68}, {x:2094, y:1240, s:68},
+    {x:2438, y:1240, s:68}, {x:2898, y:2260, s:68}, {x:2969, y:2260, s:68}, {x:3051, y:2260, s:68}, {x:3121, y:2260, s:68},
+    {x:2934, y:2311, s:68}, {x:3085, y:2311, s:68}, {x:1734, y:2851, s:68}, {x:1844, y:2851, s:68}, {x:1918, y:2851, s:68},
+    {x:2072, y:2851, s:68}, {x:2160, y:2851, s:68}, {x:2252, y:2851, s:68}, {x:2330, y:2851, s:68}, {x:1918, y:2907, s:68},
+    {x:2216, y:2907, s:68}, {x:2292, y:2907, s:68}, {x:1552, y:1351, s:75}, {x:1766, y:1351, s:75}, {x:1620, y:1422, s:75},
+    {x:1699, y:1423, s:75}, {x:1452, y:1657, s:75}, {x:1855, y:1654, s:75}, {x:574, y:1365, s:135}, {x:294, y:1545, s:75},
+    {x:462, y:1545, s:75}, {x:680, y:1545, s:75}, {x:662, y:2904, s:75}, {x:722, y:2904, s:75}, {x:663, y:3033, s:75},
+    {x:760, y:3033, s:75}, {x:256, y:3003, s:75}, {x:1116, y:3003, s:75},
   ];
   spots.forEach(function(sp){
     var g = scene.add.image(sp.x, sp.y, 'lw-lamp');
@@ -1400,25 +1399,25 @@ function lwExtendContent(){
   }
   /* lịch sử thật (hiện khi chạm skyline/điểm mốc) */
   LW.history = [
-    {x:345, name:'Nhà thờ Đức Bà', vi:'Nhà thờ Đức Bà xây 1877–1880 bằng gạch nhập từ Pháp, 2 tháp chuông cao 58m.', en:'Notre-Dame Cathedral, built 1877–1880 with bricks from France, its twin spires 58m tall.'},
-    {x:600, name:'Tháp đồng hồ Bến Thành', vi:'Chợ Bến Thành xây 1912–1914, tháp đồng hồ là biểu tượng của Sài Gòn hơn 100 năm.', en:'Ben Thanh Market was built 1912–1914; its clock tower has symbolised Saigon for over 100 years.'},
-    {x:938, name:'Bitexco', vi:'Tòa tháp Bitexco hoàn thành 2010, cao 262m — từng là tòa nhà cao nhất Sài Gòn.', en:'Bitexco Tower, completed 2010, 262m tall — once Saigon\'s tallest building.'},
-    {x:315, name:'Dinh Độc Lập', vi:'Dinh Độc Lập xây dựng thập niên 1960, nơi ghi dấu ngày 30/4/1975.', en:'Independence Palace, built in the 1960s, marks 30 April 1975.'},
-    {x:1013, name:'Chùa', vi:'Chùa xanh nhiều tầng mái cong — góc yên tĩnh của thị trấn.', en:'The green pagoda with curved tiered roofs — the quiet corner of town.'},
+    {x:280, name:'Nhà thờ Đức Bà', vi:'Nhà thờ Đức Bà xây 1877–1880 bằng gạch nhập từ Pháp, 2 tháp chuông cao 58m.', en:'Notre-Dame Cathedral, built 1877–1880 with bricks from France, its twin spires 58m tall.'},
+    {x:830, name:'Tháp đồng hồ Bến Thành', vi:'Chợ Bến Thành xây 1912–1914, tháp đồng hồ là biểu tượng của Sài Gòn hơn 100 năm.', en:'Ben Thanh Market was built 1912–1914; its clock tower has symbolised Saigon for over 100 years.'},
+    {x:1062, name:'Bitexco', vi:'Tòa tháp Bitexco hoàn thành 2010, cao 262m — từng là tòa nhà cao nhất Sài Gòn.', en:'Bitexco Tower, completed 2010, 262m tall — once Saigon\'s tallest building.'},
+    {x:356, name:'Dinh Độc Lập', vi:'Dinh Độc Lập xây dựng thập niên 1960, nơi ghi dấu ngày 30/4/1975.', en:'Independence Palace, built in the 1960s, marks 30 April 1975.'},
+    {x:1423, name:'Chùa', vi:'Chùa xanh nhiều tầng mái cong — góc yên tĩnh của thị trấn.', en:'The green pagoda with curved tiered roofs — the quiet corner of town.'},
     {x:795, name:'Landmark 81', vi:'Tháp cao nhất Việt Nam, cao 461,2m với 81 tầng, lấy cảm hứng từ lũy tre, khởi công năm 2015 và hoàn thành năm 2018 bên bờ sông Sài Gòn.', en:'Vietnam\'s tallest tower, 461.2m with 81 floors, inspired by bamboo hedges, built 2015–2018 on the Saigon River.'},
-    {x:1115, name:'Cầu Ba Son', vi:'Cầu dây văng qua sông Sài Gòn nối Quận 1 với Thủ Thiêm, thông xe ngày 28/4/2022, với trụ vòm trắng cao 113m nghiêng về phía Thủ Thiêm và 56 bó cáp.', en:'A cable-stayed bridge over the Saigon River linking District 1 and Thu Thiem, opened 28/4/2022, with a white arch tower 113m tall leaning toward Thu Thiem and 56 cable bundles.'},
-    {x:1058, name:'Marina Central Tower', vi:'Tháp kính 55 tầng cao 240m ở số 2 Tôn Đức Thắng, hoàn thành năm 2025, nối thẳng với ga Metro Ba Son.', en:'A 55-storey glass tower, 240m tall at 2 Ton Duc Thang, completed 2025, linked directly to Ba Son Metro station.'},
-    {x:642, name:'Vincom Đồng Khởi', vi:'Khối thương mại và văn phòng lớn 29 tầng ở 70–72 Lê Thánh Tôn, mỗi tầng rộng 4.600m², ngay trung tâm Quận 1.', en:'A large 29-storey retail and office block at 70–72 Le Thanh Ton, each floor 4,600m2, right in the heart of District 1.'},
-    {x:1149, name:'Khu đô thị Sala', vi:'Khu đô thị mới ven sông ở Thủ Thiêm, hiện đại và nhiều cây xanh, với tháp Thisofic uốn lượn như hình rồng.', en:'A new riverside urban area in Thu Thiem, modern and green, with the winding Thisofic tower shaped like a dragon.'},
-    {x:807, name:'Bưu điện Trung tâm', vi:'Tòa nhà Pháp xây năm 1886–1891 ở số 2 Công xã Paris, đối diện Nhà thờ Đức Bà, nổi tiếng với mái vòm sắt và mặt tiền vàng.', en:'A French building from 1886–1891 at 2 Cong Xa Paris, opposite Notre-Dame Cathedral, famous for its iron dome and yellow facade.'},
-    {x:687, name:'Nhà hát Lớn', vi:'Nhà hát Thành phố khánh thành ngày 1/1/1900, mặt tiền lộng lẫy theo phong cách Flamboyant của Pháp, ở Công trường Lam Sơn.', en:'The City Theatre, opened 1/1/1900, with a splendid facade in the French Flamboyant style, at Lam Son Square.'},
-    {x:1152, name:'Nhà thờ Tân Định', vi:'Nhà thờ khánh thành ngày 16/12/1876, được sơn màu hồng từ năm 1957 nên ai cũng gọi là \'nhà thờ màu hồng\', tháp chính cao 52,6m.', en:'The church, consecrated 16/12/1876, painted pink since 1957 — everyone calls it the pink church — its main tower 52.6m tall.'},
-    {x:1026, name:'Bến Nhà Rồng', vi:'Ngày 5/6/1911, người thanh niên Nguyễn Tất Thành rời bến cảng này trên tàu Latouche-Tréville ra đi tìm đường cứu nước.', en:'On 5/6/1911, the young Nguyen Tat Thanh left this port aboard the Latouche-Treville to seek a way to save the country.'},
-    {x:722, name:'UBND TP', vi:'Tòa thị chính xây năm 1898–1908, khánh thành năm 1909, đứng đầu phố đi bộ Nguyễn Huệ với tháp chuông nhọn giữa.', en:'The city hall, built 1898–1908 and opened in 1909, stands at the head of Nguyen Hue walking street with a pointed bell tower in the middle.'},
-    {x:842, name:'Phố đi bộ Nguyễn Huệ', vi:'Quảng trường đi bộ đầu tiên của Việt Nam, khánh thành ngày 29/4/2015, dài 670m từ UBND ra bến Bạch Đằng, với tượng Bác Hồ và đài phun sen.', en:'Vietnam\'s first walking square, opened 29/4/2015, 670m long from the city hall to Bach Dang wharf, with the Ho Chi Minh statue and lotus fountain.'},
-    {x:80, name:'Chùa Ngọc Hoàng', vi:'Chùa do ông Lưu Minh, người Quảng Đông, xây từ năm 1892 để thờ Ngọc Hoàng Thượng Đế, nổi tiếng với hàng trăm tượng và kiến trúc Trung Hoa màu đỏ.', en:'A temple built from 1892 by Luu Minh from Guangdong to worship the Jade Emperor, famous for its hundreds of statues and red Chinese architecture.'},
-    {x:912, name:'Chợ Bình Tây', vi:'Chợ do thương nhân Quách Đàm bỏ tiền xây năm 1928–1930 ở Quận 6, với tháp đồng hồ bốn mặt và mái ngói âm dương mang đậm nét Á Đông.', en:'A market built 1928–1930 in District 6 with money from merchant Quach Dam, with a four-faced clock tower and yin-yang tiled roofs in strong Asian style.'},
-    {x:1164, name:'Chung cư 42 Nguyễn Huệ', vi:'Chung cư 9 tầng xây đầu thập niên 1960, thành \'chung cư cà phê\' sau khi Nguyễn Huệ thành phố đi bộ năm 2015, nổi tiếng thế giới qua ảnh National Geographic năm 2020.', en:'A 9-storey apartment block from the early 1960s, turned into the coffee apartment building after Nguyen Hue became a walking street in 2015, famous worldwide through a 2020 National Geographic photo.'},
+    {x:1695, name:'Cầu Ba Son', vi:'Cầu dây văng qua sông Sài Gòn nối Quận 1 với Thủ Thiêm, thông xe ngày 28/4/2022, với trụ vòm trắng cao 113m nghiêng về phía Thủ Thiêm và 56 bó cáp.', en:'A cable-stayed bridge over the Saigon River linking District 1 and Thu Thiem, opened 28/4/2022, with a white arch tower 113m tall leaning toward Thu Thiem and 56 cable bundles.'},
+    {x:1265, name:'Marina Central Tower', vi:'Tháp kính 55 tầng cao 240m ở số 2 Tôn Đức Thắng, hoàn thành năm 2025, nối thẳng với ga Metro Ba Son.', en:'A 55-storey glass tower, 240m tall at 2 Ton Duc Thang, completed 2025, linked directly to Ba Son Metro station.'},
+    {x:565, name:'Vincom Đồng Khởi', vi:'Khối thương mại và văn phòng lớn 29 tầng ở 70–72 Lê Thánh Tôn, mỗi tầng rộng 4.600m², ngay trung tâm Quận 1.', en:'A large 29-storey retail and office block at 70–72 Le Thanh Ton, each floor 4,600m2, right in the heart of District 1.'},
+    {x:1738, name:'Khu đô thị Sala', vi:'Khu đô thị mới ven sông ở Thủ Thiêm, hiện đại và nhiều cây xanh, với tháp Thisofic uốn lượn như hình rồng.', en:'A new riverside urban area in Thu Thiem, modern and green, with the winding Thisofic tower shaped like a dragon.'},
+    {x:1556, name:'Bưu điện Trung tâm', vi:'Tòa nhà Pháp xây năm 1886–1891 ở số 2 Công xã Paris, đối diện Nhà thờ Đức Bà, nổi tiếng với mái vòm sắt và mặt tiền vàng.', en:'A French building from 1886–1891 at 2 Cong Xa Paris, opposite Notre-Dame Cathedral, famous for its iron dome and yellow facade.'},
+    {x:1281, name:'Nhà hát Lớn', vi:'Nhà hát Thành phố khánh thành ngày 1/1/1900, mặt tiền lộng lẫy theo phong cách Flamboyant của Pháp, ở Công trường Lam Sơn.', en:'The City Theatre, opened 1/1/1900, with a splendid facade in the French Flamboyant style, at Lam Son Square.'},
+    {x:1525, name:'Nhà thờ Tân Định', vi:'Nhà thờ khánh thành ngày 16/12/1876, được sơn màu hồng từ năm 1957 nên ai cũng gọi là \'nhà thờ màu hồng\', tháp chính cao 52,6m.', en:'The church, consecrated 16/12/1876, painted pink since 1957 — everyone calls it the pink church — its main tower 52.6m tall.'},
+    {x:1742, name:'Bến Nhà Rồng', vi:'Ngày 5/6/1911, người thanh niên Nguyễn Tất Thành rời bến cảng này trên tàu Latouche-Tréville ra đi tìm đường cứu nước.', en:'On 5/6/1911, the young Nguyen Tat Thanh left this port aboard the Latouche-Treville to seek a way to save the country.'},
+    {x:1056, name:'UBND TP', vi:'Tòa thị chính xây năm 1898–1908, khánh thành năm 1909, đứng đầu phố đi bộ Nguyễn Huệ với tháp chuông nhọn giữa.', en:'The city hall, built 1898–1908 and opened in 1909, stands at the head of Nguyen Hue walking street with a pointed bell tower in the middle.'},
+    {x:1142, name:'Phố đi bộ Nguyễn Huệ', vi:'Quảng trường đi bộ đầu tiên của Việt Nam, khánh thành ngày 29/4/2015, dài 670m từ UBND ra bến Bạch Đằng, với tượng Bác Hồ và đài phun sen.', en:'Vietnam\'s first walking square, opened 29/4/2015, 670m long from the city hall to Bach Dang wharf, with the Ho Chi Minh statue and lotus fountain.'},
+    {x:796, name:'Chùa Ngọc Hoàng', vi:'Chùa do ông Lưu Minh, người Quảng Đông, xây từ năm 1892 để thờ Ngọc Hoàng Thượng Đế, nổi tiếng với hàng trăm tượng và kiến trúc Trung Hoa màu đỏ.', en:'A temple built from 1892 by Luu Minh from Guangdong to worship the Jade Emperor, famous for its hundreds of statues and red Chinese architecture.'},
+    {x:1491, name:'Chợ Bình Tây', vi:'Chợ do thương nhân Quách Đàm bỏ tiền xây năm 1928–1930 ở Quận 6, với tháp đồng hồ bốn mặt và mái ngói âm dương mang đậm nét Á Đông.', en:'A market built 1928–1930 in District 6 with money from merchant Quach Dam, with a four-faced clock tower and yin-yang tiled roofs in strong Asian style.'},
+    {x:1760, name:'Chung cư 42 Nguyễn Huệ', vi:'Chung cư 9 tầng xây đầu thập niên 1960, thành \'chung cư cà phê\' sau khi Nguyễn Huệ thành phố đi bộ năm 2015, nổi tiếng thế giới qua ảnh National Geographic năm 2020.', en:'A 9-storey apartment block from the early 1960s, turned into the coffee apartment building after Nguyen Hue became a walking street in 2015, famous worldwide through a 2020 National Geographic photo.'},
   ];
   /* cột mốc hành trình mua tiệm 5.000đ */
   LW.milestones = [
@@ -1532,7 +1531,7 @@ class WorldScene extends Phaser.Scene {
   preload(){
     /* SINGLE-TOWN (đợt #6): 1 nền duy nhất bg-town.png 1600x1400 (An duyệt 23:25).
        3 nền cũ plaza/street/market KHÔNG còn tải — giữ file trên đĩa để rollback. */
-    this.load.image('bg-town', 'map3d/bg-town.png');
+    this.load.image('bg-town', 'map3d/bg-town.png?v=r10');
     /* TIỀN CẢNH 3D: 18 sprite đã crop theo bbox (manifest.json) — vẽ tại
        anchor, depth = foot_y (Y-sort thật). File *-c.png, tổng ~571KB. */
     FG3D.forEach(function(f){ this.load.image(f.key, f.file); }, this);
