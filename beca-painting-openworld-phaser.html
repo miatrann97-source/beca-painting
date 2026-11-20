@@ -163,9 +163,9 @@ body.paint-mode #mapBtn{display:inline-block}
 #mapView::before{
   content:"";position:absolute;inset:0;z-index:3;pointer-events:none;
   background:
-    radial-gradient(120% 90% at 18% 0%, rgba(255,214,120,.34), rgba(255,214,120,.10) 45%, transparent 70%),
-    linear-gradient(180deg, rgba(255,236,180,.12), transparent 42%);
-}
+    radial-gradient(120% 90% at 18% 0%, rgba(255,214,120,.12), rgba(255,214,120,.04) 45%, transparent 70%),
+    linear-gradient(180deg, rgba(255,236,180,.05), transparent 42%);
+} /* ĐỢT SỬA #3 (B25): lớp phủ ấm 0.34/0.12 -> 0.12/0.05 — cũ phủ sương be toàn cảnh (live đợt #2: đau mắt) */
 #mapView::after{
   content:"";position:absolute;inset:0;z-index:9;pointer-events:none;border-radius:12px;
   background:radial-gradient(115% 115% at 50% 45%, transparent 62%, rgba(74,42,8,.09) 100%);
@@ -308,7 +308,7 @@ body.map-mode #mapView{display:block}
 .confetti{position:absolute;width:10px;height:16px;top:-20px;animation:fall linear infinite;opacity:.9}
 @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
 #toast{
-  position:fixed;left:50%;bottom:18px;transform:translateX(-50%) translateY(20px);
+  position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(20px); /* ĐỢT SỬA #3 (B23): toast lên cao 90px — cũ bottom:18px đè lên thanh hướng dẫn dưới (live đợt #2); 76px vẫn chỉ cách 2px khi hiện, 90px cách ~16px */
   background:#3A2E22;color:#fff;padding:10px 16px;border-radius:999px;font-weight:700;font-size:14px;
   opacity:0;pointer-events:none;transition:all .25s;z-index:80;max-width:92vw;text-align:center;
 }
@@ -370,6 +370,23 @@ body.map-mode #mapView{display:block}
 #questAvatar img{display:block;width:100%;height:100%;object-fit:cover}
 .mcBubble.chatBubble{border-color:#54A0FF;background:#EFF6FF}
 @media (max-width:480px){#questPanel{width:180px;font-size:11.5px}}
+/* ĐỢT SỬA #3 (B22): HUD màn hẹp (≤640px) — live đợt #2 (viewport 500px):
+   minimap đè viên 📍/🎯, thanh hướng dẫn cắt chữ, tiêu đề tràn 2 hàng. */
+@media (max-width:640px){
+  #zonePill{max-width:52%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #mapGoal{top:46px} /* xuống hàng 2, giữa màn hình (không đè viên 📍 nữa) */
+  #minimap{top:84px} /* xuống hàng 3, bên phải */
+  #questPanel{top:84px;width:160px} /* hàng 3, bên trái (cùng hàng minimap) */
+  #mapHint{font-size:11px;white-space:normal;text-align:center;line-height:1.35;max-width:88%} /* cho phép xuống 2 hàng thay vì cắt chữ (cũ chỉ áp ở ≤480px) */
+  header{flex-wrap:nowrap;padding:6px 8px;gap:6px}
+  header h1{font-size:16px}
+  .pill{font-size:12px;padding:3px 8px}
+  .hbtn{font-size:12px;padding:3px 8px}
+  #mapBtn span{display:none} /* chỉ giữ icon 🗺️ ở màn hẹp */
+}
+@media (max-width:420px){
+  header h1 span{display:none} /* màn rất hẹp: chỉ giữ icon 🎨, tiêu đề không tràn 2 hàng */
+}
 
 </style>
 </head>
@@ -379,7 +396,7 @@ body.map-mode #mapView{display:block}
     <h1>🎨 <span data-i18n="title">Bé Cá Vẽ Tranh</span></h1>
     <div class="spacer"></div>
     <span class="pill">💰 <b id="coins">0đ</b></span>
-    <span class="pill"><span data-i18n="day">Ngày</span> <b id="dayNum">1</b> · <span id="custCount">1/3</span></span>
+    <span class="pill"><span data-i18n="day">Ngày</span> <b id="dayNum">1</b> · <span data-i18n="custLabel">Khách</span> <span id="custCount">1/3</span></span> <!-- ĐỢT SỬA #3 (B24): ghi rõ 'Khách 1/3' — cũ '1/3' không giải thích là gì (live đợt #2) -->
     <button class="hbtn" id="soundBtn" title="Âm thanh">🔊</button>
     <button class="hbtn" id="mapBtn" data-testid="mapBtn" title="Về phố">🗺️ <span data-i18n="backToTown">Về phố</span></button>
     <button class="hbtn" id="storyBtn" data-testid="storyBtn" title="Câu chuyện">📖</button>
@@ -388,7 +405,7 @@ body.map-mode #mapView{display:block}
   <main id="layout">
     <div id="mapView" data-testid="mapView">
       <div id="phaserMap"></div>
-      <canvas id="minimap" data-testid="minimap" width="200" height="64"></canvas> /* ĐỢT SỬA #2 (B16): minimap to hơn (200x64) để đọc được */
+      <canvas id="minimap" data-testid="minimap" width="200" height="64"></canvas>
       <div id="zonePill" data-testid="zonePill"></div>
       <div id="questPanel" data-testid="questPanel"></div>
       <div id="camCompass" data-testid="camCompass"></div>
@@ -621,7 +638,7 @@ const CONFIG = {
   GROUND: [
     [0,960],[4800,960],
   ],
-  SPEED_MAX: 340,  // px/s khi kéo xa (chạy); kéo nhẹ = đi bộ chậm
+  SPEED_MAX: 380,  // px/s khi kéo xa (chạy); kéo nhẹ = đi bộ chậm — ĐỢT SỬA #3 (B27): 340->380 (live đợt #2: qua 1 khu mất 60-90s, quá chậm; kèm trượt vật cản A27)
   OBSTACLES: [      // vật cản tròn: bé cá không đi xuyên qua được
     /* đài phun nước: đo lại bằng visual grounding 19/11 — bồn thật là ellipse
        ~535x210 tâm (623,1211) (KHÔNG phải (762,1250) như đo cũ) -> 2 vòng tròn
@@ -1461,7 +1478,7 @@ vi:{
   questDeliverHint:'Mang tranh tới đây nè! Đứng gần là giao được.',
   questPaintDone:'Đã vẽ xong biển hiệu!',
   questNeedAccept:'Nhận nhiệm vụ từ {name} trước đã nha!',
-  dayPhase0:'🌞 Sáng', dayPhase1:'🌇 Chiều', dayPhase2:'🌙 Tối',
+  custLabel:'Khách', dayPhase0:'🌞 Sáng', /* ĐỢT SỬA #3 (B24): nhãn 'Khách' cho 1/3 */ dayPhase1:'🌇 Chiều', dayPhase2:'🌙 Tối',
   toastCafe:'Quán cà phê đông vui quá! Ngồi nghỉ chút nha!',
   toastComTam:'Cơm tấm thơm quá! Ăn trưa ở đây ngon lắm!',
   toastTea:'Trà sữa ngọt mát — mát lạnh ngày hè!',
@@ -1527,7 +1544,7 @@ en:{
   questDeliverHint:'Bring the painting here! Stand close to deliver.',
   questPaintDone:'Finished the pho sign!',
   questNeedAccept:'Accept the quest from {name} first!',
-  dayPhase0:'🌞 Morning', dayPhase1:'🌇 Afternoon', dayPhase2:'🌙 Evening',
+  custLabel:'Guests', dayPhase0:'🌞 Morning', /* ĐỢT SỬA #3 (B24) */ dayPhase1:'🌇 Afternoon', dayPhase2:'🌙 Evening',
   toastCafe:'The café is so lively! Take a break here!',
   toastComTam:'The broken rice smells amazing! Great lunch spot!',
   toastTea:'Sweet cool milk tea — perfect on a hot day!',
@@ -2059,16 +2076,20 @@ function zoneTick(){
 }
 let dayNightT = 0;
 const DAY_PHASES = [
-  { bg:'linear-gradient(180deg, rgba(255,220,120,0.04), rgba(255,220,120,0.02))', key:'dayPhase0' },
-  { bg:'linear-gradient(180deg, rgba(255,150,60,0.14), rgba(255,120,40,0.10))', key:'dayPhase1' },
+  { bg:'linear-gradient(180deg, rgba(255,220,120,0.02), rgba(255,220,120,0.01))', key:'dayPhase0' }, /* đợt #3 (B25): overlay sáng nhạt hơn (cũ 0.04/0.02 — 1 phần sương be) */
+  { bg:'linear-gradient(180deg, rgba(255,150,60,0.05), rgba(255,120,40,0.03))', key:'dayPhase1' }, /* đợt #3 (B25): overlay chiều 0.14/0.10->0.05/0.03 (cũ phủ cam cả cảnh — gốc sương be-đào buổi Chiều) */
   { bg:'linear-gradient(180deg, rgba(30,40,120,0.16), rgba(20,20,80,0.18))', key:'dayPhase2' }, /* dem sang hon (cu 0.26/0.30 toi dot ngot, kho nhin) */
 ];
 function updateDayNight(){
   const ph = DAY_PHASES[state.timePhase] || DAY_PHASES[0];
   document.getElementById('dayNight').style.background = ph.bg;
   const zp = document.getElementById('zonePill');
-  zp.textContent = '📍 ' + currentZoneName() + ' · ' + t(ph.key);
+  var zn = currentZoneName();
+  /* ĐỢT SỬA #3 (B26): màn hẹp (≤640px) rút gọn tên khu để viên 📍 không đè viên 🎯/minimap (live đợt #2). */
+  if(window.innerWidth<=640){ zn = zn.replace('Phố đi bộ ','').replace('Quảng trường Bến Thành','Quảng trường').replace('Nguyen Hue Walking Street','Nguyen Hue'); }
+  zp.textContent = '📍 ' + zn + ' · ' + t(ph.key);
 }
+window.addEventListener('resize', function(){ if(document.getElementById('zonePill')) updateDayNight(); }); /* đợt #3 (B26): xoay màn hình thì rút gọn/mở rộng tên khu theo */
 function dayNightTick(dt){
   dayNightT += dt;
   if(dayNightT > 240){ dayNightT = 0; state.timePhase = (state.timePhase + 1) % 3; save(); updateDayNight(); } /* 240s/pha (chu ky 12 phut): cu 75s/pha doi Sang->Chieu->Toi trong vai phut */
@@ -3463,7 +3484,7 @@ window.__phaserLW = function(){
     strays: LW.strays.map(function(s){ return {id:s.id, x:Math.round(s.x), y:Math.round(s.y), dir:s.dir, state:s.state}; })
   };
 };
-window.__phaserForceRain = function(){ LW.weather='rainy'; LW.rainT=30; if(LW.rain){ LW.rain.setVisible(true); if(LW.rain.start) LW.rain.start(); } return 'rainy'; };
+window.__phaserForceRain = function(){ LW.weather='rainy'; LW.rainT=50; /* đợt #3: theo chu kỳ mưa mới 40-60s */ if(LW.rain){ LW.rain.setVisible(true); if(LW.rain.start) LW.rain.start(); } return 'rainy'; };
 window.__phaserSetPhase = function(n){ state.timePhase = n; LW.phase = n; lwApplyPhase(PH.scene); return 'phase '+n; };
 
 
@@ -3663,9 +3684,9 @@ function makeSeamStrip(scene, zid, bx){
 var FG3D = [
   {id:'fgTreePlazaL', key:'fg3d-treeplazal', file:'map3d/fg-tree-plazal-c.png', ax:271.0, ay:453.9, depth:1030, zone:'plaza'},
   {id:'fgTreePlazaC', key:'fg3d-treeplazac', file:'map3d/fg-tree-plazac-c.png', ax:820.0, ay:453.9, depth:1030, zone:'plaza'},
-  {id:'fgPalmPlazaR', key:'fg3d-palmplazar', file:'map3d/fg-palm-plazar-c.png', ax:1198.0, ay:782.9, depth:1140, zone:'plaza'},
+  {id:'fgPalmPlazaR', key:'fg3d-palmplazar', file:'map3d/fg-palm-plazar-c.png', ax:1190.0, ay:756.9, depth:1140, zone:'plaza'},
   {id:'fgTreeStreet', key:'fg3d-treestreet', file:'map3d/fg-tree-street-c.png', ax:1753.0, ay:403.8, depth:980, zone:'street'},
-  {id:'fgPalmStreet', key:'fg3d-palmstreet', file:'map3d/fg-palm-street-c.png', ax:2832.0, ay:642.8, depth:1000, zone:'street'},
+  {id:'fgPalmStreet', key:'fg3d-palmstreet', file:'map3d/fg-palm-street-c.png', ax:2824.0, ay:616.8, depth:1000, zone:'street'},
   {id:'fgPlanterPlazaE', key:'fg3d-planterplazae', file:'map3d/fg-planter-plazae-c.png', ax:1486.0, ay:1020.9, depth:1120, zone:'plaza'},
   {id:'fgPlanterStreet', key:'fg3d-planterstreet', file:'map3d/fg-planter-street-c.png', ax:2586.0, ay:1020.9, depth:1120, zone:'street'},
   {id:'fgFountain', key:'fg3d-fountain', file:'map3d/fg-fountain-c.png', ax:393.0, ay:996.9, depth:1211, zone:'plaza'},
@@ -3865,66 +3886,172 @@ function syncNpcPhaser(n){
   var chatTxt = chatting ? n.chat.text : '';
   if(chatTxt!==o.lastChat){ o.chat.setText(chatTxt); o.chat.setVisible(!!chatTxt); o.lastChat=chatTxt; }
 }
-/* tách NPC khỏi bé cá theo bề rộng HÌNH VẼ (fix live (e)): minD = nửa rộng bé cá
-   + nửa rộng NPC (theo depth), NPC nhường 70% + bé cá bị chặn 30%; NPC kẹt thì
-   bé cá chịu 100% (không đi xuyên). */
-/* ĐỢT SỬA #2 (A16): trượt dọc NPC — bé cá không bao giờ kẹt khi chạm NPC.
-   Gọi sau separateNpcs() mỗi khung. Loại bỏ thành phần vận tốc xuyên vào NPC
-   (vr<0 = đang đâm vào), giữ lại thành phần tiếp tuyến -> trượt vòng qua. */
+/* ĐỢT SỬA #3 (A26): tách NPC CỨNG theo biên sprite THẤY ĐƯỢC (GỐC live đợt #2:
+   bé cá đi xuyên/chồng lên NPC — minD tròn cũ chỉ dùng NỬA RỘNG (rx~110px) nên
+   khi đi dọc (lên/xuống) 2 sprite cao ~180px vẫn chồng nhau ~70px theo chiều
+   dọc, nhìn như đi xuyên vào người. Ellipse: rx = nửa rộng cộng lại (ngang),
+   ry = 0,85 x chiều cao lớn hơn (dọc, cho phép che chân ~15% như che khuất
+   tự nhiên). Đẩy dọc gradient ellipse, không đẩy tròn. NPC trên cầu thang/
+   sân thượng: chỉ đẩy bé cá (không đẩy NPC ra khỏi đường đi của nó). */
+function npcEllipse(a, b){
+  var rx = (a.halfW + b.halfW) * 1.08 + 6;
+  var ry = Math.max(a.dispH*a.scale, b.dispH*b.scale) * 0.85 + 10;
+  return {rx:rx, ry:ry};
+}
+function ellipsePush(e, dx, dy){
+  /* trả về {gx, gy, push} để đưa q=sqrt((dx/rx)^2+(dy/ry)^2) về 1 dọc gradient;
+     null nếu đã tách (q>=1). q~0 (chồng khít): đẩy thẳng xuống nam 1 ry. */
+  var q0 = Math.hypot(dx/e.rx, dy/e.ry);
+  if(q0 >= 1) return null;
+  if(q0 < 0.01) return {gx:0, gy:1, push:e.ry};
+  var gx = (dx/e.rx)/e.rx, gy = (dy/e.ry)/e.ry;
+  var gl = Math.hypot(gx, gy) || 1;
+  gx/=gl; gy/=gl;
+  var push = (1 - q0) * q0 / gl;
+  /* ĐỢT SỬA #3 (A26c): đẩy tối thiểu 10px/khung — 20px cũ gây NHẢY vị trí
+     (kiểm CDP đợt #3: bé cá nhảy 228px/0,5s khi bị kẹt gần Bà Tư, nhìn như
+     teleport). 10px thắng xâm nhập 6px/khung ở 60fps; phần còn lại do trượt
+     tiếp tuyến (A26b) đưa bé cá vòng qua NPC, không cần đẩy mạnh. */
+  if(push < 10) push = 10;
+  return {gx:gx, gy:gy, push:push};
+}
 function slideAlongNpcs(dt){
   var body = PH.playerBody && PH.playerBody.body;
   if(!body) return;
   var vx = body.velocity.x, vy = body.velocity.y;
   if(!vx && !vy) return;
+  var ovx = vx, ovy = vy, sp = Math.hypot(vx, vy);
+  var near = null, nearD = 1e9;
   for(var id in npcs){
     var n = npcs[id];
-    if(!n || n.mode==='stairs' || n.mode==='terrace') continue;
+    if(!n) continue;
     var o = PH.npcObjs[id];
     if(!o) continue;
-    var npcHalf = (o.dispW/2) * (n.rig.scale || depthScale(n.y));
-    var becaHalf = 46 * depthScale(beca.y);
-    var minD = (npcHalf + becaHalf) * 1.08 + 6;
-    var dx = beca.x - n.x, dy = beca.y - n.y;
+    var e = npcEllipse(
+      {halfW:46*depthScale(beca.y), dispH:140, scale:depthScale(beca.y)},
+      {halfW:(o.dispW/2)*(n.rig.scale || depthScale(n.y)), dispH:o.dispH, scale:(n.rig.scale || depthScale(n.y))});
+    var ep = ellipsePush(e, beca.x - n.x, beca.y - n.y);
+    if(!ep) continue;
+    var dd = Math.hypot(beca.x - n.x, beca.y - n.y);
+    if(dd < nearD){ nearD = dd; near = n; }
+    var vr = vx*ep.gx + vy*ep.gy;
+    if(vr < 0){ vx -= ep.gx*vr; vy -= ep.gy*vr; }
+  }
+  /* ĐỢT SỬA #3 (A26b): đi thẳng tâm NPC (không còn tiếp tuyến) thì lệch tiếp
+     tuyến 110px/s về phía thoáng hơn — cũ: vận tốc bị triệt tiêu hẳn, bé cá
+     đứng yên trước mặt NPC (kẹt, kiểm CDP đợt #3: đâm bắc vào Hoa 3s không
+     nhúc nhích, kéo đông ở y=1300 kẹt ở x=420; live đợt #2: qua 1 khu 60-90s). */
+  var sp2 = Math.hypot(vx, vy);
+  if(sp2 < 40 && sp > 40){
+    var tx = -ovy/sp, ty = ovx/sp;
+    var px = beca.x + tx*70, py = beca.y + ty*70;
+    var qx = beca.x - tx*70, qy = beca.y - ty*70;
+    var pOk = !hitsSolid(px, py) && px>=WALK.x0 && px<=WALK.x1 && py>=walkMinY(px) && py<=WALK.y1;
+    var qOk = !hitsSolid(qx, qy) && qx>=WALK.x0 && qx<=WALK.x1 && qy>=walkMinY(qx) && qy<=WALK.y1;
+    if(!pOk && qOk){ tx = -tx; ty = -ty; }
+    else if(pOk && qOk && near){
+      var dp = Math.hypot(px-near.x, py-near.y), dq = Math.hypot(qx-near.x, qy-near.y);
+      if(dq > dp){ tx = -tx; ty = -ty; }
+    }
+    vx += tx*110; vy += ty*110;
+  }
+  body.setVelocity(vx, vy);
+}
+/* ĐỢT SỬA #3 (A27): trượt dọc vật cản — bé cá không kẹt sau gốc cọ/bồn đá.
+   Arcade collider chỉ tách vị trí, không đổi hướng vận tốc: kéo thẳng vào
+   thân cây thì vận tốc vẫn chĩa vào cây -> đứng yên (kẹt, live đợt #2: kéo
+   bắc vào gốc cọ 3s chỉ đi được 80px). Loại bỏ thành phần vận tốc xuyên vào
+   vật cản, giữ thành phần tiếp tuyến; nếu đi thẳng tâm (không còn tiếp tuyến)
+   thì thêm độ lệch tiếp tuyến 110px/s về phía thoáng hơn -> trượt vòng qua. */
+function slideAlongObstacles(dt){
+  var body = PH.playerBody && PH.playerBody.body;
+  if(!body) return;
+  var vx = body.velocity.x, vy = body.velocity.y;
+  if(!vx && !vy) return;
+  var ovx = vx, ovy = vy, sp = Math.hypot(vx, vy);
+  var near = null, nearD = 1e9;
+  var i, j;
+  for(i=0; i<OBSTACLES.length; i++){
+    var o = OBSTACLES[i];
+    var dx = beca.x - o.x, dy = beca.y - o.y;
     var d = Math.hypot(dx, dy);
-    if(d >= minD || d < 0.01) continue;
-    var ux = dx/d, uy = dy/d;
-    var vr = vx*ux + vy*uy;
-    if(vr < 0){ vx -= ux*vr; vy -= uy*vr; }
+    var min = o.r + 18 + 8;
+    if(d >= min || d < 0.01) continue;
+    if(d < nearD){ nearD = d; near = o; }
+    var nx = dx/d, ny = dy/d;
+    var vr = vx*nx + vy*ny;
+    if(vr < 0){ vx -= nx*vr; vy -= ny*vr; }
+  }
+  for(j=0; j<CONFIG.BUILDINGS.length; j++){
+    var b = CONFIG.BUILDINGS[j];
+    if(!b.solid) continue;
+    var r = b.rect;
+    var ex0 = r[0]-18-8, ey0 = r[1]-18-8, ex1 = r[0]+r[2]+18+8, ey1 = r[1]+r[3]+18+8;
+    if(beca.x < ex0 || beca.x > ex1 || beca.y < ey0 || beca.y > ey1) continue;
+    var dl = beca.x - ex0, dr = ex1 - beca.x, dt2 = beca.y - ey0, db = ey1 - beca.y;
+    var m = Math.min(dl, dr, dt2, db);
+    var nx2 = 0, ny2 = 0;
+    if(m===dl){ nx2=-1; } else if(m===dr){ nx2=1; } else if(m===dt2){ ny2=-1; } else { ny2=1; }
+    var vr2 = vx*nx2 + vy*ny2;
+    if(vr2 < 0){ vx -= nx2*vr2; vy -= ny2*vr2; }
+  }
+  var sp2 = Math.hypot(vx, vy);
+  if(sp2 < 40 && sp > 40){
+    /* đi thẳng tâm vật cản: lệch tiếp tuyến (vuông góc hướng kéo gốc) */
+    var tx = -ovy/sp, ty = ovx/sp;
+    var px = beca.x + tx*70, py = beca.y + ty*70;
+    var qx = beca.x - tx*70, qy = beca.y - ty*70;
+    var pOk = !hitsSolid(px, py) && px>=WALK.x0 && px<=WALK.x1 && py>=walkMinY(px) && py<=WALK.y1;
+    var qOk = !hitsSolid(qx, qy) && qx>=WALK.x0 && qx<=WALK.x1 && qy>=walkMinY(qx) && qy<=WALK.y1;
+    if(!pOk && qOk){ tx = -tx; ty = -ty; }
+    else if(pOk && qOk && near){
+      /* cả 2 thoáng: chọn phía xa tâm vật cản hơn */
+      var dp = Math.hypot(px-near.x, py-near.y), dq = Math.hypot(qx-near.x, qy-near.y);
+      if(dq > dp){ tx = -tx; ty = -ty; }
+    }
+    vx += tx*110; vy += ty*110;
   }
   body.setVelocity(vx, vy);
 }
 function separateNpcs(scene){
   for(var id in npcs){
     var n = npcs[id];
-    if(!n || n.mode==='stairs' || n.mode==='terrace') continue;
+    if(!n) continue;
     var o = PH.npcObjs[id];
     if(!o) continue;
-    var npcHalf = (o.dispW/2) * (n.rig.scale || depthScale(n.y));
-    var becaHalf = 46 * depthScale(beca.y);
-    var minD = (npcHalf + becaHalf) * 1.08; /* ĐỢT SỬA #2 (A16): biên an toàn 8% theo chiều rộng sprite thấy được */
-    var dx = n.x - beca.x, dy = n.y - beca.y;
-    var d = Math.hypot(dx, dy);
-    if(d >= minD) continue;
-    if(d < 0.01){ dx = 0; dy = 0.01; d = 0.01; /* chồng khít: tách dọc (nam), KHÔNG đặt d=minD (làm push=0 -> kẹt vĩnh viễn, lỗi live e) */ }
-    var ux = dx/d, uy = dy/d, push = minD - d;
-    /* thử đẩy NPC trước */
-    var nx = n.x + ux*push*0.7, ny = n.y + uy*push*0.7;
-    var beforeX = n.x, beforeY = n.y;
-    n.x = Math.min(WALK.x1, Math.max(WALK.x0, nx));
-    n.y = Math.min(WALK.y1, Math.max(walkMinY(n.x, RIGS[id].height), ny));
-    pushOutPoint(n);
-    n.x = Math.min(WALK.x1, Math.max(WALK.x0, n.x));
-    n.y = Math.min(WALK.y1, Math.max(walkMinY(n.x, RIGS[id].height), n.y));
-    var moved = Math.hypot(n.x-beforeX, n.y-beforeY);
-    var remain = push - moved;
+    var e = npcEllipse(
+      {halfW:46*depthScale(beca.y), dispH:140, scale:depthScale(beca.y)},
+      {halfW:(o.dispW/2)*(n.rig.scale || depthScale(n.y)), dispH:o.dispH, scale:(n.rig.scale || depthScale(n.y))});
+    var ep = ellipsePush(e, n.x - beca.x, n.y - beca.y);
+    if(!ep) continue;
+    var onStairs = (n.mode==='stairs' || n.mode==='terrace');
+    var moved = 0;
+    if(!onStairs){
+      var nx = n.x + ep.gx*ep.push*0.7, ny = n.y + ep.gy*ep.push*0.7;
+      var beforeX = n.x, beforeY = n.y;
+      n.x = Math.min(WALK.x1, Math.max(WALK.x0, nx));
+      n.y = Math.min(WALK.y1, Math.max(walkMinY(n.x, RIGS[id].height), ny));
+      pushOutPoint(n);
+      n.x = Math.min(WALK.x1, Math.max(WALK.x0, n.x));
+      n.y = Math.min(WALK.y1, Math.max(walkMinY(n.x, RIGS[id].height), n.y));
+      moved = Math.hypot(n.x-beforeX, n.y-beforeY);
+    }
+    var remain = ep.push - moved;
     if(remain > 0.5){
-      /* NPC không nhường được nữa -> chặn bé cá (đẩy cô ra khỏi NPC) */
-      beca.x = Math.min(WALK.x1, Math.max(WALK.x0, beca.x - ux*remain));
-      beca.y = Math.min(WALK.y1, Math.max(walkMinY(beca.x), beca.y - uy*remain));
-      if(PH.playerBody) PH.playerBody.body.reset(beca.x, beca.y);
+      beca.x = Math.min(WALK.x1, Math.max(WALK.x0, beca.x - ep.gx*remain));
+      beca.y = Math.min(WALK.y1, Math.max(walkMinY(beca.x), beca.y - ep.gy*remain));
+      /* ĐỢT SỬA #3 (A26c): GIỮ vận tốc khi reset body — body.reset() của Phaser
+         đặt vận tốc về 0, làm slideAlongNpcs (chạy sau) thấy vel=(0,0) và bỏ qua
+         -> bé cá đứng yên trước mặt NPC (kẹt, kiểm CDP đợt #3: vel=0 suốt 1s
+         gần Bà Tư, kéo đông y=1300 kẹt ở x=420). Lưu/khôi phục vận tốc. */
+      if(PH.playerBody){
+        var _pvx = PH.playerBody.body.velocity.x, _pvy = PH.playerBody.body.velocity.y;
+        PH.playerBody.body.reset(beca.x, beca.y);
+        PH.playerBody.body.setVelocity(_pvx, _pvy);
+      }
     }
   }
-  /* NPC <-> NPC: tách đôi để NPC không chồng lên nhau (lỗi live e) */
+  /* NPC <-> NPC: tách đôi theo ellipse (không chồng lên nhau) */
   var ids = Object.keys(npcs);
   for(var i=0; i<ids.length; i++){
     for(var j=i+1; j<ids.length; j++){
@@ -3932,18 +4059,16 @@ function separateNpcs(scene){
       if(!a || !b || a.mode==='stairs' || b.mode==='stairs' || a.mode==='terrace' || b.mode==='terrace') continue;
       var oa = PH.npcObjs[ids[i]], ob = PH.npcObjs[ids[j]];
       if(!oa || !ob) continue;
-      var ha = (oa.dispW/2) * (a.rig.scale || depthScale(a.y));
-      var hb = (ob.dispW/2) * (b.rig.scale || depthScale(b.y));
-      var md = ha + hb;
-      var ddx = b.x - a.x, ddy = b.y - a.y;
-      var dd = Math.hypot(ddx, ddy);
-      if(dd >= md) continue;
-      if(dd < 0.01){ ddx = 0; ddy = 0.01; dd = 0.01; }
-      var ux2 = ddx/dd, uy2 = ddy/dd, push2 = (md - dd)/2;
-      a.x = Math.min(WALK.x1, Math.max(WALK.x0, a.x - ux2*push2));
-      a.y = Math.min(WALK.y1, Math.max(walkMinY(a.x), a.y - uy2*push2));
-      b.x = Math.min(WALK.x1, Math.max(WALK.x0, b.x + ux2*push2));
-      b.y = Math.min(WALK.y1, Math.max(walkMinY(b.x), b.y + uy2*push2));
+      var e2 = npcEllipse(
+        {halfW:(oa.dispW/2)*(a.rig.scale || depthScale(a.y)), dispH:oa.dispH, scale:(a.rig.scale || depthScale(a.y))},
+        {halfW:(ob.dispW/2)*(b.rig.scale || depthScale(b.y)), dispH:ob.dispH, scale:(b.rig.scale || depthScale(b.y))});
+      var ep2 = ellipsePush(e2, b.x - a.x, b.y - a.y);
+      if(!ep2) continue;
+      var push2 = ep2.push/2;
+      a.x = Math.min(WALK.x1, Math.max(WALK.x0, a.x - ep2.gx*push2));
+      a.y = Math.min(WALK.y1, Math.max(walkMinY(a.x), a.y - ep2.gy*push2));
+      b.x = Math.min(WALK.x1, Math.max(WALK.x0, b.x + ep2.gx*push2));
+      b.y = Math.min(WALK.y1, Math.max(walkMinY(b.x), b.y + ep2.gy*push2));
       pushOutPoint(a); pushOutPoint(b);
     }
   }
@@ -4024,6 +4149,14 @@ function buildPlayer(scene){
   name.setOrigin(0.5, 1);
   root.add(name);
   PH.rig = {root:root, shadow:shadow, name:name, fallback:fb, img:pimg, sheet:'', frame:-1, dispW:0, dispH:0};
+  /* ĐỢT SỬA #3 (A35): nhãn 'Bé Cá' lên lớp trên cùng (depth 2200) — cũ là con
+     của container (depth = beca.y) nên lá cọ FG (depth ~1140) che mất khi bé
+     cá đứng sau cọ (live đợt #2). Nhãn cũ trong container ẩn đi. */
+  name.setVisible(false);
+  var nameTop = scene.add.text(beca.x, beca.y - 148, '🐟 Bé Cá', {fontFamily:'system-ui, sans-serif', fontSize:'12px', fontStyle:'bold', color:'#fff', stroke:'#5C3D1E', strokeThickness:4, shadow:{offsetX:1, offsetY:1, color:'#000', blur:2, fill:true}});
+  nameTop.setOrigin(0.5, 1);
+  nameTop.setDepth(2200);
+  PH.rig.nameTop = nameTop;
   becaSpriteSet(scene, 'idle', 0);
 }
 function dewhiteBoneFacing(scene, facing){
@@ -4047,7 +4180,7 @@ function dewhiteBoneFacing(scene, facing){
 var LW = {
   phase: 0,            // 0 sáng, 1 hoàng hôn, 2 đêm (theo state.timePhase)
   weather: 'sunny',    // sunny | rainy
-  rainT: 0, rainCool: 45,
+  rainT: 0, rainCool: 120, /* ĐỢT SỬA #3 (A33): mưa đầu tiên sau ~2 phút, không mưa ngay khi vào game */
   sun: null, moon: null, sunCore: null,
   skyline: null, riverBoat: null, riverRipples: [],
   lights: [],          // glow đèn đêm
@@ -4080,11 +4213,11 @@ function lwMakeTextures(scene){
   lwGlowTexture(scene, 'lw-ripple', 'rgba(255,255,255,0.7)', 'rgba(255,255,255,0)');
   /* vệt mưa */
   if(!scene.textures.exists('lw-rain')){
-    var rc = document.createElement('canvas'); rc.width = 4; rc.height = 26;
+    var rc = document.createElement('canvas'); rc.width = 4; rc.height = 30;
     var rx = rc.getContext('2d');
-    var rg = rx.createLinearGradient(0, 0, 0, 26);
-    rg.addColorStop(0, 'rgba(180,200,230,0)'); rg.addColorStop(0.5, 'rgba(180,200,230,0.55)'); rg.addColorStop(1, 'rgba(180,200,230,0)');
-    rx.fillStyle = rg; rx.fillRect(1, 0, 2, 26);
+    var rg = rx.createLinearGradient(0, 0, 0, 30);
+    rg.addColorStop(0, 'rgba(180,200,230,0)'); rg.addColorStop(0.5, 'rgba(180,200,230,0.8)'); rg.addColorStop(1, 'rgba(180,200,230,0)');
+    rx.fillStyle = rg; rx.fillRect(0.5, 0, 3, 30); /* ĐỢT SỬA #3 (A33): vệt mưa dày/dài/đậm hơn (cũ 2px, mờ nhất là ban ngày) */
     scene.textures.addCanvas('lw-rain', rc);
   }
   /* chim: hình chữ V đơn giản */
@@ -4186,10 +4319,12 @@ function buildSkyBodies(scene){
 function buildNightLights(scene){
   var spots = [
     {x:704, y:1008, s:150, l:1}, {x:1584, y:992, s:150, l:1}, {x:2464, y:1008, s:150, l:1}, {x:3520, y:992, s:150, l:1}, /* đèn đường 3D (4 đèn, đo từ Blender) */
-    {x:518, y:1030, s:130, l:1}, {x:1067, y:1030, s:130, l:1},   /* đèn quảng trường */
+    /* ĐỢT SỬA #3 (A29): XOÁ 2 quầng 'đèn quảng trường' ở (518,1030)/(1067,1030) —
+       manifest.json chứng minh đó là GỐC 2 cây quảng trường, KHÔNG phải cột đèn
+       (chỉ có 4 đèn FG Lamp1-4); quầng ở đó lơ lửng không cột (live đợt #2). */
     {x:210, y:812, s:170}, {x:530, y:812, s:170}, {x:850, y:812, s:170},  /* cửa sổ tiệm khu 1 (cửa kính 3D: tâm y=812, đo từ bg) */
     {x:1850, y:812, s:170}, {x:2230, y:812, s:170}, {x:2610, y:812, s:170}, /* khu 2 */
-    {x:3550, y:812, s:200}, {x:4090, y:812, s:160}, {x:4530, y:812, s:160}, /* chợ */
+    {x:3550, y:812, s:170}, {x:4090, y:812, s:170}, {x:4530, y:812, s:170}, /* chợ (đợt #3: đồng nhất s=170 như các cửa sổ khác — cũ 200/160/160, quầng không đồng nhất) */
   ];
   spots.forEach(function(sp){
     /* ĐỢT SỬA #2 (A18): quầng đèn đường/quảng trường đặt ở ĐẦU cột (y chân - 252,
@@ -4248,7 +4383,7 @@ function lwApplyPhase(scene){
       var sx = ph===0 ? cw*0.86 : cw*0.14;
       var sy = ph===0 ? ch*0.10 : ch*0.40;
       LW.sun.setPosition(sx/cam.zoom, sy/cam.zoom);
-      LW.sun.setTint(ph===0 ? 0xFFFFFF : 0xFF9A3C);
+      LW.sun.setTint(ph===0 ? 0xFFFFFF : 0xFFB060); /* ĐỢT SỬA #3 (A32): nắng chiều bớt cam đậm (cũ 0xFF9A3C — 1 phần sương be-đào buổi Chiều) */
       LW.sun.setDisplaySize(ph===0 ? 130 : 200, ph===0 ? 130 : 200);
       LW.sun.setAlpha(ph===0 ? 0.95 : 0.85);
     }
@@ -4258,7 +4393,7 @@ function lwApplyPhase(scene){
     if(ph===2) LW.moon.setPosition((cw*0.2)/cam.zoom, (ch*0.14)/cam.zoom);
   }
   /* mây đổi sắc theo pha/thời tiết */
-  var tint = LW.weather==='rainy' ? 0x8A8F9E : (ph===0 ? 0xFFFFFF : ph===1 ? 0xFFC890 : 0x5A5E78);
+  var tint = LW.weather==='rainy' ? 0x8A8F9E : (ph===0 ? 0xFFFFFF : ph===1 ? 0xFFE8C8 : 0x5A5E78); /* ĐỢT SỬA #3 (A32): mây chiều bớt cam (cũ 0xFFC890) */
   var a = LW.weather==='rainy' ? 0.95 : (ph===2 ? 0.55 : 0.9);
   PH.clouds.forEach(function(c){ c.setTint(tint); c.setAlpha(a); });
   /* đèn đêm chỉ sáng khi tối */
@@ -4267,7 +4402,7 @@ function lwApplyPhase(scene){
   /* tint phủ tối: ngày trong, hoàng hôn cam nhẹ, đêm xanh đậm */
   if(LW.tint){
     if(ph===2){ LW.tint.setFillStyle(0x0A1030, 0.30); } /* dem sang hon (cu 0.42 toi dot ngot) */
-    else if(ph===1){ LW.tint.setFillStyle(0xFF8830, 0.14); }
+    else if(ph===1){ LW.tint.setFillStyle(0xFF8830, 0.05); } /* ĐỢT SỬA #3 (A32): tint chiều 0.14->0.05 (cũ phủ cam cả cảnh — gốc sương be buổi Chiều, live đợt #2) */
     else { LW.tint.setFillStyle(0x0A1030, 0); }
   }
   /* biển hiệu phát sáng về đêm (đổi màu nền sáng hơn) */
@@ -4289,9 +4424,9 @@ function lwCloudTick(scene, dt){
   });
   /* mưa rào ngẫu nhiên (chỉ ban ngày/hoàng hôn, không mưa đêm) */
   LW.rainCool -= dt;
-  if(LW.weather==='sunny' && LW.rainCool<=0 && LW.phase!==2 && Math.random()<0.5){
-    LW.weather = 'rainy'; LW.rainT = 18 + Math.random()*10;
-    LW.rainCool = 60 + Math.random()*60;
+  if(LW.weather==='sunny' && LW.rainCool<=0 && LW.phase!==2 && Math.random()<0.35){
+    LW.weather = 'rainy'; LW.rainT = 40 + Math.random()*20; /* ĐỢT SỬA #3 (A33): mưa dài 40-60s (cũ 18-28s) */
+    LW.rainCool = 150 + Math.random()*150; /* chờ 150-300s mới mưa lại (cũ 60-120s — live đợt #2: mưa bắt đầu/dứt trong ~1 phút, lặp nhiều) */
     if(LW.rain){ LW.rain.setVisible(true); if(LW.rain.start) LW.rain.start(); }
     toast(state.lang==='vi' ? '🌧️ Trời mưa rào! Mây xám kéo tới.' : '🌧️ A rain shower! Grey clouds roll in.');
     lwApplyPhase(scene);
@@ -4310,7 +4445,7 @@ function buildRain(scene){
   var p = scene.add.particles(0, 0, 'lw-rain', {
     x: {min: -700, max: 700}, y: -20, /* ĐỢT SỬA #2 (A17): dải mưa hẹp theo camera (vị trí cập nhật mỗi khung ở lwCloudTick) */
     lifespan: 900, speedY: {min: 700, max: 900}, speedX: -120,
-    scale: {min: 0.7, max: 1.2}, alpha: 0.5, quantity: 6, frequency: 30,
+    scale: {min: 1.0, max: 1.6}, alpha: 0.75, quantity: 10, frequency: 20, /* ĐỢT SỬA #3 (A33): mưa đậm hơn (cũ mờ, nhất là ban ngày) */
   });
   p.setDepth(1900);
   p.setVisible(false);
@@ -4378,30 +4513,35 @@ function buildStrays(scene){
   var dog = scene.add.container(2500, 1320);
   var dg = scene.make.graphics({add:false});
   dg.translateCanvas(46, 56); /* ĐỢT SỬA #2 (A22): dịch toàn bộ hình chó vào trong canvas 96x64 (vẽ cũ x -46..50, y -56..+4, gần như ngoài canvas -> chỉ còn vệt nhỏ) */
+  dg.fillStyle(0x6B4423, 1); /* ĐỢT SỬA #3 (A31): viền nâu đậm sau thân/đầu — chó nâu trên nền be khó thấy (live đợt #2 không thấy chó) */
+  dg.fillRoundedRect(-37, -29, 74, 30, 12);
+  dg.fillCircle(36, -34, 16);
   dg.fillStyle(0xC68A3C, 1);
   dg.fillRoundedRect(-34, -26, 68, 26, 10);            /* thân */
   dg.fillCircle(36, -34, 13);                          /* đầu */
   dg.fillTriangle(28, -44, 32, -56, 38, -44);          /* tai */
   dg.fillTriangle(44, -40, 50, -36, 44, -32);          /* mõm */
+  dg.fillStyle(0xFFFFFF, 1); dg.fillEllipse(18, -10, 18, 12); /* mảng trắng ở ngực (đợt #3: chó nổi hơn trên nền be) */
+  dg.fillStyle(0xD23C3C, 1); dg.fillRect(24, -30, 10, 8); /* vòng cổ đỏ */
   dg.fillStyle(0x8A5A20, 1);
   dg.fillRect(-38, -6, 8, 10); dg.fillRect(-12, -6, 8, 10); /* chân sau/trước */
   dg.fillRect(24, -6, 8, 10); dg.fillRect(38, -2, 6, 8);
-  dg.lineStyle(5, 0xC68A3C, 1);
+  dg.lineStyle(7, 0xC68A3C, 1); /* đuôi dày hơn (đợt #3) */
   dg.beginPath(); dg.moveTo(-34, -22); dg.lineTo(-46, -34); dg.lineTo(-42, -46); dg.strokePath(); /* đuôi (Graphics không có quadraticCurveTo) */
   dg.fillStyle(0x2B2B2B, 1); dg.fillCircle(40, -36, 2.5); /* mắt */
   dg.generateTexture('lw-dog', 96, 64);
   var dimg = scene.add.image(0, 0, 'lw-dog');
   dimg.setOrigin(0.5, 1);
-  dimg.setDisplaySize(96, 54);
+  dimg.setDisplaySize(130, 73); /* ĐỢT SỬA #3 (A31): chó to hơn (96->130) — live đợt #2 không thấy chó */
   dog.add(dimg);
-  var znd = scene.add.zone(2500, 1320, 110, 60);
+  var znd = scene.add.zone(2500, 1320, 150, 85); /* theo cỡ chó mới (đợt #3) */
   znd.setOrigin(0.5, 1);
   znd.setInteractive({useHandCursor:true});
   znd.setData('strayId', 'strayDog');
   znd.setDepth(1321);
-  var dsh = scene.add.ellipse(0, 4, 60, 11, 0x000000, 0.22);
+  var dsh = scene.add.ellipse(0, 4, 82, 14, 0x000000, 0.22); /* theo cỡ chó mới (đợt #3) */
   dog.addAt(dsh, 0);
-  var dnm = scene.add.text(0, -64, '🐶 Chó hoang', {fontFamily:'system-ui, sans-serif', fontSize:'11px', color:'#fff', stroke:'#7A4A21', strokeThickness:3}); /* ĐỢT SỬA #2 (A22): nhãn LÊN TRÊN đầu chó (cũ y=5, dưới chân) */
+  var dnm = scene.add.text(0, -86, '🐶 Chó hoang' /* theo cỡ chó mới (đợt #3) */, {fontFamily:'system-ui, sans-serif', fontSize:'11px', color:'#fff', stroke:'#7A4A21', strokeThickness:3}); /* ĐỢT SỬA #2 (A22): nhãn LÊN TRÊN đầu chó (cũ y=5, dưới chân) */
   dnm.setOrigin(0.5, 0);
   dog.add(dnm);
   dog.setDepth(1320);
@@ -4517,12 +4657,21 @@ function buildTraffic(scene){
     b3.strokeStyle = '#3A7BD5'; b3.lineWidth = 5;
     b3.beginPath(); b3.moveTo(22, 54); b3.lineTo(48, 30); b3.lineTo(78, 34); b3.lineTo(88, 54); b3.stroke();
     b3.beginPath(); b3.moveTo(48, 30); b3.lineTo(62, 30); b3.stroke();
-    /* người lái: mũ bảo hiểm + thân + chân đạp (trước đây chỉ chấm đỏ tròn = đầu, đọc thành 'chấm đỏ lơ lửng') */
-    b3.fillStyle = '#FF6B6B'; b3.beginPath(); b3.arc(58, 12, 10, 0, Math.PI*2); b3.fill();
-    b3.fillStyle = '#3A7BD5'; b3.beginPath(); b3.roundRect(50, 22, 16, 20, 6); b3.fill();
-    b3.strokeStyle = '#2B2B2B'; b3.lineWidth = 5;
-    b3.beginPath(); b3.moveTo(54, 40); b3.lineTo(48, 52); b3.stroke();
-    b3.beginPath(); b3.moveTo(62, 40); b3.lineTo(70, 52); b3.stroke();
+    /* ĐỢT SỬA #3 (A30): người lái thành người ngồi rõ — đầu CHỒNG lên thân
+       (cũ chỉ chạm nhau đúng 1 điểm y=22 nên ở tỉ lệ game đầu đọc thành chấm đỏ
+       tách rời lơ lửng trên yên) + cổ + tay tới tay lái + chân dày có giày. */
+    b3.fillStyle = '#FF6B6B'; b3.beginPath(); b3.arc(58, 13, 11, 0, Math.PI*2); b3.fill();
+    b3.strokeStyle = '#FFFFFF'; b3.lineWidth = 3;
+    b3.beginPath(); b3.arc(58, 13, 8, Math.PI*1.15, Math.PI*1.85); b3.stroke(); /* vạch trắng trên mũ */
+    b3.fillStyle = '#F2C89B'; b3.fillRect(55, 21, 6, 7); /* cổ (chồng mũ + thân) */
+    b3.fillStyle = '#3A7BD5'; b3.beginPath(); b3.roundRect(47, 26, 22, 22, 7); b3.fill(); /* thân (chồng cổ) */
+    b3.strokeStyle = '#3A7BD5'; b3.lineWidth = 6;
+    b3.beginPath(); b3.moveTo(64, 30); b3.lineTo(78, 34); b3.stroke(); /* tay tới tay lái */
+    b3.fillStyle = '#F2C89B'; b3.beginPath(); b3.arc(78, 34, 3.5, 0, Math.PI*2); b3.fill(); /* bàn tay */
+    b3.strokeStyle = '#2B2B2B'; b3.lineWidth = 6;
+    b3.beginPath(); b3.moveTo(54, 46); b3.lineTo(46, 54); b3.stroke();
+    b3.beginPath(); b3.moveTo(64, 46); b3.lineTo(72, 54); b3.stroke();
+    b3.fillStyle = '#1A1A1A'; b3.fillRect(40, 52, 11, 5); b3.fillRect(68, 52, 11, 5); /* giày */
     b3.fillStyle = '#FFE9A8'; b3.fillRect(100, 38, 6, 6); /* đèn pha */
     scene.textures.addCanvas('lw-bike', bc3);
   }
@@ -4535,11 +4684,18 @@ function buildTraffic(scene){
     g3.strokeStyle = '#2E9E5B'; g3.lineWidth = 5;
     g3.beginPath(); g3.moveTo(22, 54); g3.lineTo(48, 30); g3.lineTo(78, 34); g3.lineTo(88, 54); g3.stroke();
     g3.beginPath(); g3.moveTo(48, 30); g3.lineTo(62, 30); g3.stroke();
-    g3.fillStyle = '#FF8C42'; g3.beginPath(); g3.arc(58, 12, 10, 0, Math.PI*2); g3.fill();
-    g3.fillStyle = '#FF8C42'; g3.beginPath(); g3.roundRect(50, 22, 16, 20, 6); g3.fill();
-    g3.strokeStyle = '#2B2B2B'; g3.lineWidth = 5;
-    g3.beginPath(); g3.moveTo(54, 40); g3.lineTo(48, 52); g3.stroke();
-    g3.beginPath(); g3.moveTo(62, 40); g3.lineTo(70, 52); g3.stroke();
+    g3.fillStyle = '#FF8C42'; g3.beginPath(); g3.arc(58, 13, 11, 0, Math.PI*2); g3.fill();
+    g3.strokeStyle = '#FFFFFF'; g3.lineWidth = 3;
+    g3.beginPath(); g3.arc(58, 13, 8, Math.PI*1.15, Math.PI*1.85); g3.stroke(); /* vạch trắng trên mũ */
+    g3.fillStyle = '#F2C89B'; g3.fillRect(55, 21, 6, 7); /* cổ (chồng mũ + thân) */
+    g3.fillStyle = '#FF8C42'; g3.beginPath(); g3.roundRect(47, 26, 22, 22, 7); g3.fill(); /* thân (chồng cổ) */
+    g3.strokeStyle = '#FF8C42'; g3.lineWidth = 6;
+    g3.beginPath(); g3.moveTo(64, 30); g3.lineTo(78, 34); g3.stroke(); /* tay tới tay lái */
+    g3.fillStyle = '#F2C89B'; g3.beginPath(); g3.arc(78, 34, 3.5, 0, Math.PI*2); g3.fill(); /* bàn tay */
+    g3.strokeStyle = '#2B2B2B'; g3.lineWidth = 6;
+    g3.beginPath(); g3.moveTo(54, 46); g3.lineTo(46, 54); g3.stroke();
+    g3.beginPath(); g3.moveTo(64, 46); g3.lineTo(72, 54); g3.stroke();
+    g3.fillStyle = '#1A1A1A'; g3.fillRect(40, 52, 11, 5); g3.fillRect(68, 52, 11, 5); /* giày */
     g3.fillStyle = '#FFE9A8'; g3.fillRect(100, 38, 6, 6);
     scene.textures.addCanvas('lw-bike-green', bg);
   }
@@ -4574,9 +4730,16 @@ function lwTrafficTick(scene, dt){
     if(v.dir<0 && v.x < -400) v.x = 5200;
     v.im.setPosition(v.x, v.y);
     if(v.sh) v.sh.setPosition(v.x, v.y+10);
+    /* ĐỢT SỬA #3 (A34): xe mờ dần khi tới mép world (cũ: xe hiện nửa xe ở mép
+       rồi biến mất đột ngột — live đợt #2). Fade trong 150px cuối. */
+    var halfW = v.kind==='car' ? 75 : 55;
+    var fade = Math.min(1, Math.min(v.x + halfW, 4800 + halfW - v.x) / 150);
+    if(fade < 0) fade = 0;
+    v.im.setAlpha(fade);
+    if(v.sh) v.sh.setAlpha(0.22 * fade);
     /* đèn pha buổi tối: vệt sáng phía trước xe */
     var night = LW.phase===2 ? 0.7 : (LW.phase===1 ? 0.25 : 0);
-    v.head.setAlpha(night);
+    v.head.setAlpha(night * fade);
     v.head.setPosition(v.x + v.dir*95, v.y+2);
     v.head.setFlipX(v.dir<0);
   });
@@ -4978,9 +5141,9 @@ class WorldScene extends Phaser.Scene {
     /* camera */
     var cam = scene.cameras.main;
     cam.setBounds(0, 0, WORLD.w, WORLD.h);
-    cam.setZoom(1.15);
+    cam.setZoom(lwCamZoom(scene)); /* ĐỢT SỬA #3 (A28): zoom theo viewport — 1.15 cũ cắt biển hiệu ở nam dải đi (live đợt #2) */
     cam.startFollow(PH.playerBody, true, 0.12, 0.12); /* ĐỢT SỬA #2 (A20): lerp 0.12 (nhanh hơn 0.08) — camera bám sát tay hơn, bớt cảm giác lag */
-    cam.setFollowOffset(0, -60); /* ĐỢT SỬA #2 (A20): dời tâm nhìn xuống 60px — biển hiệu ở mép trên không bị cắt ~40% */
+    cam.setFollowOffset(0, -60);
     cam.setBackgroundColor('#E8C99A');
     /* input: joystick trái / xoay camera phải / tap */
     scene.input.on('pointerdown', function(p){ onWorldDown(scene, p); });
@@ -5002,6 +5165,7 @@ class WorldScene extends Phaser.Scene {
     var tilt = -7*Math.sin(camYaw*Math.PI/180);
     scene.cameras.main.setRotation(tilt*Math.PI/180);
     updateCompass(((camYaw%360)+360)%360);
+    lwUpdateCamera(scene); /* ĐỢT SỬA #3 (A28): camera động (zoom + offset theo viewport/bé cá) */
     /* ---- di chuyển: đọc body (đã qua bước vật lý khung trước), kẹp, đặt vận tốc ---- */
     var body = PH.playerBody.body;
     beca.x = body.x + 18; /* body 36x36, tâm = vị trí */
@@ -5041,6 +5205,7 @@ class WorldScene extends Phaser.Scene {
     npcTick(dt);
     separateNpcs();
     slideAlongNpcs(dt); /* ĐỢT SỬA #2 (A16): trượt dọc NPC, không kẹt */
+    slideAlongObstacles(dt); /* ĐỢT SỬA #3 (A27): trượt dọc vật cản, không kẹt sau gốc cọ/bồn đá */
     npcChatTick(dt);
     questTick();
     dayNightTick(dt);
@@ -5053,6 +5218,24 @@ class WorldScene extends Phaser.Scene {
     camX = scene.cameras.main.scrollX;
     camY = scene.cameras.main.scrollY;
   }
+}
+/* ĐỢT SỬA #3 (A28): camera động — zoom theo viewport + offset nhìn lên bắc.
+   Zoom: desktop 1.05 (1.15 cũ cắt biển), màn hẹp 0.9, màn ngắn (ngang) 0.8;
+   giới hạn thêm theo chiều cao (camH/880) để cửa sổ lùn vẫn thấy biển.
+   Offset: -60 khi bé cá ở bắc dải đi, tới -160 khi ở nam (nhìn lên bắc để
+   biển hiệu + landmark trong khung). Chỉ áp khi giá trị đổi (tránh set mỗi khung). */
+function lwCamZoom(scene){
+  var cam = scene.cameras.main;
+  var zw = cam.width < 700 ? 0.9 : 1.05;
+  var zh = Math.min(1.05, Math.max(0.7, cam.height / 880));
+  return Math.min(zw, zh);
+}
+function lwUpdateCamera(scene){
+  var cam = scene.cameras.main;
+  var z = lwCamZoom(scene);
+  if(Math.abs(cam.zoom - z) > 0.001) cam.setZoom(z);
+  var off = -60 - Math.min(100, Math.max(0, (beca.y - 1050) * 0.35));
+  if(Math.abs((cam.followOffset.y || 0) - off) > 1) cam.setFollowOffset(0, off);
 }
 /* ---- rig tick: bé cá = sprite sheet (không khớp nối — An 17:17, 19/11) ----
    đi: 6 khung side (lật ngang khi đi trái); đứng: mặt trước; nhảy: 3 khung
@@ -5097,6 +5280,7 @@ function tickRig(scene, dt){
   PH.rig.root.setPosition(beca.x, beca.y - PH.jumpZ);
   PH.rig.root.setScale(sc, sc*sy);
   PH.rig.root.setDepth(Math.round(beca.y));
+  if(PH.rig.nameTop){ PH.rig.nameTop.setPosition(beca.x, beca.y - 148*sc - PH.jumpZ); PH.rig.nameTop.setScale(sc); } /* ĐỢT SỬA #3 (A35): nhãn theo bé cá ở lớp trên cùng */
   var shScale = sc*(1 - Math.abs(PH.jumpZ)/333);
   /* bóng đổ theo hướng nắng (An 16:13): sáng đổ sang tây, hoàng hôn dài sang đông, đêm mờ */
   var shSun = lwSunShadow();
