@@ -1,0 +1,580 @@
+{
+ "camera": {
+  "type": "ORTHO",
+  "ortho_scale_m": 18.18,
+  "res": [
+   1600,
+   1400
+  ],
+  "cam_y": -14.0,
+  "cam_z": 13.19,
+  "tgt_y": 8.0,
+  "tgt_z": 4.71,
+  "px_per_m": 88.0
+ },
+ "zones": {
+  "plaza": {
+   "x0_px": 0,
+   "cx_m": 9.09,
+   "file": "bg-plaza.png",
+   "marks": {
+    "ground_front_px": [
+     800.0,
+     1340.0
+    ],
+    "shop_base_px": [
+     800.0,
+     960.2
+    ],
+    "shop_top_px": [
+     800.0,
+     445.2
+    ],
+    "walk_mid_px": [
+     800.0,
+     1150.1
+    ]
+   }
+  },
+  "street": {
+   "x0_px": 1600,
+   "cx_m": 27.27,
+   "file": "bg-street.png",
+   "marks": {
+    "ground_front_px": [
+     800.0,
+     1340.0
+    ],
+    "shop_base_px": [
+     800.0,
+     960.2
+    ],
+    "shop_top_px": [
+     800.0,
+     445.2
+    ],
+    "walk_mid_px": [
+     800.0,
+     1150.1
+    ]
+   }
+  },
+  "market": {
+   "x0_px": 3200,
+   "cx_m": 45.45,
+   "file": "bg-market.png",
+   "marks": {
+    "ground_front_px": [
+     800.0,
+     1340.0
+    ],
+    "shop_base_px": [
+     800.0,
+     960.2
+    ],
+    "shop_top_px": [
+     800.0,
+     445.2
+    ],
+    "walk_mid_px": [
+     800.0,
+     1150.1
+    ]
+   }
+  }
+ },
+ "fg": {
+  "TreePlazaL": {
+   "file": "fg-tree-plazal.png",
+   "foot_world_px": [
+    518,
+    1030
+   ],
+   "foot_px_in_sprite": [
+    800.0,
+    1030.1
+   ],
+   "anchor_world_px": [
+    -282.0,
+    -0.1
+   ],
+   "depth": 1030,
+   "bytes": 217943,
+   "bbox_px": [
+    553,
+    454,
+    1038,
+    1039
+   ],
+   "bbox_w_h": [
+    485,
+    585
+   ]
+  },
+  "TreePlazaC": {
+   "file": "fg-tree-plazac.png",
+   "foot_world_px": [
+    1067,
+    1030
+   ],
+   "foot_px_in_sprite": [
+    800.0,
+    1030.1
+   ],
+   "anchor_world_px": [
+    267.0,
+    -0.1
+   ],
+   "depth": 1030,
+   "bytes": 217943,
+   "bbox_px": [
+    553,
+    454,
+    1038,
+    1039
+   ],
+   "bbox_w_h": [
+    485,
+    585
+   ]
+  },
+  "PalmPlazaR": {
+   "file": "fg-palm-plazar.png",
+   "foot_world_px": [
+    1426,
+    1140
+   ],
+   "foot_px_in_sprite": [
+    800.0,
+    1140.1
+   ],
+   "anchor_world_px": [
+    626.0,
+    -0.1
+   ],
+   "depth": 1140,
+   "bytes": 144866,
+   "bbox_px": [
+    564,
+    757,
+    1036,
+    1149
+   ],
+   "bbox_w_h": [
+    472,
+    392
+   ]
+  },
+  "TreeStreet": {
+   "file": "fg-tree-street.png",
+   "foot_world_px": [
+    2000,
+    980
+   ],
+   "foot_px_in_sprite": [
+    800.0,
+    980.2
+   ],
+   "anchor_world_px": [
+    1200.0,
+    -0.2
+   ],
+   "depth": 980,
+   "bytes": 218245,
+   "bbox_px": [
+    553,
+    404,
+    1038,
+    989
+   ],
+   "bbox_w_h": [
+    485,
+    585
+   ]
+  },
+  "PalmStreet": {
+   "file": "fg-palm-street.png",
+   "foot_world_px": [
+    3060,
+    1000
+   ],
+   "foot_px_in_sprite": [
+    800.0,
+    1000.2
+   ],
+   "anchor_world_px": [
+    2260.0,
+    -0.2
+   ],
+   "depth": 1000,
+   "bytes": 143966,
+   "bbox_px": [
+    564,
+    617,
+    1036,
+    1009
+   ],
+   "bbox_w_h": [
+    472,
+    392
+   ]
+  },
+  "PlanterPlazaE": {
+   "file": "fg-planter-plazae.png",
+   "foot_world_px": [
+    1540,
+    1120
+   ],
+   "foot_px_in_sprite": [
+    800.0,
+    1120.1
+   ],
+   "anchor_world_px": [
+    740.0,
+    -0.1
+   ],
+   "depth": 1120,
+   "bytes": 59619,
+   "bbox_px": [
+    746,
+    1021,
+    854,
+    1138
+   ],
+   "bbox_w_h": [
+    108,
+    117
+   ]
+  },
+  "PlanterStreet": {
+   "file": "fg-planter-street.png",
+   "foot_world_px": [
+    2640,
+    1120
+   ],
+   "foot_px_in_sprite": [
+    800.0,
+    1120.1
+   ],
+   "anchor_world_px": [
+    1840.0,
+    -0.1
+   ],
+   "depth": 1120,
+   "bytes": 59619,
+   "bbox_px": [
+    746,
+    1021,
+    854,
+    1138
+   ],
+   "bbox_w_h": [
+    108,
+    117
+   ]
+  },
+  "Fountain": {
+   "file": "fg-fountain.png",
+   "foot_world_px": [
+    623,
+    1211
+   ],
+   "foot_px_in_sprite": [
+    800.0,
+    1211.1
+   ],
+   "anchor_world_px": [
+    -177.0,
+    -0.1
+   ],
+   "depth": 1211,
+   "bytes": 155783,
+   "bbox_px": [
+    570,
+    997,
+    1030,
+    1294
+   ],
+   "bbox_w_h": [
+    460,
+    297
+   ]
+  },
+  "CartOrange": {
+   "file": "fg-cart-orange.png",
+   "foot_world_px": [
+    1885,
+    1090
+   ],
+   "foot_px_in_sprite": [
+    800.0,
+    1090.1
+   ],
+   "anchor_world_px": [
+    1085.0,
+    -0.1
+   ],
+   "depth": 1090,
+   "bytes": 79906,
+   "bbox_px": [
+    709,
+    900,
+    891,
+    1128
+   ],
+   "bbox_w_h": [
+    182,
+    228
+   ]
+  },
+  "CartTeal": {
+   "file": "fg-cart-teal.png",
+   "foot_world_px": [
+    1700,
+    1160
+   ],
+   "foot_px_in_sprite": [
+    800.0,
+    1160.1
+   ],
+   "anchor_world_px": [
+    900.0,
+    -0.1
+   ],
+   "depth": 1160,
+   "bytes": 82091,
+   "bbox_px": [
+    709,
+    970,
+    891,
+    1198
+   ],
+   "bbox_w_h": [
+    182,
+    228
+   ]
+  },
+  "CafeTable1": {
+   "file": "fg-table1.png",
+   "foot_world_px": [
+    1804,
+    1071
+   ],
+   "foot_px_in_sprite": [
+    800.0,
+    1071.1
+   ],
+   "anchor_world_px": [
+    1004.0,
+    -0.1
+   ],
+   "depth": 1071,
+   "bytes": 48949,
+   "bbox_px": [
+    760,
+    989,
+    840,
+    1073
+   ],
+   "bbox_w_h": [
+    80,
+    84
+   ]
+  },
+  "CafeTable2": {
+   "file": "fg-table2.png",
+   "foot_world_px": [
+    2006,
+    1112
+   ],
+   "foot_px_in_sprite": [
+    800.0,
+    1112.1
+   ],
+   "anchor_world_px": [
+    1206.0,
+    -0.1
+   ],
+   "depth": 1112,
+   "bytes": 48773,
+   "bbox_px": [
+    760,
+    1031,
+    841,
+    1115
+   ],
+   "bbox_w_h": [
+    81,
+    84
+   ]
+  },
+  "BenchPlaza": {
+   "file": "fg-bench-plaza.png",
+   "foot_world_px": [
+    1056,
+    992
+   ],
+   "foot_px_in_sprite": [
+    800.0,
+    992.2
+   ],
+   "anchor_world_px": [
+    256.0,
+    -0.2
+   ],
+   "depth": 992,
+   "bytes": 57075,
+   "bbox_px": [
+    720,
+    892,
+    880,
+    1000
+   ],
+   "bbox_w_h": [
+    160,
+    108
+   ]
+  },
+  "BenchStreet": {
+   "file": "fg-bench-street.png",
+   "foot_world_px": [
+    2904,
+    992
+   ],
+   "foot_px_in_sprite": [
+    800.0,
+    992.2
+   ],
+   "anchor_world_px": [
+    2104.0,
+    -0.2
+   ],
+   "depth": 992,
+   "bytes": 57075,
+   "bbox_px": [
+    720,
+    892,
+    880,
+    1000
+   ],
+   "bbox_w_h": [
+    160,
+    108
+   ]
+  },
+  "Lamp1": {
+   "file": "fg-lamp1.png",
+   "foot_world_px": [
+    704,
+    1008
+   ],
+   "foot_px_in_sprite": [
+    800.0,
+    1008.1
+   ],
+   "anchor_world_px": [
+    -96.0,
+    -0.1
+   ],
+   "depth": 1008,
+   "bytes": 50277,
+   "bbox_px": [
+    785,
+    742,
+    815,
+    1010
+   ],
+   "bbox_w_h": [
+    30,
+    268
+   ]
+  },
+  "Lamp2": {
+   "file": "fg-lamp2.png",
+   "foot_world_px": [
+    1584,
+    992
+   ],
+   "foot_px_in_sprite": [
+    800.0,
+    992.2
+   ],
+   "anchor_world_px": [
+    784.0,
+    -0.2
+   ],
+   "depth": 992,
+   "bytes": 50179,
+   "bbox_px": [
+    785,
+    726,
+    815,
+    995
+   ],
+   "bbox_w_h": [
+    30,
+    269
+   ]
+  },
+  "Lamp3": {
+   "file": "fg-lamp3.png",
+   "foot_world_px": [
+    2464,
+    1008
+   ],
+   "foot_px_in_sprite": [
+    800.0,
+    1008.1
+   ],
+   "anchor_world_px": [
+    1664.0,
+    -0.1
+   ],
+   "depth": 1008,
+   "bytes": 50281,
+   "bbox_px": [
+    785,
+    742,
+    815,
+    1010
+   ],
+   "bbox_w_h": [
+    30,
+    268
+   ]
+  },
+  "Lamp4": {
+   "file": "fg-lamp4.png",
+   "foot_world_px": [
+    3520,
+    992
+   ],
+   "foot_px_in_sprite": [
+    800.0,
+    992.2
+   ],
+   "anchor_world_px": [
+    2720.0,
+    -0.2
+   ],
+   "depth": 992,
+   "bytes": 50187,
+   "bbox_px": [
+    785,
+    726,
+    815,
+    995
+   ],
+   "bbox_w_h": [
+    30,
+    269
+   ]
+  }
+ },
+ "notes": [
+  "DOT3: landmark thanh mat tien (thay TiemMau+QuanPho=NotreDame, TraSuaBeMai=Bitexco; thap dong ho tren mat tien ChoBenThanh, chop pyramid)",
+  "DOT3: mau dam (troi sat~0.4, hong ~0.25, vang ~0.4, mint ~0.3); mach gach lat da + go via he + 3 chau hoa + 36 canh hoa/la rung phang",
+  "DOT3: co 22 la/tang 3 sac xanh + 3 dua; moc camera khong doi (ground_front 1340, shop_base 960, shop_top 445, walk_mid 1150)",
+  "DOT3c: helipad Bitexco len z5.6 (khong che chu bien Tra Sua); mat dong ho ha xuong z3.3 (py~651..741, trong viewport desktop) + bo mai hien cho"
+ ]
+}
