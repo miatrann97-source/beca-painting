@@ -345,24 +345,25 @@ function makeSeamStrip(scene, zid, bx){
    crop từ bg-town.png FINAL (sha d031ee1a, composite 0 pixel khác nền).
    add.image(anchor).setDepth(foot_y) — Y-sort thật (LAYOUT-FG.md §2/§4). */
 var FG3D = [
-  {id:'fgtower', key:'fg3d-tower', file:'map3d/fg-town-tower-c.png?v=r10', ax:1351, ay:1151, depth:1803, zone:'town'},
-  {id:'fgpalace', key:'fg3d-palace', file:'map3d/fg-town-palace-c.png?v=r10', ax:161, ay:2799, depth:3228, zone:'town'},
-  {id:'fgpagoda', key:'fg3d-pagoda', file:'map3d/fg-town-pagoda-c.png?v=r10', ax:2650, ay:1250, depth:1897, zone:'town'},
-  {id:'fghousesbitexco', key:'fg3d-houses-bitexco', file:'map3d/fg-town-houses-bitexco-c.png?v=r10', ax:1932, ay:1150, depth:1268, zone:'town'},
-  {id:'fghousesleft', key:'fg3d-houses-left', file:'map3d/fg-town-houses-left-c.png?v=r10', ax:550, ay:2186, depth:2362, zone:'town'},
-  {id:'fghousesmid', key:'fg3d-houses-mid', file:'map3d/fg-town-houses-mid-c.png?v=r10', ax:2850, ay:2200, depth:2367, zone:'town'},
-  {id:'fghousesbr', key:'fg3d-houses-br', file:'map3d/fg-town-houses-br-c.png?v=r10', ax:1600, ay:2800, depth:2952, zone:'town'},
-  {id:'fgbushpalace', key:'fg3d-bush-palace', file:'map3d/fg-town-bush-palace-c.png?v=r10', ax:216, ay:2684, depth:2885, zone:'town'},
-  {id:'fgtreetower1', key:'fg3d-tree-tower-1', file:'map3d/fg-town-tree-tower-1-c.png?v=r10', ax:945, ay:1696, depth:1806, zone:'town'},
-  {id:'fgtreetower2', key:'fg3d-tree-tower-2', file:'map3d/fg-town-tree-tower-2-c.png?v=r10', ax:1318, ay:1718, depth:1810, zone:'town'},
-  {id:'fgtreetower3', key:'fg3d-tree-tower-3', file:'map3d/fg-town-tree-tower-3-c.png?v=r10', ax:1533, ay:1726, depth:1810, zone:'town'},
-  {id:'fgtreetower4', key:'fg3d-tree-tower-4', file:'map3d/fg-town-tree-tower-4-c.png?v=r10', ax:1721, ay:1720, depth:1810, zone:'town'},
-  {id:'fgtreetower5', key:'fg3d-tree-tower-5', file:'map3d/fg-town-tree-tower-5-c.png?v=r10', ax:1921, ay:1726, depth:1810, zone:'town'},
-  {id:'fgtreemidl', key:'fg3d-tree-mid-l', file:'map3d/fg-town-tree-mid-l-c.png?v=r10', ax:2799, ay:2268, depth:2352, zone:'town'},
-  {id:'fgtreemidr', key:'fg3d-tree-mid-r', file:'map3d/fg-town-tree-mid-r-c.png?v=r10', ax:3097, ay:2278, depth:2359, zone:'town'},
-  {id:'fgtreebrl', key:'fg3d-tree-br-l', file:'map3d/fg-town-tree-br-l-c.png?v=r10', ax:1623, ay:2815, depth:2929, zone:'town'},
-  {id:'fgtreebrr', key:'fg3d-tree-br-r', file:'map3d/fg-town-tree-br-r-c.png?v=r10', ax:2366, ay:2815, depth:2929, zone:'town'},
-  {id:'fgtreebitexco3', key:'fg3d-tree-bitexco-3', file:'map3d/fg-town-tree-bitexco-3-c.png?v=r10', ax:2566, ay:951, depth:1152, zone:'town'},
+  {id:'fgtower', key:'fg3d-tower', file:'map3d/fg-town-tower-c.png?v=r11', ax:1336, ay:1138, depth:1830, zone:'town'},
+  {id:'fgpalace', key:'fg3d-palace', file:'map3d/fg-town-palace-c.png?v=r11', ax:149, ay:2784, depth:3253, zone:'town'},
+  {id:'fgpagoda', key:'fg3d-pagoda', file:'map3d/fg-town-pagoda-c.png?v=r11', ax:2638, ay:1238, depth:1922, zone:'town'},
+  {id:'fghousesbitexco', key:'fg3d-houses-bitexco', file:'map3d/fg-town-houses-bitexco-c.png?v=r11', ax:1887, ay:1135, depth:1282, zone:'town'},
+  {id:'fghousesleft', key:'fg3d-houses-left', file:'map3d/fg-town-houses-left-c.png?v=r11', ax:537, ay:2151, depth:2383, zone:'town'},
+  {id:'fghousesmid', key:'fg3d-houses-mid', file:'map3d/fg-town-houses-mid-c.png?v=r11', ax:2835, ay:2189, depth:2392, zone:'town'},
+  {id:'fghousesbr', key:'fg3d-houses-br', file:'map3d/fg-town-houses-br-c.png?v=r11', ax:1588, ay:2789, depth:2973, zone:'town'},
+  {id:'fghousessq', key:'fg3d-houses-sq', file:'map3d/fg-town-houses-sq-c.png?v=r11', ax:2067, ay:2108, depth:2317, zone:'town'},
+  {id:'fgbushpalace', key:'fg3d-bush-palace', file:'map3d/fg-town-bush-palace-c.png?v=r11', ax:216, ay:2684, depth:2885, zone:'town'},
+  {id:'fgtreetower1', key:'fg3d-tree-tower-1', file:'map3d/fg-town-tree-tower-1-c.png?v=r11', ax:945, ay:1696, depth:1806, zone:'town'},
+  {id:'fgtreetower2', key:'fg3d-tree-tower-2', file:'map3d/fg-town-tree-tower-2-c.png?v=r11', ax:1318, ay:1718, depth:1810, zone:'town'},
+  {id:'fgtreetower3', key:'fg3d-tree-tower-3', file:'map3d/fg-town-tree-tower-3-c.png?v=r11', ax:1506, ay:1718, depth:1803, zone:'town'},
+  {id:'fgtreetower4', key:'fg3d-tree-tower-4', file:'map3d/fg-town-tree-tower-4-c.png?v=r11', ax:1709, ay:1718, depth:1803, zone:'town'},
+  {id:'fgtreetower5', key:'fg3d-tree-tower-5', file:'map3d/fg-town-tree-tower-5-c.png?v=r11', ax:1899, ay:1726, depth:1810, zone:'town'},
+  {id:'fgtreemidl', key:'fg3d-tree-mid-l', file:'map3d/fg-town-tree-mid-l-c.png?v=r11', ax:2799, ay:2262, depth:2352, zone:'town'},
+  {id:'fgtreemidr', key:'fg3d-tree-mid-r', file:'map3d/fg-town-tree-mid-r-c.png?v=r11', ax:3097, ay:2278, depth:2359, zone:'town'},
+  {id:'fgtreebrl', key:'fg3d-tree-br-l', file:'map3d/fg-town-tree-br-l-c.png?v=r11', ax:1623, ay:2815, depth:2929, zone:'town'},
+  {id:'fgtreebrr', key:'fg3d-tree-br-r', file:'map3d/fg-town-tree-br-r-c.png?v=r11', ax:2366, ay:2815, depth:2929, zone:'town'},
+  {id:'fgtreebitexco3', key:'fg3d-tree-bitexco-3', file:'map3d/fg-town-tree-bitexco-3-c.png?v=r11', ax:2566, ay:951, depth:1171, zone:'town'},
 ];
 function buildForeground(scene){
   FG3D.forEach(function(f){
@@ -1465,6 +1466,10 @@ function livingWorldTick(scene, dt){
   /* pha ngày–đêm đổi thì áp lại mặt trời/mặt trăng/mây/đèn */
   var ph = (typeof state!=='undefined' && state.timePhase!=null) ? state.timePhase : 0;
   if(ph!==LW.phase){ LW.phase = ph; lwApplyPhase(scene); }
+  /* R11.1 (20/11): skyline xa chỉ hiện khi camera còn ở vùng trời phía bắc
+     (scrollY < 950) — khi camera xuống sâu trong thị trấn, skyline cố định ở
+     đỉnh màn hình sẽ đè lên đất/đường, trông như nhà ma lơ lửng (An 08:22). */
+  if(LW.skyline){ LW.skyline.setVisible(scene.cameras.main.scrollY < 950); }
   /* mặt trời/mặt trăng bám theo camera (cố định theo màn hình) */
   if(LW.sun && LW.sun.visible || LW.moon && LW.moon.visible) lwApplyPhaseSunOnly(scene);
   lwCloudTick(scene, dt);
@@ -1531,7 +1536,7 @@ class WorldScene extends Phaser.Scene {
   preload(){
     /* SINGLE-TOWN (đợt #6): 1 nền duy nhất bg-town.png 1600x1400 (An duyệt 23:25).
        3 nền cũ plaza/street/market KHÔNG còn tải — giữ file trên đĩa để rollback. */
-    this.load.image('bg-town', 'map3d/bg-town.png?v=r10');
+    this.load.image('bg-town', 'map3d/bg-town.png?v=r11');
     /* TIỀN CẢNH 3D: 18 sprite đã crop theo bbox (manifest.json) — vẽ tại
        anchor, depth = foot_y (Y-sort thật). File *-c.png, tổng ~571KB. */
     FG3D.forEach(function(f){ this.load.image(f.key, f.file); }, this);
@@ -1828,8 +1833,9 @@ function worldTapAt(scene, p){
       if(qi){ tapQuestItem(qi); return true; }
     }
   }
-  /* chạm skyline (đỉnh màn hình): kể lịch sử landmark gần nhất */
-  if(LW.skyline && p.y < 260 && LW.history){
+  /* chạm skyline (đỉnh màn hình): kể lịch sử landmark gần nhất — chỉ khi
+     skyline đang hiện (R11.1: skyline ẩn khi camera xuống sâu). */
+  if(LW.skyline && LW.skyline.visible && p.y < 260 && LW.history){
     var wp = scene.cameras.main.getWorldPoint(p.x, p.y);
     var best = null, bd = 1e9;
     LW.history.forEach(function(h){
