@@ -260,7 +260,7 @@ body.map-mode #mapView{display:block}
   #mapHint{font-size:11px;white-space:normal;text-align:center;line-height:1.35;max-width:88%}
 }
 #minimap{
-  position:absolute;right:8px;top:8px;z-index:8;width:160px;height:48px;
+  position:absolute;right:8px;top:8px;z-index:8;width:200px;height:64px; /* ĐỢT SỬA #2 (B16): minimap to hơn */
   border:2px solid var(--wood);border-radius:8px;background:#7FB069;box-shadow:0 3px 10px rgba(0,0,0,.3);
 }
 #offerThumb{width:100%;max-width:300px;border:3px solid var(--wood);border-radius:12px;margin:6px auto;display:block}
@@ -388,7 +388,7 @@ body.map-mode #mapView{display:block}
   <main id="layout">
     <div id="mapView" data-testid="mapView">
       <div id="phaserMap"></div>
-      <canvas id="minimap" data-testid="minimap" width="160" height="48"></canvas>
+      <canvas id="minimap" data-testid="minimap" width="200" height="64"></canvas> /* ĐỢT SỬA #2 (B16): minimap to hơn (200x64) để đọc được */
       <div id="zonePill" data-testid="zonePill"></div>
       <div id="questPanel" data-testid="questPanel"></div>
       <div id="camCompass" data-testid="camCompass"></div>
@@ -799,12 +799,12 @@ const CONFIG = {
     tung: { walk:'assets-ghibli/rig-tung-walk.webp', jump:'assets-ghibli/rig-tung-jump.webp', walkFrames:6, jumpFrames:3, idleFrame:1, height:154, stepPx:62 },
     hoa:  { walk:'assets-ghibli/rig-hoa-walk.webp',  jump:'assets-ghibli/rig-hoa-jump.webp',  walkFrames:6, jumpFrames:3, idleFrame:1, height:141, stepPx:48 },
     bay:  { walk:'assets-ghibli/rig-bay-walk.webp',  jump:'assets-ghibli/rig-bay-jump.webp',  walkFrames:6, jumpFrames:3, idleFrame:1, height:154, stepPx:60 },
-    mimi: { walk:'assets-openworld/rig-mimi-walk.webp', jump:'assets-ghibli/rig-mimi-jump.webp', walkFrames:6, jumpFrames:3, idleFrame:1, height:90, stepPx:42 },
+    mimi: { walk:'assets-ghibli/rig-mimi-walk.webp', jump:'assets-ghibli/rig-mimi-jump.webp', walkFrames:6, jumpFrames:3, idleFrame:1, height:90, stepPx:42 }, /* ĐỢT SỬA #2 (B19): sheet Mimi 4 chân (An: mèo phải đi 4 chân) — cũ ở assets-openworld là sheet 2 chân */
     chu:  { walk:'assets-ghibli/rig-chu-walk.webp',  jump:'assets-ghibli/rig-chu-jump.webp',  walkFrames:6, jumpFrames:3, idleFrame:1, height:154, stepPx:62 },
     /* NPC mới (sheet nền trắng đục -> game tự tách trắng thành trong suốt lúc tải) */
     lan:  { walk:'assets-openworld/rig-lan-walk.webp', jump:'assets-openworld/rig-lan-walk.webp', walkFrames:6, jumpFrames:6, idleFrame:1, height:141, stepPx:56 },
     nam:  { walk:'assets-openworld/rig-nam-walk.webp', jump:'assets-openworld/rig-nam-walk.webp', walkFrames:6, jumpFrames:6, idleFrame:1, height:132, stepPx:53 },
-    beca: { walk:'assets-ghibli/beca-walk.webp', jump:'assets-ghibli/beca-jump.webp', idle:'assets-ghibli/beca-idle.webp', walkFrames:6, jumpFrames:3, idleFrame:0, height:140, stepPx:56 },
+    beca: { walk:'assets-ghibli/beca-walk.webp', jump:'assets-ghibli/beca-jump.webp', idle:'assets-ghibli/beca-idle.webp', walkFront:'assets-ghibli/beca-walk-front.webp', walkBack:'assets-ghibli/beca-walk-back.webp', walkFrames:6, jumpFrames:3, idleFrame:0, height:140, stepPx:56 }, /* ĐỢT SỬA #2 (B17): sheet đi dọc (An 19:41) */
   },
   /* ---- rig xương THẬT cho bé cá (bone rig, KHÔNG lật ảnh) ----
      Bé cá được dựng từ các bộ phận rời nối bằng khớp (đầu, thân, tay trên/cẳng
@@ -1884,16 +1884,20 @@ function updateCamera(){
 /* ---------------- bản đồ nhỏ (minimap) ---------------- */
 const minimap = document.getElementById('minimap');
 const mmc = minimap ? minimap.getContext('2d') : null;
-const MM_S = 1/30; // 4800x1400 -> 160x47
+const MM_S = 1/24; // ĐỢT SỬA #2 (B16): 4800x1400 -> 200x58 (canvas 200x64, to hơn để đọc được)
 function drawMinimap(){
   if(!mmc) return;
-  mmc.clearRect(0, 0, 160, 48);
-  mmc.fillStyle = '#E8C99A'; mmc.fillRect(0, 0, 160, 48);
-  /* 3 khu: quảng trường / phố đi bộ / chợ */
+  mmc.clearRect(0, 0, 200, 64);
+  mmc.fillStyle = '#E8C99A'; mmc.fillRect(0, 0, 200, 64);
+  /* 3 khu — màu khác nhau RÕ: quảng trường (đá ấm), phố (xanh lá nhạt), chợ (cam) */
   mmc.fillStyle = '#F3EAD8'; mmc.fillRect(0, WALK.y0*MM_S, 1600*MM_S, (WALK.y1-WALK.y0)*MM_S);
-  mmc.fillStyle = '#E8DCC8'; mmc.fillRect(1600*MM_S, WALK.y0*MM_S, 1600*MM_S, (WALK.y1-WALK.y0)*MM_S);
-  mmc.fillStyle = '#EFD9B0'; mmc.fillRect(3200*MM_S, WALK.y0*MM_S, 1600*MM_S, (WALK.y1-WALK.y0)*MM_S);
-  /* ROUND 3: mép trên vùng đi được theo đường chân tường (không phải đường thẳng) */
+  mmc.fillStyle = '#DCE8C8'; mmc.fillRect(1600*MM_S, WALK.y0*MM_S, 1600*MM_S, (WALK.y1-WALK.y0)*MM_S);
+  mmc.fillStyle = '#F5C98A'; mmc.fillRect(3200*MM_S, WALK.y0*MM_S, 1600*MM_S, (WALK.y1-WALK.y0)*MM_S);
+  /* đường (dải xám y 1118-1213) + vạch tim đường đứt nét */
+  mmc.fillStyle = '#9AA0A6'; mmc.fillRect(0, 1118*MM_S, 4800*MM_S, (1213-1118)*MM_S);
+  mmc.fillStyle = '#FFF';
+  for(let x = 0; x < 4800; x += 200){ mmc.fillRect(x*MM_S, 1162*MM_S, 100*MM_S, 2); }
+  /* mép trên vùng đi được theo đường chân tường (không phải đường thẳng) */
   mmc.strokeStyle = '#B08A4B'; mmc.lineWidth = 1;
   mmc.beginPath();
   for(let x = 0; x <= 4800; x += 100){ const y = groundTopY(x); if(x === 0) mmc.moveTo(0, y*MM_S); else mmc.lineTo(x*MM_S, y*MM_S); }
@@ -1905,15 +1909,31 @@ function drawMinimap(){
   }
   mmc.fillStyle = '#54A0FF';
   mmc.beginPath(); mmc.arc(623*MM_S, 1211*MM_S, 4, 0, Math.PI*2); mmc.fill();  // đài phun nước (3D: tâm (623,1211))
-  for(const id of state.customersToday){
-    const _n = (typeof npcs !== 'undefined') ? npcs[id] : null;
-    const sp = _n ? [_n.x, _n.y] : SPOTS[id]; if(!sp) continue;
+  /* TẤT CẢ NPC (không chỉ khách hôm nay) — chấm hồng r3, thấy rõ di chuyển */
+  if(typeof npcs !== 'undefined'){
     mmc.fillStyle = '#FF6B9D';
-    mmc.beginPath(); mmc.arc(sp[0]*MM_S, sp[1]*MM_S, 2.5, 0, Math.PI*2); mmc.fill();
+    for(const id in npcs){
+      const _n = npcs[id]; if(!_n) continue;
+      mmc.beginPath(); mmc.arc(_n.x*MM_S, _n.y*MM_S, 3, 0, Math.PI*2); mmc.fill();
+    }
   }
+  /* tên 3 khu (trên cùng, trên vùng tòa nhà) */
+  mmc.fillStyle = '#5C3D1E'; mmc.font = 'bold 9px system-ui, sans-serif'; mmc.textAlign = 'center';
+  mmc.fillText('Quảng trường', 800*MM_S, 10);
+  mmc.fillText('Nguyễn Huệ', 2400*MM_S, 10); /* ĐỢT SỬA #2 (B20): rút gọn — 'Phố Nguyễn Huệ' ~72px > ô 67px, dính tên 2 bên */
+  mmc.fillText('Bến Thành', 4000*MM_S, 10); /* ĐỢT SỬA #2 (B20): rút gọn — 'Chợ Bến Thành' dính tên giữa */
+  /* khung viewport (vùng camera đang thấy) */
+  var PHW = (typeof window !== 'undefined' && window.__phaserWorld) ? window.__phaserWorld : null;
+  if(PHW && PHW.scene && PHW.scene.cameras){
+    var _cam = PHW.scene.cameras.main;
+    var _vw = _cam.width / _cam.zoom, _vh = _cam.height / _cam.zoom;
+    mmc.strokeStyle = '#2E86DE'; mmc.lineWidth = 1.5;
+    mmc.strokeRect(_cam.scrollX*MM_S, _cam.scrollY*MM_S, _vw*MM_S, _vh*MM_S);
+  }
+  /* người chơi: chấm trắng TO viền xanh */
   mmc.fillStyle = '#fff';
-  mmc.beginPath(); mmc.arc(beca.x*MM_S, beca.y*MM_S, 3.5, 0, Math.PI*2); mmc.fill();
-  mmc.strokeStyle = '#2E86DE'; mmc.lineWidth = 1.5; mmc.stroke();
+  mmc.beginPath(); mmc.arc(beca.x*MM_S, beca.y*MM_S, 5, 0, Math.PI*2); mmc.fill();
+  mmc.strokeStyle = '#2E86DE'; mmc.lineWidth = 2; mmc.stroke();
 }
 
 /* Vẽ vùng chạm + biển hiệu của các tòa nhà từ CONFIG.BUILDINGS */
@@ -2719,6 +2739,15 @@ function npcIdleMul(n){
   return (typeof state !== 'undefined' && state.timePhase === 1) ? 1.2 : 2.5;
 }
 function npcWanderTarget(n){
+  /* ĐỢT SỬA #2 (B18): ban đêm (phase 2) NPC đi xa hơn — trước đây range nhỏ quanh nhà
+     (quảng trường) nên chợ/phố vắng tanh ban đêm. 40% chọn điểm nóng ở phố/chợ. */
+  if(typeof state !== 'undefined' && state.timePhase === 2 && Math.random() < 0.4){
+    var _hs = [[3600, 1200], [4000, 1250], [2400, 1180], [2800, 1220], [4400, 1200]];
+    var _sp = _hs[Math.floor(Math.random()*_hs.length)];
+    var _hx = Math.min(WALK.x1, Math.max(WALK.x0, _sp[0] + (Math.random()*200-100)));
+    var _hy = Math.min(WALK.y1, Math.max(walkMinY(_hx, RIGS[n.id].height), _sp[1] + (Math.random()*80-40)));
+    if(!hitsSolid(_hx, _hy)) return {x:_hx, y:_hy};
+  }
   for(let k = 0; k < 6; k++){
     const a = Math.random() * Math.PI * 2, d = 60 + Math.random() * n.range;
     const x = Math.min(WALK.x1, Math.max(WALK.x0, n.home[0] + Math.cos(a) * d));
@@ -3422,6 +3451,20 @@ function walkMinY(x, headH){
   return Math.max(groundTopY(x), canopyMinY(x, headH));
 }
 window.__phaserWorld = PH;
+/* ĐỢT SỬA #2 (A25): debug hooks LW (mưa/xe/đèn/thú) để kiểm chứng. */
+window.__phaserLW = function(){
+  var cam = PH.scene.cameras.main;
+  return {
+    weather: LW.weather, rainT: Math.round(LW.rainT||0), rainVisible: !!(LW.rain && LW.rain.visible),
+    rainPos: LW.rain ? [Math.round(LW.rain.x), Math.round(LW.rain.y)] : null,
+    camScroll: [Math.round(cam.scrollX), Math.round(cam.scrollY)],
+    vehicles: LW.vehicles.map(function(v){ return {kind:v.kind, x:Math.round(v.x), y:v.y, dir:v.dir}; }),
+    lights: LW.lights.map(function(g){ return [Math.round(g.x), Math.round(g.y), +g.alpha.toFixed(2)]; }),
+    strays: LW.strays.map(function(s){ return {id:s.id, x:Math.round(s.x), y:Math.round(s.y), dir:s.dir, state:s.state}; })
+  };
+};
+window.__phaserForceRain = function(){ LW.weather='rainy'; LW.rainT=30; if(LW.rain){ LW.rain.setVisible(true); if(LW.rain.start) LW.rain.start(); } return 'rainy'; };
+window.__phaserSetPhase = function(n){ state.timePhase = n; LW.phase = n; lwApplyPhase(PH.scene); return 'phase '+n; };
 
 
 /* ---- BONE RIG (Phaser) — port y hệt boneSliceFacing/boneApply (DOM) ----
@@ -3618,24 +3661,24 @@ function makeSeamStrip(scene, zid, bx){
    PNG trong suốt thật nên KHÔNG cần GeometryMask (panorama cũ phải mask vì
    FG là crop từ ảnh nền). Chân vật đã kiểm chứng khớp foot_world_px (manifest). */
 var FG3D = [
-  {id:'fgTreePlazaL', key:'fg3d-treeplazal', file:'map3d/fg-tree-plazal-c.png', ax:271.0, ay:454.9, depth:1030, zone:'plaza'},
-  {id:'fgTreePlazaC', key:'fg3d-treeplazac', file:'map3d/fg-tree-plazac-c.png', ax:820.0, ay:454.9, depth:1030, zone:'plaza'},
+  {id:'fgTreePlazaL', key:'fg3d-treeplazal', file:'map3d/fg-tree-plazal-c.png', ax:271.0, ay:453.9, depth:1030, zone:'plaza'},
+  {id:'fgTreePlazaC', key:'fg3d-treeplazac', file:'map3d/fg-tree-plazac-c.png', ax:820.0, ay:453.9, depth:1030, zone:'plaza'},
   {id:'fgPalmPlazaR', key:'fg3d-palmplazar', file:'map3d/fg-palm-plazar-c.png', ax:1198.0, ay:782.9, depth:1140, zone:'plaza'},
-  {id:'fgTreeStreet', key:'fg3d-treestreet', file:'map3d/fg-tree-street-c.png', ax:1753.0, ay:404.8, depth:980, zone:'street'},
+  {id:'fgTreeStreet', key:'fg3d-treestreet', file:'map3d/fg-tree-street-c.png', ax:1753.0, ay:403.8, depth:980, zone:'street'},
   {id:'fgPalmStreet', key:'fg3d-palmstreet', file:'map3d/fg-palm-street-c.png', ax:2832.0, ay:642.8, depth:1000, zone:'street'},
-  {id:'fgPlanterPlazaE', key:'fg3d-planterplazae', file:'map3d/fg-planter-plazae-c.png', ax:1487.0, ay:1020.9, depth:1120, zone:'plaza'},
-  {id:'fgPlanterStreet', key:'fg3d-planterstreet', file:'map3d/fg-planter-street-c.png', ax:2587.0, ay:1020.9, depth:1120, zone:'street'},
-  {id:'fgFountain', key:'fg3d-fountain', file:'map3d/fg-fountain-c.png', ax:394.0, ay:996.9, depth:1211, zone:'plaza'},
+  {id:'fgPlanterPlazaE', key:'fg3d-planterplazae', file:'map3d/fg-planter-plazae-c.png', ax:1486.0, ay:1020.9, depth:1120, zone:'plaza'},
+  {id:'fgPlanterStreet', key:'fg3d-planterstreet', file:'map3d/fg-planter-street-c.png', ax:2586.0, ay:1020.9, depth:1120, zone:'street'},
+  {id:'fgFountain', key:'fg3d-fountain', file:'map3d/fg-fountain-c.png', ax:393.0, ay:996.9, depth:1211, zone:'plaza'},
   {id:'fgCartOrange', key:'fg3d-cartorange', file:'map3d/fg-cart-orange-c.png', ax:1794.0, ay:899.9, depth:1090, zone:'street'},
   {id:'fgCartTeal', key:'fg3d-cartteal', file:'map3d/fg-cart-teal-c.png', ax:1609.0, ay:969.9, depth:1160, zone:'street'},
-  {id:'fgCafeTable1', key:'fg3d-cafetable1', file:'map3d/fg-table1-c.png', ax:1764.0, ay:989.9, depth:1071, zone:'street'},
+  {id:'fgCafeTable1', key:'fg3d-cafetable1', file:'map3d/fg-table1-c.png', ax:1764.0, ay:988.9, depth:1071, zone:'street'},
   {id:'fgCafeTable2', key:'fg3d-cafetable2', file:'map3d/fg-table2-c.png', ax:1966.0, ay:1030.9, depth:1112, zone:'street'},
-  {id:'fgBenchPlaza', key:'fg3d-benchplaza', file:'map3d/fg-bench-plaza-c.png', ax:976.0, ay:892.8, depth:992, zone:'plaza'},
-  {id:'fgBenchStreet', key:'fg3d-benchstreet', file:'map3d/fg-bench-street-c.png', ax:2824.0, ay:892.8, depth:992, zone:'street'},
+  {id:'fgBenchPlaza', key:'fg3d-benchplaza', file:'map3d/fg-bench-plaza-c.png', ax:976.0, ay:891.8, depth:992, zone:'plaza'},
+  {id:'fgBenchStreet', key:'fg3d-benchstreet', file:'map3d/fg-bench-street-c.png', ax:2824.0, ay:891.8, depth:992, zone:'street'},
   {id:'fgLamp1', key:'fg3d-lamp1', file:'map3d/fg-lamp1-c.png', ax:689.0, ay:741.9, depth:1008, zone:'plaza'},
-  {id:'fgLamp2', key:'fg3d-lamp2', file:'map3d/fg-lamp2-c.png', ax:1569.0, ay:726.8, depth:992, zone:'plaza'},
+  {id:'fgLamp2', key:'fg3d-lamp2', file:'map3d/fg-lamp2-c.png', ax:1569.0, ay:725.8, depth:992, zone:'plaza'},
   {id:'fgLamp3', key:'fg3d-lamp3', file:'map3d/fg-lamp3-c.png', ax:2449.0, ay:741.9, depth:1008, zone:'street'},
-  {id:'fgLamp4', key:'fg3d-lamp4', file:'map3d/fg-lamp4-c.png', ax:3505.0, ay:726.8, depth:992, zone:'market'},
+  {id:'fgLamp4', key:'fg3d-lamp4', file:'map3d/fg-lamp4-c.png', ax:3505.0, ay:725.8, depth:992, zone:'market'},
 ];
 function buildForeground(scene){
   FG3D.forEach(function(f){
@@ -3698,6 +3741,20 @@ function npcTextureKey(scene, id, sheet){
   scene.textures.addCanvas(cleanKey, clean);
   return cleanKey;
 }
+/* ĐỢT SỬA #2 (A15): parse sheet thành spritesheet frames, KHÔNG dùng setCrop.
+   addSpriteSheet với source là Texture: gắn frames vào texture ĐÃ CÓ (không nhân
+   đôi GPU). setFrame(i) chọn khung, căn giữa đúng tâm game object. */
+function ensureSheetFrames(scene, sheetKey, frames){
+  var tex = scene.textures.get(sheetKey);
+  if(!tex || tex._m2frames) return;
+  var src = tex.getSourceImage();
+  if(!src) return;
+  var w = src.width || tex.width, h = src.height || tex.height;
+  var fw = Math.max(1, Math.floor(w/Math.max(1, frames)));
+  if(!fw || !h) return;
+  scene.textures.addSpriteSheet(sheetKey, tex, {frameWidth: fw, frameHeight: h});
+  tex._m2frames = true;
+}
 function npcAspect(scene, id, sheet){
   var key = npcTextureKey(scene, id, sheet);
   var tex = scene.textures.get(key);
@@ -3723,7 +3780,8 @@ function buildNpc(scene, id){
   var dispH = cfg.height, dispW = Math.round(dispH*asp);
   var img = scene.add.image(0, 0, key);
   img.setOrigin(0.5, 1);
-  img.setCrop(0, 0, fw, fh);
+  ensureSheetFrames(scene, key, cfg.walkFrames); /* ĐỢT SỬA #2 (A15): spritesheet, không setCrop */
+  img.setFrame(0);
   /* scale theo KHUNG CROP (fw×fh), KHÔNG dùng setDisplaySize — nó tính scale
      theo cả sheet (fw×frames) nên NPC chỉ còn 1/frames chiều rộng = vệt mảnh */
   img.setScale(dispW/fw, dispH/fh);
@@ -3736,7 +3794,7 @@ function buildNpc(scene, id){
   zn.setInteractive({useHandCursor:true});
   zn.setData('npcId', id);
   zn.setDepth(Math.round(n.y)+1);
-  var name = scene.add.text(0, -dispH-20, '', {fontFamily:'system-ui, sans-serif', fontSize:'12px', color:'#fff', stroke:'#7A4A21', strokeThickness:3}); /* ten TREN DAU (cu y=5, duoi chan, bi co/chan Be Ca che) */
+  var name = scene.add.text(0, -dispH-20, '', {fontFamily:'system-ui, sans-serif', fontSize:'12px', fontStyle:'bold', color:'#fff', stroke:'#5C3D1E', strokeThickness:4, shadow:{offsetX:1, offsetY:1, color:'#000', blur:2, fill:true}}); /* ĐỢT SỬA #2 (A24): viền đậm + bóng để đọc được trên nền sáng (đau mắt) */
   name.setOrigin(0.5, 0);
   cont.add(name);
   var bubble = scene.add.text(0, -dispH-44, '', {fontFamily:'system-ui, sans-serif', fontSize:'12px', color:'#5C3D1E', backgroundColor:'#FFF8E7', padding:{x:6, y:4}}); /* bong bong TREN ten (cu -dispH-8, chong len ten) */
@@ -3764,12 +3822,13 @@ function syncNpcPhaser(n){
     var frames = sheet==='walk' ? cfg.walkFrames : cfg.jumpFrames;
     var fw = (fr.width||tex.width)/frames, fh = fr.height||tex.height;
     if(o.sheet!==sheet){
+      ensureSheetFrames(PH.scene, key, sheet==='walk' ? cfg.walkFrames : cfg.jumpFrames);
       o.img.setTexture(key);
-      o.img.setScale(o.dispW/fw, o.dispH/fh); /* scale theo khung crop (xem buildNpc) */
+      o.img.setScale(o.dispW/fw, o.dispH/fh);
       o.sheet = sheet; o.frame = -1;
     }
     if(o.frame!==n.rig.frame){
-      o.img.setCrop(n.rig.frame*fw, 0, fw, fh);
+      o.img.setFrame(n.rig.frame); /* ĐỢT SỬA #2 (A15): setFrame thay setCrop */
       o.frame = n.rig.frame;
     }
   }
@@ -3809,7 +3868,14 @@ function syncNpcPhaser(n){
 /* tách NPC khỏi bé cá theo bề rộng HÌNH VẼ (fix live (e)): minD = nửa rộng bé cá
    + nửa rộng NPC (theo depth), NPC nhường 70% + bé cá bị chặn 30%; NPC kẹt thì
    bé cá chịu 100% (không đi xuyên). */
-function separateNpcs(){
+/* ĐỢT SỬA #2 (A16): trượt dọc NPC — bé cá không bao giờ kẹt khi chạm NPC.
+   Gọi sau separateNpcs() mỗi khung. Loại bỏ thành phần vận tốc xuyên vào NPC
+   (vr<0 = đang đâm vào), giữ lại thành phần tiếp tuyến -> trượt vòng qua. */
+function slideAlongNpcs(dt){
+  var body = PH.playerBody && PH.playerBody.body;
+  if(!body) return;
+  var vx = body.velocity.x, vy = body.velocity.y;
+  if(!vx && !vy) return;
   for(var id in npcs){
     var n = npcs[id];
     if(!n || n.mode==='stairs' || n.mode==='terrace') continue;
@@ -3817,7 +3883,25 @@ function separateNpcs(){
     if(!o) continue;
     var npcHalf = (o.dispW/2) * (n.rig.scale || depthScale(n.y));
     var becaHalf = 46 * depthScale(beca.y);
-    var minD = npcHalf + becaHalf;
+    var minD = (npcHalf + becaHalf) * 1.08 + 6;
+    var dx = beca.x - n.x, dy = beca.y - n.y;
+    var d = Math.hypot(dx, dy);
+    if(d >= minD || d < 0.01) continue;
+    var ux = dx/d, uy = dy/d;
+    var vr = vx*ux + vy*uy;
+    if(vr < 0){ vx -= ux*vr; vy -= uy*vr; }
+  }
+  body.setVelocity(vx, vy);
+}
+function separateNpcs(scene){
+  for(var id in npcs){
+    var n = npcs[id];
+    if(!n || n.mode==='stairs' || n.mode==='terrace') continue;
+    var o = PH.npcObjs[id];
+    if(!o) continue;
+    var npcHalf = (o.dispW/2) * (n.rig.scale || depthScale(n.y));
+    var becaHalf = 46 * depthScale(beca.y);
+    var minD = (npcHalf + becaHalf) * 1.08; /* ĐỢT SỬA #2 (A16): biên an toàn 8% theo chiều rộng sprite thấy được */
     var dx = n.x - beca.x, dy = n.y - beca.y;
     var d = Math.hypot(dx, dy);
     if(d >= minD) continue;
@@ -3879,16 +3963,17 @@ function becaSpriteSet(scene, sheet, frame){
   }
   o.img.setVisible(true); o.fallback.setVisible(false);
   var fr = tex.getSourceImage();
-  var frames = sheet==='walk' ? cfg.walkFrames : sheet==='jump' ? cfg.jumpFrames : 1;
+  var frames = (sheet==='walk' || sheet==='walkfront' || sheet==='walkback') ? cfg.walkFrames : sheet==='jump' ? cfg.jumpFrames : 1; /* ĐỢT SỬA #2 (A21): sheet dọc dùng 6 khung như walk ngang */
   var fw = fr.width/frames, fh = fr.height;
   var dispH = cfg.height, dispW = Math.round(dispH*fw/Math.max(1, fh));
   if(o.sheet!==sheet){
+    ensureSheetFrames(PH.scene, key, frames);
     o.img.setTexture(key);
     o.img.setScale(dispW/fw, dispH/fh);
     o.sheet = sheet; o.frame = -1; o.dispW = dispW; o.dispH = dispH;
   }
   if(o.frame!==frame){
-    o.img.setCrop(frame*fw, 0, fw, fh);
+    o.img.setFrame(frame); /* ĐỢT SỬA #2 (A15): setFrame thay setCrop */
     o.frame = frame;
   }
 }
@@ -3935,7 +4020,7 @@ function buildPlayer(scene){
   fb.setDisplaySize(85, 140);
   fb.setVisible(false);
   root.add(fb);
-  var name = scene.add.text(0, -148, '🐟 Bé Cá', {fontFamily:'system-ui, sans-serif', fontSize:'12px', color:'#fff', stroke:'#7A4A21', strokeThickness:3});
+  var name = scene.add.text(0, -148, '🐟 Bé Cá', {fontFamily:'system-ui, sans-serif', fontSize:'12px', fontStyle:'bold', color:'#fff', stroke:'#5C3D1E', strokeThickness:4, shadow:{offsetX:1, offsetY:1, color:'#000', blur:2, fill:true}}); /* ĐỢT SỬA #2 (A24): viền đậm + bóng */
   name.setOrigin(0.5, 1);
   root.add(name);
   PH.rig = {root:root, shadow:shadow, name:name, fallback:fb, img:pimg, sheet:'', frame:-1, dispW:0, dispH:0};
@@ -4100,14 +4185,16 @@ function buildSkyBodies(scene){
 /* --- đèn đêm: đèn đường + cửa sổ nhà + biển hiệu phát sáng --- */
 function buildNightLights(scene){
   var spots = [
-    {x:704, y:1008, s:150}, {x:1584, y:992, s:150}, {x:2464, y:1008, s:150}, {x:3520, y:992, s:150}, /* đèn đường 3D (4 đèn, đo từ Blender) */
-    {x:518, y:1030, s:130}, {x:1067, y:1030, s:130},   /* đèn quảng trường */
+    {x:704, y:1008, s:150, l:1}, {x:1584, y:992, s:150, l:1}, {x:2464, y:1008, s:150, l:1}, {x:3520, y:992, s:150, l:1}, /* đèn đường 3D (4 đèn, đo từ Blender) */
+    {x:518, y:1030, s:130, l:1}, {x:1067, y:1030, s:130, l:1},   /* đèn quảng trường */
     {x:210, y:812, s:170}, {x:530, y:812, s:170}, {x:850, y:812, s:170},  /* cửa sổ tiệm khu 1 (cửa kính 3D: tâm y=812, đo từ bg) */
     {x:1850, y:812, s:170}, {x:2230, y:812, s:170}, {x:2610, y:812, s:170}, /* khu 2 */
     {x:3550, y:812, s:200}, {x:4090, y:812, s:160}, {x:4530, y:812, s:160}, /* chợ */
   ];
   spots.forEach(function(sp){
-    var g = scene.add.image(sp.x, sp.y, 'lw-lamp');
+    /* ĐỢT SỬA #2 (A18): quầng đèn đường/quảng trường đặt ở ĐẦU cột (y chân - 252,
+       cột đèn cao 267px) — trước đây đặt ở chân đèn nên quầng lơ lửng dưới đất. Quầng cửa sổ giữ nguyên. */
+    var g = scene.add.image(sp.x, sp.l ? sp.y - 252 : sp.y, 'lw-lamp');
     g.setDisplaySize(sp.s, sp.s);
     g.setDepth(1850); /* trên tint đêm để đèn nổi lên */
     g.setBlendMode(Phaser.BlendModes.ADD);
@@ -4134,7 +4221,7 @@ function buildForegroundTufts(scene){
     var im = scene.add.image(tx, 1380, 'lw-tuft');
     im.setOrigin(0.5, 1);
     im.setScrollFactor(1.18, 1.18);
-    im.setDepth(2100);
+    im.setDepth(1700); /* ĐỢT SỬA #2 (A19): dưới tint đêm (1800) để cỏ tối theo đêm; vẫn trên người chơi (~960-1340) và FG (~980-1211) */
     im.setAlpha(0.92);
   }
 }
@@ -4190,6 +4277,10 @@ function lwApplyPhase(scene){
 function lwCloudTick(scene, dt){
   var cam = scene.cameras.main;
   var span = cam.width / cam.zoom;
+  /* ĐỢT SỬA #2 (A17): emitter mưa bám camera (x = giữa viewport, y = trên viewport 30px). */
+  if(LW.rain && LW.rain.visible){
+    LW.rain.setPosition(cam.scrollX + span/2, cam.scrollY - 30);
+  }
   PH.clouds.forEach(function(c, i){
     c.x += (6 + i*2.5) * dt; /* trôi chậm sang phải */
     var sx = (c.x - cam.scrollX*0.38) * cam.zoom;
@@ -4217,7 +4308,7 @@ function lwCloudTick(scene, dt){
 }
 function buildRain(scene){
   var p = scene.add.particles(0, 0, 'lw-rain', {
-    x: {min: 0, max: 4800}, y: -20,
+    x: {min: -700, max: 700}, y: -20, /* ĐỢT SỬA #2 (A17): dải mưa hẹp theo camera (vị trí cập nhật mỗi khung ở lwCloudTick) */
     lifespan: 900, speedY: {min: 700, max: 900}, speedX: -120,
     scale: {min: 0.7, max: 1.2}, alpha: 0.5, quantity: 6, frequency: 30,
   });
@@ -4266,7 +4357,8 @@ function buildStrays(scene){
   var cont = scene.add.container(700, 1300);
   var img = scene.add.image(0, 0, key);
   img.setOrigin(0.5, 1);
-  img.setCrop(0, 0, fw, fh);
+  ensureSheetFrames(scene, key, RIGS.mimi.walkFrames); /* ĐỢT SỬA #2 (A15): spritesheet, không setCrop */
+  img.setFrame(0);
   img.setScale((90* (fw/fh))/fw, 90/fh);
   img.setTint(0x9A9A9A);
   cont.add(img);
@@ -4277,7 +4369,7 @@ function buildStrays(scene){
   znc.setDepth(1301);
   var sh = scene.add.ellipse(0, 4, 46, 10, 0x000000, 0.22);
   cont.addAt(sh, 0);
-  var nm = scene.add.text(0, 5, '🐱 Mèo hoang', {fontFamily:'system-ui, sans-serif', fontSize:'11px', color:'#fff', stroke:'#7A4A21', strokeThickness:3});
+  var nm = scene.add.text(0, -100, '🐱 Mèo hoang', {fontFamily:'system-ui, sans-serif', fontSize:'11px', color:'#fff', stroke:'#7A4A21', strokeThickness:3}); /* ĐỢT SỬA #2 (A22): nhãn LÊN TRÊN đầu (cũ y=5, dưới chân, bị che) */
   nm.setOrigin(0.5, 0);
   cont.add(nm);
   cont.setDepth(1300);
@@ -4285,6 +4377,7 @@ function buildStrays(scene){
   /* chó hoang vàng (vẽ đơn giản bằng graphics: thân + đầu + đuôi + chân) */
   var dog = scene.add.container(2500, 1320);
   var dg = scene.make.graphics({add:false});
+  dg.translateCanvas(46, 56); /* ĐỢT SỬA #2 (A22): dịch toàn bộ hình chó vào trong canvas 96x64 (vẽ cũ x -46..50, y -56..+4, gần như ngoài canvas -> chỉ còn vệt nhỏ) */
   dg.fillStyle(0xC68A3C, 1);
   dg.fillRoundedRect(-34, -26, 68, 26, 10);            /* thân */
   dg.fillCircle(36, -34, 13);                          /* đầu */
@@ -4308,7 +4401,7 @@ function buildStrays(scene){
   znd.setDepth(1321);
   var dsh = scene.add.ellipse(0, 4, 60, 11, 0x000000, 0.22);
   dog.addAt(dsh, 0);
-  var dnm = scene.add.text(0, 5, '🐶 Chó hoang', {fontFamily:'system-ui, sans-serif', fontSize:'11px', color:'#fff', stroke:'#7A4A21', strokeThickness:3});
+  var dnm = scene.add.text(0, -64, '🐶 Chó hoang', {fontFamily:'system-ui, sans-serif', fontSize:'11px', color:'#fff', stroke:'#7A4A21', strokeThickness:3}); /* ĐỢT SỬA #2 (A22): nhãn LÊN TRÊN đầu chó (cũ y=5, dưới chân) */
   dnm.setOrigin(0.5, 0);
   dog.add(dnm);
   dog.setDepth(1320);
@@ -4341,13 +4434,15 @@ function lwStrayTick(scene, dt){
     s.cont.setPosition(s.x, s.y);
     if(s.zone){ s.zone.setPosition(s.x, s.y); s.zone.setDepth(Math.round(s.y)+1); }
     s.cont.setDepth(Math.round(s.y));
-    s.cont.setScale(s.dir<0 ? -1 : 1, 1);
+    /* ĐỢT SỬA #2 (A22): chỉ lật ẢNH, không lật container — trước đây lật cả container
+       nên nhãn 'Mèo hoang'/'Chó hoang' bị lật ngược khi thú đi sang trái. */
+    if(s.img) s.img.setFlipX(s.dir<0);
     /* chân mèo hoang: đổi frame đi bộ */
     if(s.kind==='cat'){
       s.frameT += dt;
       if(s.state==='wander' || s.state==='run'){
-        if(s.frameT>0.14){ s.frameT=0; s.frame=(s.frame+1)%RIGS.mimi.walkFrames; s.img.setCrop(s.frame*s.fw, 0, s.fw, s.fh); }
-      } else { s.img.setCrop(RIGS.mimi.idleFrame*s.fw, 0, s.fw, s.fh); }
+        if(s.frameT>0.14){ s.frameT=0; s.frame=(s.frame+1)%RIGS.mimi.walkFrames; s.img.setFrame(s.frame); }
+      } else { s.img.setFrame(RIGS.mimi.idleFrame); }
     }
     /* bóng theo hướng nắng */
     var sh = lwSunShadow();
@@ -4387,6 +4482,32 @@ function buildTraffic(scene){
     x.fillStyle = '#FFE9A8'; x.fillRect(142, 32, 5, 8); /* đèn pha */
     scene.textures.addCanvas('lw-car', c);
   }
+  /* ô tô xanh dương (đợt #2) */
+  if(!scene.textures.exists('lw-car-blue')){
+    var c2 = document.createElement('canvas'); c2.width = 150; c2.height = 64;
+    var x2 = c2.getContext('2d');
+    x2.fillStyle = '#2E86DE'; x2.beginPath(); x2.roundRect(6, 26, 138, 24, 10); x2.fill();
+    x2.fillStyle = '#5AA3E8'; x2.beginPath(); x2.roundRect(38, 10, 74, 22, 8); x2.fill();
+    x2.fillStyle = '#BFE3F2'; x2.fillRect(46, 14, 28, 14); x2.fillRect(80, 14, 28, 14);
+    x2.fillStyle = '#2B2B2B';
+    [[26,52],[118,52]].forEach(function(p){ x2.beginPath(); x2.arc(p[0], p[1], 11, 0, Math.PI*2); x2.fill(); });
+    x2.fillStyle = '#DDD'; [[26,52],[118,52]].forEach(function(p){ x2.beginPath(); x2.arc(p[0], p[1], 4, 0, Math.PI*2); x2.fill(); });
+    x2.fillStyle = '#FFE9A8'; x2.fillRect(142, 32, 5, 8);
+    scene.textures.addCanvas('lw-car-blue', c2);
+  }
+  /* ô tô vàng (đợt #2) */
+  if(!scene.textures.exists('lw-car-yellow')){
+    var c3 = document.createElement('canvas'); c3.width = 150; c3.height = 64;
+    var x3 = c3.getContext('2d');
+    x3.fillStyle = '#E8B93C'; x3.beginPath(); x3.roundRect(6, 26, 138, 24, 10); x3.fill();
+    x3.fillStyle = '#F2CE6B'; x3.beginPath(); x3.roundRect(38, 10, 74, 22, 8); x3.fill();
+    x3.fillStyle = '#BFE3F2'; x3.fillRect(46, 14, 28, 14); x3.fillRect(80, 14, 28, 14);
+    x3.fillStyle = '#2B2B2B';
+    [[26,52],[118,52]].forEach(function(p){ x3.beginPath(); x3.arc(p[0], p[1], 11, 0, Math.PI*2); x3.fill(); });
+    x3.fillStyle = '#DDD'; [[26,52],[118,52]].forEach(function(p){ x3.beginPath(); x3.arc(p[0], p[1], 4, 0, Math.PI*2); x3.fill(); });
+    x3.fillStyle = '#FFE9A8'; x3.fillRect(142, 32, 5, 8);
+    scene.textures.addCanvas('lw-car-yellow', c3);
+  }
   /* xe máy (canvas texture) */
   if(!scene.textures.exists('lw-bike')){
     var bc3 = document.createElement('canvas'); bc3.width = 110; bc3.height = 70;
@@ -4396,26 +4517,45 @@ function buildTraffic(scene){
     b3.strokeStyle = '#3A7BD5'; b3.lineWidth = 5;
     b3.beginPath(); b3.moveTo(22, 54); b3.lineTo(48, 30); b3.lineTo(78, 34); b3.lineTo(88, 54); b3.stroke();
     b3.beginPath(); b3.moveTo(48, 30); b3.lineTo(62, 30); b3.stroke();
-    /* người lái */
-    b3.fillStyle = '#FF6B6B'; b3.beginPath(); b3.arc(58, 14, 9, 0, Math.PI*2); b3.fill();
-    b3.strokeStyle = '#FF6B6B'; b3.lineWidth = 7;
-    b3.beginPath(); b3.moveTo(58, 23); b3.lineTo(54, 40); b3.stroke();
+    /* người lái: mũ bảo hiểm + thân + chân đạp (trước đây chỉ chấm đỏ tròn = đầu, đọc thành 'chấm đỏ lơ lửng') */
+    b3.fillStyle = '#FF6B6B'; b3.beginPath(); b3.arc(58, 12, 10, 0, Math.PI*2); b3.fill();
+    b3.fillStyle = '#3A7BD5'; b3.beginPath(); b3.roundRect(50, 22, 16, 20, 6); b3.fill();
+    b3.strokeStyle = '#2B2B2B'; b3.lineWidth = 5;
+    b3.beginPath(); b3.moveTo(54, 40); b3.lineTo(48, 52); b3.stroke();
+    b3.beginPath(); b3.moveTo(62, 40); b3.lineTo(70, 52); b3.stroke();
     b3.fillStyle = '#FFE9A8'; b3.fillRect(100, 38, 6, 6); /* đèn pha */
     scene.textures.addCanvas('lw-bike', bc3);
   }
+  /* xe máy xanh lá, người lái áo cam (đợt #2) */
+  if(!scene.textures.exists('lw-bike-green')){
+    var bg = document.createElement('canvas'); bg.width = 110; bg.height = 70;
+    var g3 = bg.getContext('2d');
+    g3.strokeStyle = '#2B2B2B'; g3.lineWidth = 4;
+    [[22,54],[88,54]].forEach(function(p){ g3.beginPath(); g3.arc(p[0], p[1], 11, 0, Math.PI*2); g3.stroke(); });
+    g3.strokeStyle = '#2E9E5B'; g3.lineWidth = 5;
+    g3.beginPath(); g3.moveTo(22, 54); g3.lineTo(48, 30); g3.lineTo(78, 34); g3.lineTo(88, 54); g3.stroke();
+    g3.beginPath(); g3.moveTo(48, 30); g3.lineTo(62, 30); g3.stroke();
+    g3.fillStyle = '#FF8C42'; g3.beginPath(); g3.arc(58, 12, 10, 0, Math.PI*2); g3.fill();
+    g3.fillStyle = '#FF8C42'; g3.beginPath(); g3.roundRect(50, 22, 16, 20, 6); g3.fill();
+    g3.strokeStyle = '#2B2B2B'; g3.lineWidth = 5;
+    g3.beginPath(); g3.moveTo(54, 40); g3.lineTo(48, 52); g3.stroke();
+    g3.beginPath(); g3.moveTo(62, 40); g3.lineTo(70, 52); g3.stroke();
+    g3.fillStyle = '#FFE9A8'; g3.fillRect(100, 38, 6, 6);
+    scene.textures.addCanvas('lw-bike-green', bg);
+  }
   var lanes = [ /* ĐỢT SỬA #1 (nền 3D): dải đường xám ở y 1118-1213 (đo từ bg Blender); làn cũ 1258-1318 chạy trên đất be, không phải đường */
-    {y:1130, dir:1, kind:'car', speed:150},
-    {y:1155, dir:-1, kind:'bike', speed:190},
-    {y:1180, dir:1, kind:'bike', speed:170},
-    {y:1205, dir:-1, kind:'car', speed:130},
+    {y:1130, dir:1, kind:'car', tex:'lw-car', speed:150},
+    {y:1155, dir:-1, kind:'bike', tex:'lw-bike', speed:190},
+    {y:1180, dir:1, kind:'bike', tex:'lw-bike-green', speed:170},
+    {y:1205, dir:-1, kind:'car', tex:'lw-car-blue', speed:130},
   ];
   lanes.forEach(function(L, i){
-    var key = L.kind==='car' ? 'lw-car' : 'lw-bike';
-    var im = scene.add.image(L.dir>0 ? -200 : 5000, L.y, key);
+    var key = L.tex || (L.kind==='car' ? 'lw-car' : 'lw-bike'); /* ĐỢT SỬA #2 (A23): màu xe theo làn */
+    var im = scene.add.image(L.dir>0 ? -400 : 5200, L.y, key); /* ĐỢT SỬA #2 (A23): vào từ xa hơn (-400/5200) để không xuất hiện/biến mất đột ngột ở mép */
     im.setOrigin(0.5, 0.5);
     if(L.dir<0) im.setFlipX(true);
     im.setDepth(Math.round(L.y));
-    var sh = scene.add.ellipse(L.dir>0 ? -200 : 5000, L.y+10, L.kind==='car'?150:104, 12, 0x000000, 0.22); /* bong duoi xe (cu khong bong -> xe noi, nhu do choi) */
+    var sh = scene.add.ellipse(L.dir>0 ? -400 : 5200, L.y+10, L.kind==='car'?150:104, 12, 0x000000, 0.22); /* bong duoi xe (cu khong bong -> xe noi, nhu do choi) */
     sh.setDepth(Math.round(L.y)-1);
     var head = scene.add.image(0, 0, 'lw-lamp');
     head.setDisplaySize(90, 46);
@@ -4430,8 +4570,8 @@ function lwTrafficTick(scene, dt){
     /* xe dừng khi bé cá đang chắn làn (người đi bộ được ưu tiên) */
     var blocked = Math.abs(beca.y - v.y) < 42 && Math.abs(beca.x - v.x) < 150;
     if(!blocked) v.x += v.dir * v.speed * dt;
-    if(v.dir>0 && v.x > 5000) v.x = -200;
-    if(v.dir<0 && v.x < -200) v.x = 5000;
+    if(v.dir>0 && v.x > 5200) v.x = -400;
+    if(v.dir<0 && v.x < -400) v.x = 5200;
     v.im.setPosition(v.x, v.y);
     if(v.sh) v.sh.setPosition(v.x, v.y+10);
     /* đèn pha buổi tối: vệt sáng phía trước xe */
@@ -4807,6 +4947,9 @@ class WorldScene extends Phaser.Scene {
       if(RIGS[id].jump && RIGS[id].jump!==RIGS[id].walk) this.load.image('rig-'+id+'-jump', RIGS[id].jump);
       if(RIGS[id].idle) this.load.image('rig-'+id+'-idle', RIGS[id].idle);
     }, this);
+    /* ĐỢT SỬA #2 (A21): sheet đi dọc của bé cá (mặt trước = đi xuống, mặt sau = đi lên) */
+    if(RIGS.beca.walkFront) this.load.image('rig-beca-walkfront', RIGS.beca.walkFront);
+    if(RIGS.beca.walkBack) this.load.image('rig-beca-walkback', RIGS.beca.walkBack);
     this.load.image('becaEmpty', CONFIG.IMAGES.becaEmpty);
     var t = this.add.text(10, 10, 'Đang tải phố Sài Gòn…', {fontSize:'18px', color:'#7A4A21'});
     t.setScrollFactor(0);
@@ -4836,7 +4979,8 @@ class WorldScene extends Phaser.Scene {
     var cam = scene.cameras.main;
     cam.setBounds(0, 0, WORLD.w, WORLD.h);
     cam.setZoom(1.15);
-    cam.startFollow(PH.playerBody, true, 0.08, 0.08);
+    cam.startFollow(PH.playerBody, true, 0.12, 0.12); /* ĐỢT SỬA #2 (A20): lerp 0.12 (nhanh hơn 0.08) — camera bám sát tay hơn, bớt cảm giác lag */
+    cam.setFollowOffset(0, -60); /* ĐỢT SỬA #2 (A20): dời tâm nhìn xuống 60px — biển hiệu ở mép trên không bị cắt ~40% */
     cam.setBackgroundColor('#E8C99A');
     /* input: joystick trái / xoay camera phải / tap */
     scene.input.on('pointerdown', function(p){ onWorldDown(scene, p); });
@@ -4896,6 +5040,7 @@ class WorldScene extends Phaser.Scene {
     /* NPC + nhiệm vụ + ngày/đêm + minimap (logic cũ, giữ nguyên) */
     npcTick(dt);
     separateNpcs();
+    slideAlongNpcs(dt); /* ĐỢT SỬA #2 (A16): trượt dọc NPC, không kẹt */
     npcChatTick(dt);
     questTick();
     dayNightTick(dt);
@@ -4933,11 +5078,20 @@ function tickRig(scene, dt){
   } else if(st==='idle'){
     sheet = 'idle'; frame = 0;
   } else {
-    sheet = 'walk';
+    /* ĐỢT SỬA #2 (A21): đi dọc dùng sheet mặt trước/sau (An 19:41) — đi xuống =
+       mặt trước, đi lên = mặt sau; đi ngang = sheet ngang. Dùng vận tốc THẾ GIỚI
+       (đã trượt qua NPC) để chọn hướng; fallback walk ngang nếu sheet dọc chưa có. */
+    var bv = (PH.playerBody && PH.playerBody.body) ? PH.playerBody.body.velocity : null;
+    if(bv && Math.abs(bv.y) > Math.abs(bv.x)){
+      sheet = bv.y > 0 ? 'walkfront' : 'walkback';
+      if(!PH.scene.textures.exists(sheet==='walkfront' ? 'rig-beca-walkfront' : 'rig-beca-walkback')) sheet = 'walk';
+    } else {
+      sheet = 'walk';
+    }
     frame = Math.floor((rigState.phase%1)*RIGS.beca.walkFrames)%RIGS.beca.walkFrames;
   }
   becaSpriteSet(scene, sheet, frame);
-  PH.rig.img.setFlipX(facing==='left');
+  PH.rig.img.setFlipX(facing==='left' && sheet!=='walkfront' && sheet!=='walkback'); /* sheet mặt trước/sau không lật */
   var sc = depthScale(beca.y);
   var sy = becaJump && becaJump.phase==='land' ? 0.94 : 1;
   PH.rig.root.setPosition(beca.x, beca.y - PH.jumpZ);
