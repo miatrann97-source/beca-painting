@@ -13,56 +13,10 @@
   "px_per_m": 88.0
  },
  "zones": {
-  "plaza": {
+  "town": {
    "x0_px": 0,
    "cx_m": 9.09,
-   "file": "bg-plaza.png",
-   "marks": {
-    "ground_front_px": [
-     800.0,
-     1340.0
-    ],
-    "shop_base_px": [
-     800.0,
-     960.2
-    ],
-    "shop_top_px": [
-     800.0,
-     445.2
-    ],
-    "walk_mid_px": [
-     800.0,
-     1150.1
-    ]
-   }
-  },
-  "street": {
-   "x0_px": 1600,
-   "cx_m": 27.27,
-   "file": "bg-street.png",
-   "marks": {
-    "ground_front_px": [
-     800.0,
-     1340.0
-    ],
-    "shop_base_px": [
-     800.0,
-     960.2
-    ],
-    "shop_top_px": [
-     800.0,
-     445.2
-    ],
-    "walk_mid_px": [
-     800.0,
-     1150.1
-    ]
-   }
-  },
-  "market": {
-   "x0_px": 3200,
-   "cx_m": 45.45,
-   "file": "bg-market.png",
+   "file": "bg-town.png",
    "marks": {
     "ground_front_px": [
      800.0,
@@ -99,7 +53,7 @@
     -0.1
    ],
    "depth": 1030,
-   "bytes": 217943,
+   "bytes": 58618,
    "bbox_px": [
     553,
     454,
@@ -126,7 +80,7 @@
     -0.1
    ],
    "depth": 1030,
-   "bytes": 217943,
+   "bytes": 56386,
    "bbox_px": [
     553,
     454,
@@ -153,7 +107,7 @@
     -0.1
    ],
    "depth": 1140,
-   "bytes": 144866,
+   "bytes": 44653,
    "bbox_px": [
     564,
     757,
@@ -180,7 +134,7 @@
     -0.2
    ],
    "depth": 980,
-   "bytes": 218245,
+   "bytes": 50734,
    "bbox_px": [
     553,
     404,
@@ -207,7 +161,7 @@
     -0.2
    ],
    "depth": 1000,
-   "bytes": 143966,
+   "bytes": 46438,
    "bbox_px": [
     564,
     617,
@@ -234,7 +188,7 @@
     -0.1
    ],
    "depth": 1120,
-   "bytes": 59619,
+   "bytes": 17709,
    "bbox_px": [
     746,
     1021,
@@ -261,7 +215,7 @@
     -0.1
    ],
    "depth": 1120,
-   "bytes": 59619,
+   "bytes": 17709,
    "bbox_px": [
     746,
     1021,
@@ -288,7 +242,7 @@
     -0.1
    ],
    "depth": 1211,
-   "bytes": 155783,
+   "bytes": 45752,
    "bbox_px": [
     570,
     997,
@@ -315,7 +269,7 @@
     -0.1
    ],
    "depth": 1090,
-   "bytes": 79906,
+   "bytes": 28857,
    "bbox_px": [
     709,
     900,
@@ -342,7 +296,7 @@
     -0.1
    ],
    "depth": 1160,
-   "bytes": 82091,
+   "bytes": 28914,
    "bbox_px": [
     709,
     970,
@@ -369,7 +323,7 @@
     -0.1
    ],
    "depth": 1071,
-   "bytes": 48949,
+   "bytes": 15192,
    "bbox_px": [
     760,
     989,
@@ -396,7 +350,7 @@
     -0.1
    ],
    "depth": 1112,
-   "bytes": 48773,
+   "bytes": 15254,
    "bbox_px": [
     760,
     1031,
@@ -423,7 +377,7 @@
     -0.2
    ],
    "depth": 992,
-   "bytes": 57075,
+   "bytes": 13563,
    "bbox_px": [
     720,
     892,
@@ -450,7 +404,7 @@
     -0.2
    ],
    "depth": 992,
-   "bytes": 57075,
+   "bytes": 13563,
    "bbox_px": [
     720,
     892,
@@ -477,7 +431,7 @@
     -0.1
    ],
    "depth": 1008,
-   "bytes": 50277,
+   "bytes": 13192,
    "bbox_px": [
     785,
     742,
@@ -504,7 +458,7 @@
     -0.2
    ],
    "depth": 992,
-   "bytes": 50179,
+   "bytes": 13223,
    "bbox_px": [
     785,
     726,
@@ -531,7 +485,7 @@
     -0.1
    ],
    "depth": 1008,
-   "bytes": 50281,
+   "bytes": 13192,
    "bbox_px": [
     785,
     742,
@@ -546,7 +500,7 @@
   "Lamp4": {
    "file": "fg-lamp4.png",
    "foot_world_px": [
-    3520,
+    3380,
     992
    ],
    "foot_px_in_sprite": [
@@ -554,11 +508,11 @@
     992.2
    ],
    "anchor_world_px": [
-    2720.0,
+    2580.0,
     -0.2
    ],
    "depth": 992,
-   "bytes": 50187,
+   "bytes": 13223,
    "bbox_px": [
     785,
     726,
@@ -572,9 +526,10 @@
   }
  },
  "notes": [
-  "DOT3: landmark thanh mat tien (thay TiemMau+QuanPho=NotreDame, TraSuaBeMai=Bitexco; thap dong ho tren mat tien ChoBenThanh, chop pyramid)",
-  "DOT3: mau dam (troi sat~0.4, hong ~0.25, vang ~0.4, mint ~0.3); mach gach lat da + go via he + 3 chau hoa + 36 canh hoa/la rung phang",
-  "DOT3: co 22 la/tang 3 sac xanh + 3 dua; moc camera khong doi (ground_front 1340, shop_base 960, shop_top 445, walk_mid 1150)",
-  "DOT3c: helipad Bitexco len z5.6 (khong che chu bien Tra Sua); mat dong ho ha xuong z3.3 (py~651..741, trong viewport desktop) + bo mai hien cho"
+  "SINGLE-TOWN (An duyet 23:25 19/11): 1 khu duy nhat bg-town.png 1600x1400, file goc AI da duyet resize thang (ti le 1664/1456 = 1600/1400, khong meo, khong crop). 3 nen cu plaza/street/market BO, giu file goc.",
+  "Landmark: Nha tho Duc Ba cam + 2 thap trang (x224-696, dinh y~100); Bitexco xanh + helipad (x1182-1332, dinh y73); Thap dong ho vang mai do (x601-999, dinh y~530); Dinh Doc Lap xam trang + co do (x53-784, y1048-1292); Chua xanh (x1231-1478, y751-1170). Chi tiet day du: LAYOUT-SINGLE.md.",
+  "Cua nha tho cao 59px (3 cua vom y695-753); cong thap dong ho cao 102px (x765-832, y858-959). NPC: 1/landmark, dung tren duong/dat trong truoc landmark (xem LAYOUT-SINGLE.md).",
+  "Camera marks GIU NGUYEN (ground_front 1340, shop_base 960.2, shop_top 445.2, walk_mid 1150.1). fg[] giu nguyen trong file (sprite cu se bo, code agent xu ly).",
+  "Khong xe co, khong sap/tiem/ganh, khong dai phun nuoc, khong cot den, khong bien hieu. Song (mau 3) BO - giu dat lat gach + duong uon luon."
  ]
 }
