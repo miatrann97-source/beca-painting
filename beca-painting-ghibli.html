@@ -219,7 +219,6 @@ body.map-mode #mapView{display:block}
 }
 #walker .wbody{width:100%;height:100%;display:block;transition:transform .16s ease}
 #walker .wbody .rig{width:100%;height:100%;background-repeat:no-repeat;filter:drop-shadow(0 2px 2px rgba(20,40,80,.20))}
-#walker.face-left .wbody{transform:scaleX(-1)}
 @keyframes bobW{from{transform:translateY(0)}to{transform:translateY(-5px)}}
 @keyframes bobR{from{transform:translateY(0)}to{transform:translateY(-8px)}}
 @keyframes breathe{from{transform:scaleY(1)}to{transform:scaleY(1.02)}}
@@ -244,7 +243,7 @@ body.map-mode #mapView{display:block}
   background:rgba(46,134,222,.5);display:none;pointer-events:none;z-index:7;
 }
 #mapGoal{
-  position:absolute;left:8px;top:8px;z-index:8;background:rgba(255,253,245,.95);
+  position:absolute;left:8px;top:auto;bottom:44px;z-index:8;background:rgba(255,253,245,.95);
   border:2px solid var(--wood);border-radius:999px;padding:4px 10px;font-weight:800;font-size:13px;
   box-shadow:0 3px 8px rgba(0,0,0,.25);
 }
@@ -603,16 +602,483 @@ const CONFIG = {
      trong suốt, góc nhìn ngang quay phải. Game đổi khung theo nhịp bước (đi chậm
      = đổi chậm, chạy = đổi nhanh). Muốn đổi nhân vật: thay file sheet trong
      assets-ghibli/ (giữ đúng tên) hoặc đổi đường dẫn ở đây. height = chiều cao
-     hiển thị (px). idleFrame = khung đứng yên (khung "vượt qua", chân chụm). */
+     hiển thị (px) ở giữa quảng trường (y~1150, tỉ lệ sâu = 1.0).
+     Cân đối với cảnh (đo từ town-panorama.webp 2400x1400, 19/11): cửa tiệm cao
+     ~150px, bậc cầu thang ~30px ở chân / ~20px ở đỉnh, đài phun nước ~380px,
+     lan can sân ngắm ~105px, chậu cây trước sân ~160px. Đứng ở mép trên vùng đi
+     (y~960) bé cá còn ~143px ≈ 0.95x cửa tiệm; đàn ông (Tùng/Bảy/chủ nhà) cao
+     hơn bé cá một chút, cô Hoa ngang bé cá, bà Tư thấp hơn, bé Mai nhỏ nhất
+     (trừ mèo Mimi). idleFrame = khung đứng yên (khung "vượt qua", chân chụm). */
   RIGS: {
-    beca: { walk:'assets-ghibli/rig-beca-walk.webp', jump:'assets-ghibli/rig-beca-jump.webp', walkFrames:6, jumpFrames:3, idleFrame:1, height:128 },
-    ba:   { walk:'assets-ghibli/rig-ba-walk.webp',   jump:'assets-ghibli/rig-ba-jump.webp',   walkFrames:6, jumpFrames:3, idleFrame:1, height:104 },
-    mai:  { walk:'assets-ghibli/rig-mai-walk.webp',  jump:'assets-ghibli/rig-mai-jump.webp',  walkFrames:6, jumpFrames:3, idleFrame:1, height:96 },
-    tung: { walk:'assets-ghibli/rig-tung-walk.webp', jump:'assets-ghibli/rig-tung-jump.webp', walkFrames:6, jumpFrames:3, idleFrame:1, height:112 },
-    hoa:  { walk:'assets-ghibli/rig-hoa-walk.webp',  jump:'assets-ghibli/rig-hoa-jump.webp',  walkFrames:6, jumpFrames:3, idleFrame:1, height:110 },
-    bay:  { walk:'assets-ghibli/rig-bay-walk.webp',  jump:'assets-ghibli/rig-bay-jump.webp',  walkFrames:6, jumpFrames:3, idleFrame:1, height:112 },
-    mimi: { walk:'assets-ghibli/rig-mimi-walk.webp', jump:'assets-ghibli/rig-mimi-jump.webp', walkFrames:6, jumpFrames:3, idleFrame:1, height:88 },
-    chu:  { walk:'assets-ghibli/rig-chu-walk.webp',  jump:'assets-ghibli/rig-chu-jump.webp',  walkFrames:6, jumpFrames:3, idleFrame:1, height:112 },
+    ba:   { walk:'assets-ghibli/rig-ba-walk.webp',   jump:'assets-ghibli/rig-ba-jump.webp',   walkFrames:6, jumpFrames:3, idleFrame:1, height:140 },
+    mai:  { walk:'assets-ghibli/rig-mai-walk.webp',  jump:'assets-ghibli/rig-mai-jump.webp',  walkFrames:6, jumpFrames:3, idleFrame:1, height:126 },
+    tung: { walk:'assets-ghibli/rig-tung-walk.webp', jump:'assets-ghibli/rig-tung-jump.webp', walkFrames:6, jumpFrames:3, idleFrame:1, height:178 },
+    hoa:  { walk:'assets-ghibli/rig-hoa-walk.webp',  jump:'assets-ghibli/rig-hoa-jump.webp',  walkFrames:6, jumpFrames:3, idleFrame:1, height:164 },
+    bay:  { walk:'assets-ghibli/rig-bay-walk.webp',  jump:'assets-ghibli/rig-bay-jump.webp',  walkFrames:6, jumpFrames:3, idleFrame:1, height:178 },
+    mimi: { walk:'assets-ghibli/rig-mimi-walk.webp', jump:'assets-ghibli/rig-mimi-jump.webp', walkFrames:6, jumpFrames:3, idleFrame:1, height:112 },
+    chu:  { walk:'assets-ghibli/rig-chu-walk.webp',  jump:'assets-ghibli/rig-chu-jump.webp',  walkFrames:6, jumpFrames:3, idleFrame:1, height:178 },
+  },
+  /* ---- rig xương THẬT cho bé cá (bone rig, KHÔNG lật ảnh) ----
+     Bé cá được dựng từ các bộ phận rời nối bằng khớp (đầu, thân, tay trên/cẳng
+     tay, đùi/cẳng chân, đuôi, balo, khay màu, bảng vẽ) — chân xoay từ khớp hông,
+     tay xoay từ khớp vai, gối/khuỷu/cổ đều cử động. Quay người là xoay THẬT qua
+     5 góc mặt (sideR -> qtrR -> front -> qtrL -> sideL), KHÔNG dùng scaleX(-1).
+     parts[facing][part] = {x,y,w,h} ô mực trong sheet + ball {x,y,r} tâm khớp
+     (tọa độ sheet, đo bằng tests/analyze-bone-sheet.js + kiểm ASCII từng ô).
+     slots = chiều cao hiển thị (px) của từng bộ phận khi bé cá cao 168px.
+     Muốn đổi nhân vật: thay sheet trong assets-ghibli/ + đo lại manifest.
+     Sheet đang là PNG (~1.2MB/mặt); đổi sang WebP (~200KB) khi môi trường hồi
+     phục (ffmpeg/python ghi file) thì chỉ cần đổi tên file ở đây. */
+  BECA_BONES: {
+    parts: {
+ "sideR": {
+  "sheet": "media-generation-bone-beca-side-r-png-0-f18eb4f7-32d5-42e9-9d74-f54ad010832f.png",
+  "head": {
+   "x": 27,
+   "y": 53,
+   "w": 427,
+   "h": 394,
+   "ball": null
+  },
+  "torso": {
+   "x": 472,
+   "y": 95,
+   "w": 290,
+   "h": 361,
+   "ball": null
+  },
+  "armNear": {
+   "x": 1285,
+   "y": 117,
+   "w": 249,
+   "h": 322,
+   "ball": {
+    "x": 1382,
+    "y": 323,
+    "r": 49
+   }
+  },
+  "armFar": {
+   "x": 518,
+   "y": 496,
+   "w": 250,
+   "h": 319,
+   "ball": {
+    "x": 598,
+    "y": 689,
+    "r": 45
+   }
+  },
+  "legNear": {
+   "x": 1287,
+   "y": 485,
+   "w": 193,
+   "h": 330,
+   "ball": {
+    "x": 1372,
+    "y": 634,
+    "r": 69
+   }
+  },
+  "legFar": {
+   "x": 493,
+   "y": 815,
+   "w": 235,
+   "h": 406,
+   "ball": {
+    "x": 583,
+    "y": 931,
+    "r": 73
+   }
+  },
+  "tail": {
+   "x": 802,
+   "y": 973,
+   "w": 413,
+   "h": 249,
+   "ball": null
+  },
+  "pack": {
+   "x": 1230,
+   "y": 815,
+   "w": 255,
+   "h": 398,
+   "ball": null
+  },
+  "palette": {
+   "x": 53,
+   "y": 1310,
+   "w": 380,
+   "h": 235,
+   "ball": null
+  },
+  "board": {
+   "x": 527,
+   "y": 1275,
+   "w": 197,
+   "h": 271,
+   "ball": null
+  }
+ },
+ "qtrR": {
+  "sheet": "media-generation-bone-beca-threequarter-r-v2-0-19c70a53-447e-4589-a011-29d6197e277b.png",
+  "head": {
+   "x": 14,
+   "y": 26,
+   "w": 397,
+   "h": 359,
+   "ball": null
+  },
+  "torso": {
+   "x": 528,
+   "y": 0,
+   "w": 224,
+   "h": 374,
+   "ball": null
+  },
+  "armNear": {
+   "x": 1272,
+   "y": 66,
+   "w": 300,
+   "h": 319,
+   "ball": {
+    "x": 1328,
+    "y": 224,
+    "r": 23
+   }
+  },
+  "armFar": {
+   "x": 469,
+   "y": 417,
+   "w": 293,
+   "h": 299,
+   "ball": {
+    "x": 523,
+    "y": 630,
+    "r": 23
+   }
+  },
+  "legNear": {
+   "x": 1303,
+   "y": 388,
+   "w": 262,
+   "h": 378,
+   "ball": {
+    "x": 1389,
+    "y": 506,
+    "r": 67
+   }
+  },
+  "legFar": {
+   "x": 481,
+   "y": 798,
+   "w": 211,
+   "h": 416,
+   "ball": {
+    "x": 593,
+    "y": 1060,
+    "r": 47
+   }
+  },
+  "tail": {
+   "x": 863,
+   "y": 918,
+   "w": 259,
+   "h": 297,
+   "ball": null
+  },
+  "pack": {
+   "x": 1198,
+   "y": 766,
+   "w": 363,
+   "h": 415,
+   "ball": null
+  },
+  "palette": {
+   "x": 34,
+   "y": 1274,
+   "w": 336,
+   "h": 286,
+   "ball": null
+  },
+  "board": {
+   "x": 489,
+   "y": 1224,
+   "w": 268,
+   "h": 345,
+   "ball": null
+  }
+ },
+ "front": {
+  "sheet": "media-generation-bone-beca-front-0-83b49082-cee2-43fc-bbe9-39a17f8d43de.png",
+  "head": {
+   "x": 26,
+   "y": 23,
+   "w": 401,
+   "h": 420,
+   "ball": null
+  },
+  "torso": {
+   "x": 480,
+   "y": 77,
+   "w": 283,
+   "h": 345,
+   "ball": null
+  },
+  "armNear": {
+   "x": 1261,
+   "y": 91,
+   "w": 281,
+   "h": 291,
+   "ball": {
+    "x": 1340,
+    "y": 261,
+    "r": 64
+   }
+  },
+  "armFar": {
+   "x": 494,
+   "y": 475,
+   "w": 281,
+   "h": 291,
+   "ball": {
+    "x": 573,
+    "y": 645,
+    "r": 63
+   }
+  },
+  "legNear": {
+   "x": 1293,
+   "y": 444,
+   "w": 171,
+   "h": 382,
+   "ball": {
+    "x": 1354,
+    "y": 563,
+    "r": 47
+   }
+  },
+  "legFar": {
+   "x": 527,
+   "y": 828,
+   "w": 170,
+   "h": 382,
+   "ball": {
+    "x": 583,
+    "y": 940,
+    "r": 47
+   }
+  },
+  "tail": {
+   "x": 844,
+   "y": 883,
+   "w": 324,
+   "h": 292,
+   "ball": null
+  },
+  "pack": {
+   "x": 1253,
+   "y": 864,
+   "w": 262,
+   "h": 314,
+   "ball": null
+  },
+  "palette": {
+   "x": 42,
+   "y": 1253,
+   "w": 350,
+   "h": 295,
+   "ball": null
+  },
+  "board": {
+   "x": 493,
+   "y": 1238,
+   "w": 231,
+   "h": 321,
+   "ball": null
+  }
+ },
+ "qtrL": {
+  "sheet": "media-generation-bone-beca-threequarter-l-v3-0-3adce95c-0c43-4287-be53-41532cb6fb64.png",
+  "head": {
+   "x": 25,
+   "y": 32,
+   "w": 429,
+   "h": 389,
+   "ball": null
+  },
+  "torso": {
+   "x": 494,
+   "y": 50,
+   "w": 275,
+   "h": 332,
+   "ball": null
+  },
+  "armNear": {
+   "x": 1235,
+   "y": 54,
+   "w": 261,
+   "h": 296,
+   "ball": {
+    "x": 1463,
+    "y": 221,
+    "r": 27
+   }
+  },
+  "armFar": {
+   "x": 461,
+   "y": 456,
+   "w": 268,
+   "h": 305,
+   "ball": {
+    "x": 697,
+    "y": 620,
+    "r": 27
+   }
+  },
+  "legNear": {
+   "x": 1276,
+   "y": 423,
+   "w": 212,
+   "h": 389,
+   "ball": {
+    "x": 1317,
+    "y": 590,
+    "r": 34
+   }
+  },
+  "legFar": {
+   "x": 512,
+   "y": 819,
+   "w": 211,
+   "h": 393,
+   "ball": {
+    "x": 609,
+    "y": 1039,
+    "r": 41
+   }
+  },
+  "tail": {
+   "x": 873,
+   "y": 856,
+   "w": 273,
+   "h": 303,
+   "ball": null
+  },
+  "pack": {
+   "x": 1232,
+   "y": 858,
+   "w": 300,
+   "h": 307,
+   "ball": null
+  },
+  "palette": {
+   "x": 48,
+   "y": 1263,
+   "w": 340,
+   "h": 283,
+   "ball": null
+  },
+  "board": {
+   "x": 503,
+   "y": 1239,
+   "w": 215,
+   "h": 326,
+   "ball": null
+  }
+ },
+ "sideL": {
+  "sheet": "media-generation-bone-beca-side-l-v2-0-3c5a7733-ea8a-4d4c-b32b-6346dfc77e25.png",
+  "head": {
+   "x": 35,
+   "y": 44,
+   "w": 426,
+   "h": 387,
+   "ball": null
+  },
+  "torso": {
+   "x": 530,
+   "y": 8,
+   "w": 220,
+   "h": 423,
+   "ball": null
+  },
+  "armNear": {
+   "x": 1266,
+   "y": 84,
+   "w": 270,
+   "h": 347,
+   "ball": {
+    "x": 1391,
+    "y": 259,
+    "r": 35
+   }
+  },
+  "armFar": {
+   "x": 504,
+   "y": 501,
+   "w": 273,
+   "h": 231,
+   "ball": {
+    "x": 565,
+    "y": 675,
+    "r": 37
+   }
+  },
+  "legNear": {
+   "x": 1294,
+   "y": 431,
+   "w": 217,
+   "h": 330,
+   "ball": {
+    "x": 1461,
+    "y": 522,
+    "r": 18
+   }
+  },
+  "legFar": {
+   "x": 505,
+   "y": 790,
+   "w": 245,
+   "h": 447,
+   "ball": {
+    "x": 616,
+    "y": 1008,
+    "r": 58
+   }
+  },
+  "tail": {
+   "x": 859,
+   "y": 945,
+   "w": 306,
+   "h": 225,
+   "ball": null
+  },
+  "pack": {
+   "x": 1205,
+   "y": 761,
+   "w": 329,
+   "h": 432,
+   "ball": null
+  },
+  "palette": {
+   "x": 16,
+   "y": 1298,
+   "w": 388,
+   "h": 245,
+   "ball": null
+  },
+  "board": {
+   "x": 524,
+   "y": 1288,
+   "w": 188,
+   "h": 264,
+   "ball": null
+  }
+ }
+},
+    slots: { head:80, torso:42, arm:42, leg:50, tail:34, pack:46, palette:22, board:26 },
+    height:168,
   },
   /* ---- cầu thang đá lên đài ngắm hải đăng (mép bắc của phố) ----
      Cầu thang là 1 đoạn thẳng từ chân (x0,y0) lên đỉnh (x1,y1) với `steps` bậc.
@@ -625,6 +1091,13 @@ const CONFIG = {
     corridor:100,  /* cách đường cầu thang <100px thì được coi là đang ở cầu thang */
     terrace:{x0:1980, y0:560, x1:2300, y1:700},
   },
+  /* ---- tỉ lệ theo chiều sâu (depth): nhân vật càng xuống dưới (gần camera)
+     càng to, càng lên trên (xa) càng nhỏ — khớp phối cảnh của ảnh nền.
+     Đo từ town-panorama.webp: bậc cầu thang cao ~30px ở chân (y~1010) và
+     ~20px ở đỉnh (y~620) → tỉ lệ 1.32 qua vùng đi được (y 960→1300).
+     depthScale(y) nội suy tuyến tính: 0.85 ở y=960, 1.00 ở y~1150, 1.12 ở
+     y=1300. Muốn đổi độ dốc phối cảnh: đổi s0/s1 ở đây (không sửa logic). */
+  DEPTH: { y0:960, s0:0.85, y1:1300, s1:1.12 },
   /* ---- NPC đi lại tự nhiên quanh phố (wander AI) ----
      idleMin/idleMax: giây đứng yên giữa các lần đi; walkSpeed/runSpeed: px/s;
      hopChance: tỉ lệ nhảy tại chỗ khi đang đứng yên; runChance: tỉ lệ chạy;
@@ -1122,9 +1595,8 @@ function updateWalker(){
   walker.style.top = beca.y + 'px';
   walker.classList.toggle('walking', animState === 'walk');
   walker.classList.toggle('running', animState === 'run');
-  walker.classList.toggle('face-left', facing === 'left');
-  /* rig bé cá: khung hình + nhún nhảy + tỉ lệ cầu thang (RIG_JS) */
-  rigTickBeca();
+  /* rig bé cá: bone rig — KHÔNG lật ảnh (face-left đã bỏ, quay qua các góc mặt) */
+  boneTickBeca();
 }
 function updateCamera(){
   const vw = mapView.clientWidth, vh = mapView.clientHeight;
@@ -1590,6 +2062,8 @@ const npcs = {};    /* id -> {x,y,home,mode,target,idleT,marker,el,rig,stair,pha
 const rigImgs = {}; /* id -> {walk:Image, jump:Image, walkAsp, jumpAsp} */
 let lastTapT = 0;   /* thời điểm chạm lần trước (chạm 2 lần nhanh = nhảy) */
 let becaJump = null; /* {phase:'crouch'|'air'|'land', t, vy, yOff} */
+/* NOTE: rigTickBeca dưới đây là code cũ (frame-by-frame) — đã thay bằng boneTickBeca
+   (BONE_JS); giữ lại để NPC không ảnh hưởng, không gọi nữa. Xoá hẳn khi dọn dẹp. */
 beca.mode = 'ground'; beca.stair = null; beca.exitStairs = false;
 
 function rigPreload(){
@@ -1624,22 +2098,24 @@ function rigAdvance(r, dt, action){
   if(r.t >= iv){ r.t -= iv; r.frame = (r.frame + 1) % RIGS[r.id].walkFrames; }
 }
 function rigLayout(){
-  /* đặt kích thước div theo tỉ lệ khung thật (ảnh tải xong mới biết tỉ lệ) */
-  const bw = document.getElementById('becaRig');
-  if(bw){
-    const a = rigCellAspect('beca', 'walk'), h = RIGS.beca.height;
-    walker.style.width = Math.round(h * a) + 'px'; walker.style.height = h + 'px';
-  }
+  /* bé cá dùng bone rig (boneLayout đặt 110x168); NPC vẫn dùng tỉ lệ khung thật */
   for(const id of Object.keys(npcs)){
     const n = npcs[id];
     if(!n.el) continue;
     const a = rigCellAspect(id, 'walk'), h = RIGS[id].height;
     n.el.style.width = Math.round(h * a) + 'px'; n.el.style.height = h + 'px';
+    /* hộp avatar ôm đúng khung nhân vật (không còn 70x104 cố định) để tên
+       và bong bóng không đè lên chân nhân vật khi đổi chiều cao */
+    const av = n.el.parentElement;
+    if(av){ av.style.width = Math.round(h * a) + 'px'; av.style.height = h + 'px'; }
   }
 }
 
 /* ---- cầu thang: hình học ---- */
-function stairScale(t){ return 1 - t * (1 - STAIRS.scaleTop); }
+/* tỉ lệ theo chiều sâu (CONFIG.DEPTH): y càng lớn (càng gần camera) càng to */
+function depthScale(y){ const d = CONFIG.DEPTH; const t = Math.max(0, Math.min(1, (y - d.y0) / (d.y1 - d.y0))); return d.s0 + t * (d.s1 - d.s0); }
+/* trên cầu thang: từ tỉ lệ ở chân cầu thang thu nhỏ dần về scaleTop ở sân ngắm */
+function stairScale(t){ return depthScale(STAIRS.y0) + t * (STAIRS.scaleTop - depthScale(STAIRS.y0)); }
 function stairPoint(t){
   return {x: STAIRS.x0 + (STAIRS.x1 - STAIRS.x0) * t, y: STAIRS.y0 + (STAIRS.y1 - STAIRS.y0) * t};
 }
@@ -1658,7 +2134,6 @@ function doJump(){
   becaJump = {phase:'crouch', t:0, vy:0, yOff:0};
   return true;
 }
-const becaRig = rigNew('beca');
 function rigTickBeca(){
   const el = document.getElementById('becaRig');
   if(!el) return;
@@ -1670,6 +2145,7 @@ function rigTickBeca(){
     const j = becaJump;
     j.t += dt;
     rigSetSheet(becaRig, 'jump');
+    becaRig.scale = depthScale(beca.y); /* nhảy chỉ xảy ra trên mặt đất */
     becaRig.lean = 0;
     if(j.phase === 'crouch'){
       becaRig.frame = 0; becaRig.sy = 0.85; becaRig.yOff = 0;
@@ -1701,7 +2177,7 @@ function rigTickBeca(){
       becaRig.sy = 1; becaRig.yOff = 0;
       becaRig.lean = action === 'run' ? 5 : 0; /* chạy: nghiêng người về trước */
     }
-    becaRig.scale = beca.mode === 'stairs' ? stairScale(beca.stair.t) : (beca.mode === 'terrace' ? STAIRS.scaleTop : 1);
+    becaRig.scale = beca.mode === 'stairs' ? stairScale(beca.stair.t) : (beca.mode === 'terrace' ? STAIRS.scaleTop : depthScale(beca.y));
     rigApply(becaRig, el);
   }
   /* bóng co lại khi nhảy lên cao / nhỏ dần khi lên cao trên cầu thang */
@@ -1883,7 +2359,7 @@ function npcTick(dt){
       if(n.idleT <= 0){ n.mode = 'stairs'; n.stair = {t:1}; n.phase = 'descend'; n.exitStairs = true; }
     }
     /* hop: npcJumpTick ở trên đã xử lý, không cần nhánh riêng */
-    const sc = n.mode === 'stairs' ? stairScale(n.stair.t) : (n.mode === 'terrace' ? STAIRS.scaleTop : 1);
+    const sc = n.mode === 'stairs' ? stairScale(n.stair.t) : (n.mode === 'terrace' ? STAIRS.scaleTop : depthScale(n.y));
     n.rig.scale = sc;
     n.rig.flip = n.facing === 'left';
     if(n.marker){ n.marker.style.left = n.x + 'px'; n.marker.style.top = n.y + 'px'; }
@@ -1895,6 +2371,335 @@ function npcTick(dt){
 document.getElementById('jumpBtn').addEventListener('pointerdown', e=>{ e.stopPropagation(); doJump(); });
 document.getElementById('jumpBtn').addEventListener('click', e=>{ e.stopPropagation(); });
 
+/* ================= BONE RIG — bé cá (rig xương thật, DOM + canvas) =================
+   Bé cá được dựng từ các bộ phận rời (CONFIG.BECA_BONES.parts) nối bằng khớp:
+   chân xoay từ khớp hông, tay xoay từ khớp vai, gối/khuỷu/cổ cử động. Quay
+   người là xoay THẬT qua 5 góc mặt sideR->qtrR->front->qtrL->sideL trong ~200ms,
+   KHÔNG dùng scaleX(-1). Trạng thái: idle / walk / run / jump / stair.
+   Chống lỗi cử động (An dặn 19/11): chân bám đất (tần số bước suy từ tốc độ),
+   khớp cong đúng chiều (gối chỉ cong ra sau, khuỷu chỉ cong ra trước), chuyển
+   trạng thái blend 160ms (jump 240ms) không giật, đuôi/hood đồng nhịp với thân.
+   NPC KHÔNG dùng code này — NPC giữ rig frame-by-frame cũ. */
+const BONE_FACINGS = ['sideR','qtrR','front','qtrL','sideL'];
+const BONE_OVERLAP = 14; /* px sheet: 2 nửa chi chồng lên nhau quanh tâm khớp */
+const BONE_LIMB = {
+  /* khớp xương trong hệ hiển thị (bé cá cao 168px, gốc = hông) */
+  hipY:118, upperLeg:25, lowerLeg:25, shoulderY:86, upperArm:20, lowerArm:22,
+  neckY:78, headH:80, torsoH:42, legH:50, armH:42, tailH:34, packH:46, palH:22, brdH:26
+};
+function boneClamp(v,a,b){ return v<a?a:v>b?b:v; }
+function boneLerp(a,b,t){ return a+(b-a)*t; }
+function boneSmooth(t){ t=boneClamp(t,0,1); return t*t*(3-2*t); }
+function boneDeg(r){ return r*180/Math.PI; }
+function boneRad(d){ return d*Math.PI/180; }
+/* --- tư thế xương (mirror tests/bone-engine.js, đã test 25/25) --- */
+function bonePoseFor(state, phase, opt){
+  opt = opt || {};
+  const p = {hipL:0,kneeL:0,hipR:0,kneeR:0,shL:0,elL:0,shR:0,elR:0,neck:0,tail:0,bob:0,lean:0};
+  const A = state==='run'?42:state==='walk'?28:0;      /* biên độ hông */
+  const SW = state==='run'?38:state==='walk'?24:0;     /* biên độ vai */
+  const f = phase*2*Math.PI;
+  if(state==='walk'||state==='run'){
+    const q = phase%1;
+    /* hông: chân đứng quét tuyến tính +A->-A (không trượt chân), chân vung về bằng smoothstep */
+    const swing = (qq)=>{ const s = qq<0.5 ? qq*2 : (qq-0.5)*2; return s<0.5 ? -1+2*smooth01(s*2) : 1-2*smooth01((s-0.5)*2); };
+    function smooth01(x){ x=boneClamp(x,0,1); return x*x*(3-2*x); }
+    p.hipL = A*swing(q); p.hipR = A*swing((q+0.5)%1);
+    /* gối chỉ cong khi chân đang vung (nửa chu kỳ sau), 0 khi đứng */
+    const kneeSwing = (qq)=>{ const s = qq<0.5 ? qq*2 : (qq-0.5)*2; return s<0.5 ? 0 : Math.sin((s-0.5)*Math.PI)*(state==='run'?70:55); };
+    p.kneeL = kneeSwing(q); p.kneeR = kneeSwing((q+0.5)%1);
+    /* tay vung ngược chân */
+    p.shL = -SW*Math.sin(f); p.shR = SW*Math.sin(f);
+    p.elL = 18+10*Math.sin(f); p.elR = 18+10*Math.sin(f+Math.PI);
+    p.neck = 2*Math.sin(f); p.tail = 14*Math.sin(f);
+    p.bob = 4.7*Math.abs(Math.sin(f)); p.lean = state==='run'?14:6;
+  } else if(state==='jump'){
+    const jp = opt.jumpPhase!=null?opt.jumpPhase:phase; /* 0..1: crouch->air->land */
+    const crouch = jp<0.25 ? boneSmooth(jp/0.25) : jp<0.7 ? 1-boneSmooth((jp-0.25)/0.25) : 0;
+    const air = jp>=0.25 && jp<0.85 ? boneSmooth((jp-0.25)/0.20)*(1-boneSmooth((jp-0.55)/0.30)) : 0; /* mở/rút chậm (19/11): không giật quá 8°/khung */
+    const land = jp>=0.7 ? boneSmooth((jp-0.7)/0.3)*(1-boneSmooth((jp-0.85)/0.15)) : 0;
+    p.hipL = p.hipR = -30*crouch - 35*air - 22*land;
+    p.kneeL = p.kneeR = 45*crouch + 70*air + 35*land;
+    p.shL = p.shR = -55*air - 20*crouch; p.elL = p.elR = 30*air + 10*crouch;
+    p.neck = -4*air; p.tail = -18*air + 8*crouch; p.bob = -12*air + 6*crouch + 4*land;
+    p.lean = 4*air;
+  } else { /* idle: thở nhẹ */
+    p.shL = p.shR = 4*Math.sin(f*0.5); p.elL = p.elR = 8+4*Math.sin(f*0.5);
+    p.kneeL = p.kneeR = 2; p.neck = 1.5*Math.sin(f*0.5); p.tail = 6*Math.sin(f*0.5);
+    p.bob = 1.5*Math.sin(f*0.5);
+  }
+  return p;
+}
+/* --- forward kinematics: vị trí khớp trong hệ hiển thị (gốc hông, y xuống) --- */
+function boneFK(pose, facing){
+  const L = BONE_LIMB, mir = (facing==='sideL'||facing==='qtrL') ? -1 : 1;
+  const s = (ang,len)=>({x: mir*Math.sin(boneRad(ang))*len, y: Math.cos(boneRad(ang))*len});
+  const hip = {x:0, y:L.hipY}, sh = {x:0, y:L.shoulderY};
+  const kL = {x:hip.x+s(pose.hipL,L.upperLeg).x, y:hip.y+s(pose.hipL,L.upperLeg).y};
+  const fL = {x:kL.x+s(pose.hipL+pose.kneeL,L.lowerLeg).x, y:kL.y+s(pose.hipL+pose.kneeL,L.lowerLeg).y};
+  const kR = {x:hip.x+s(pose.hipR,L.upperLeg).x, y:hip.y+s(pose.hipR,L.upperLeg).y};
+  const fR = {x:kR.x+s(pose.hipR+pose.kneeR,L.lowerLeg).x, y:kR.y+s(pose.hipR+pose.kneeR,L.lowerLeg).y};
+  const eL = {x:sh.x+s(pose.shL,L.upperArm).x, y:sh.y+s(pose.shL,L.upperArm).y};
+  const hL = {x:eL.x+s(pose.shL+pose.elL,L.lowerArm).x, y:eL.y+s(pose.shL+pose.elL,L.lowerArm).y};
+  const eR = {x:sh.x+s(pose.shR,L.upperArm).x, y:sh.y+s(pose.shR,L.upperArm).y};
+  const hR = {x:eR.x+s(pose.shR+pose.elR,L.lowerArm).x, y:eR.y+s(pose.shR+pose.elR,L.lowerArm).y};
+  return {hip, sh, kL, fL, kR, fR, eL, hL, eR, hR, neck:{x:0,y:L.neckY}, headTop:{x:0,y:0}};
+}
+/* --- cắt sheet thành bộ phận (canvas), tách chi ở tâm khớp có chồng lấn --- */
+const boneParts = {}; /* boneParts[facing][name] = {el, w, h, pivot:{x,y}, anchor} */
+let boneSheets = {};  /* facing -> {img, w, h} */
+function boneDeWhite(img){
+  const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight;
+  const x = c.getContext('2d'); x.drawImage(img, 0, 0);
+  const d = x.getImageData(0, 0, c.width, c.height), px = d.data;
+  const W = c.width, H = c.height, seen = new Uint8Array(W*H);
+  const isWhite = (i)=> px[i]>245 && px[i+1]>245 && px[i+2]>245 && px[i+3]>200;
+  const stack = [];
+  for(let px0=0; px0<W; px0++){ stack.push(px0, (H-1)*W+px0); }
+  for(let py=0; py<H; py++){ stack.push(py*W, py*W+W-1); }
+  while(stack.length){
+    const p = stack.pop(); if(seen[p]) continue; seen[p]=1;
+    const i = p*4; if(!isWhite(i)) continue;
+    px[i+3]=0;
+    if(p%W>0) stack.push(p-1); if(p%W<W-1) stack.push(p+1);
+    if(p>=W) stack.push(p-W); if(p<W*(H-1)) stack.push(p+W);
+  }
+  x.putImageData(d, 0, 0); return c;
+}
+function boneSliceFacing(f){
+  const cfg = CONFIG.BECA_BONES.parts[f], img = boneSheets[f].img;
+  const clean = boneDeWhite(img), out = {};
+  const SL = CONFIG.BECA_BONES.slots;
+  const cut = (name, rect, slotH)=>{
+    const sc = slotH / rect.h;
+    const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(rect.w*sc)); c.height = Math.max(1, Math.round(slotH));
+    const x = c.getContext('2d'); x.drawImage(clean, rect.x, rect.y, rect.w, rect.h, 0, 0, c.width, c.height);
+    return {el:c, w:c.width, h:c.height, sc, rect};
+  };
+  out.head = cut('head', cfg.head, SL.head); out.head.anchor = 'neck';
+  out.torso = cut('torso', cfg.torso, SL.torso); out.torso.anchor = 'hip';
+  out.tail = cut('tail', cfg.tail, SL.tail); out.tail.anchor = 'hip';
+  out.pack = cut('pack', cfg.pack, SL.pack); out.pack.anchor = 'shoulder';
+  out.palette = cut('palette', cfg.palette, SL.palette); out.palette.anchor = 'handFar';
+  out.board = cut('board', cfg.board, SL.board); out.board.anchor = 'handFar';
+  /* chi: tách ở tâm khớp, 2 nửa chồng BONE_OVERLAP px quanh tâm */
+  const split = (name, rect, slotH, ball, upper)=>{
+    const by = ball.y - rect.y, ov = BONE_OVERLAP;
+    const r = upper ? {x:rect.x, y:rect.y, w:rect.w, h:by+ov} : {x:rect.x, y:rect.y+by-ov, w:rect.w, h:rect.h-(by-ov)};
+    const part = cut(name, r, slotH*(r.h/rect.h));
+    part.pivot = {x:(ball.x-rect.x)*part.sc, y:(upper ? by+ov : ov)*part.sc};
+    return part;
+  };
+  const legN = cfg.legNear, legF = cfg.legFar, armN = cfg.armNear, armF = cfg.armFar;
+  out.legNearUpper = split('legNearUpper', legN, SL.leg, legN.ball, true);
+  out.legNearLower = split('legNearLower', legN, SL.leg, legN.ball, false);
+  out.legFarUpper = split('legFarUpper', legF, SL.leg, legF.ball, true);
+  out.legFarLower = split('legFarLower', legF, SL.leg, legF.ball, false);
+  out.armNearUpper = split('armNearUpper', armN, SL.arm, armN.ball, true);
+  out.armNearLower = split('armNearLower', armN, SL.arm, armN.ball, false);
+  out.armFarUpper = split('armFarUpper', armF, SL.arm, armF.ball, true);
+  out.armFarLower = split('armFarLower', armF, SL.arm, armF.ball, false);
+  /* pivot của nửa trên đặt ở khớp cha (hông/vai) — tính lúc áp dụng pose */
+  return out;
+}
+/* --- trạng thái rig --- */
+let becaBone = null;
+function boneInit(){
+  const rig = document.getElementById('becaRig');
+  rig.innerHTML = '';
+  const host = document.createElement('div');
+  host.style.cssText = 'position:absolute;inset:0;overflow:visible;';
+  rig.appendChild(host);
+  const parts = {};
+  for(const f of BONE_FACINGS){
+    const g = document.createElement('div');
+    g.className = 'boneFacing'; g.dataset.facing = f;
+    g.style.cssText = 'position:absolute;inset:0;opacity:0;pointer-events:none;';
+    host.appendChild(g); parts[f] = g;
+  }
+  becaBone = {
+    host, parts, state:'idle', phase:0, facing:'sideR', facingNext:'sideR', facingMix:0,
+    turnT:0, turnFrom:'sideR', turnTo:'sideR',
+    blendT:1, blendFrom:null, blendDur:0.16, jumpPhase:0, lastNow:0,
+    cur:null, prev:null
+  };
+  /* tải 5 sheet, cắt xong mới hiện (không hiện nửa chừng) */
+  const loads = BONE_FACINGS.map(f=>{
+    return new Promise(res=>{
+      const img = new Image();
+      img.onload = ()=>{ boneSheets[f] = {img, w:img.naturalWidth, h:img.naturalHeight}; res(); };
+      img.onerror = ()=>{ console.warn('[bone] sheet lỗi:', f); res(); };
+      img.src = 'assets-ghibli/' + CONFIG.BECA_BONES.parts[f].sheet;
+    });
+  });
+  Promise.all(loads).then(()=>{
+    for(const f of BONE_FACINGS){
+      if(!boneSheets[f]) continue;
+      boneParts[f] = boneSliceFacing(f);
+      const g = parts[f];
+      for(const name of Object.keys(boneParts[f])){
+        const p = boneParts[f][name];
+        const holder = document.createElement('div');
+        holder.style.cssText = 'position:absolute;left:0;top:0;will-change:transform;';
+        holder.appendChild(p.el);
+        p.el.style.cssText = 'display:block;';
+        g.appendChild(holder); p.holder = holder;
+      }
+    }
+    parts[becaBone.facing].style.opacity = 1;
+    boneApply(bonePoseFor('idle', 0), becaBone.facing, 1, 1);
+  });
+}
+function boneFacingFor(dir){
+  /* hướng di chuyển -> góc mặt gần nhất (không lật ảnh) */
+  if(dir==='right') return 'sideR';
+  if(dir==='left') return 'sideL';
+  if(dir==='up') return 'front';
+  if(dir==='down') return 'front';
+  return becaBone ? becaBone.facing : 'sideR';
+}
+function boneStartTurn(to){
+  if(!becaBone || to===becaBone.facing) return;
+  becaBone.turnFrom = becaBone.facing; becaBone.turnTo = to; becaBone.turnT = 0;
+}
+function bonePoseBlend(a, b, t){
+  const o = {};
+  for(const k of Object.keys(a)) o[k] = boneLerp(a[k], b[k], t);
+  return o;
+}
+/* --- áp dụng 1 tư thế lên DOM (1 facing, mix = độ mờ) --- */
+function boneApply(pose, facing, mix, sc){
+  const L = BONE_LIMB, fk = boneFK(pose, facing);
+  const P = boneParts[facing]; if(!P) return;
+  const g = becaBone.parts[facing]; g.style.opacity = mix;
+  const W = 110, H = 168, cx = W/2;
+  const place = (part, x, y, rotDeg, originX, originY)=>{
+    if(!part || !part.holder) return;
+    part.holder.style.width = part.w+'px'; part.holder.style.height = part.h+'px';
+    part.holder.style.transformOrigin = originX+'px '+originY+'px';
+    part.holder.style.transform = 'translate('+(x-originX)+'px,'+(y-originY)+'px) rotate('+rotDeg+'deg)';
+  };
+  const hipY = L.hipY - pose.bob, shY = L.shoulderY - pose.bob, neckY = L.neckY - pose.bob;
+  const lean = pose.lean;
+  /* thứ tự vẽ: xa -> gần (đuôi, chân xa, tay xa, thân, balo, đầu, chân gần, tay gần, đồ cầm) */
+  place(P.tail, cx-6, hipY+6, pose.tail, P.tail.w*0.8, P.tail.h*0.5);
+  place(P.legFarUpper, cx+fk.hip.x, hipY, pose.hipR+lean, P.legFarUpper.w/2, 2);
+  place(P.legFarLower, cx+fk.kR.x, hipY+fk.kR.y-hipY, pose.hipR+pose.kneeR+lean, P.legFarLower.pivot.x, P.legFarLower.pivot.y);
+  place(P.armFarUpper, cx+fk.sh.x, shY, pose.shR+lean, P.armFarUpper.w/2, 2);
+  place(P.armFarLower, cx+fk.eR.x, shY+fk.eR.y-shY, pose.shR+pose.elR+lean, P.armFarLower.pivot.x, P.armFarLower.pivot.y);
+  place(P.torso, cx, hipY, lean, P.torso.w/2, P.torso.h);
+  place(P.pack, cx, shY, lean, P.pack.w*0.5, P.pack.h*0.5);
+  place(P.head, cx, neckY, pose.neck+lean*0.5, P.head.w/2, P.head.h*0.85);
+  place(P.legNearUpper, cx+fk.hip.x, hipY, pose.hipL+lean, P.legNearUpper.w/2, 2);
+  place(P.legNearLower, cx+fk.kL.x, hipY+fk.kL.y-hipY, pose.hipL+pose.kneeL+lean, P.legNearLower.pivot.x, P.legNearLower.pivot.y);
+  place(P.armNearUpper, cx+fk.sh.x, shY, pose.shL+lean, P.armNearUpper.w/2, 2);
+  place(P.armNearLower, cx+fk.eL.x, shY+fk.eL.y-shY, pose.shL+pose.elL+lean, P.armNearLower.pivot.x, P.armNearLower.pivot.y);
+  /* khay màu + bảng vẽ đặt ở tay xa (tay cầm đồ), theo tay */
+  place(P.palette, cx+fk.hR.x-8, shY+fk.hR.y-shY+4, pose.shR+pose.elR+lean, P.palette.w/2, P.palette.h/2);
+  place(P.board, cx+fk.hR.x+10, shY+fk.hR.y-shY-6, pose.shR+pose.elR+lean, P.board.w/2, P.board.h/2);
+  /* khay màu + bảng vẽ chỉ hiện khi vẽ tranh — tay trống khi đi bộ/chạy/đứng/nhảy */
+  const painting = !document.body.classList.contains('map-mode');
+  if(P.palette && P.palette.holder) P.palette.holder.style.display = painting ? '' : 'none';
+  if(P.board && P.board.holder) P.board.holder.style.display = painting ? '' : 'none';
+}
+function boneSetState(state){
+  if(!becaBone || state===becaBone.state) return;
+  becaBone.blendFrom = becaBone.cur ? JSON.parse(JSON.stringify(becaBone.cur)) : bonePoseFor(becaBone.state, becaBone.phase);
+  becaBone.state = state;
+  becaBone.blendT = 0;
+  becaBone.blendDur = state==='jump' ? 0.24 : 0.16;
+}
+function boneJumpPhase(){
+  if(!becaJump) return 0;
+  if(becaJump.phase==='crouch') return 0.25*becaJump.t;
+  if(becaJump.phase==='air'){
+    const vy = becaJump.vy||0; /* -560 lúc bật -> +560 lúc chạm */
+    return 0.25 + 0.45*boneClamp((560-vy)/1120, 0, 1);
+  }
+  return 0.7 + 0.3*becaJump.t;
+}
+function boneJumpTick(dt){
+  /* vật lý nhảy (chuyển từ rigTickBeca cũ): crouch -> air -> land */
+  if(!becaJump) return;
+  becaJump.t += dt;
+  if(becaJump.phase==='crouch' && becaJump.t>=0.18){ becaJump.phase='air'; becaJump.t=0; becaJump.vy=-560; }
+  else if(becaJump.phase==='air'){
+    becaJump.vy += 1900*dt; becaJump.yOff += becaJump.vy*dt;
+    if(becaJump.yOff>=0){ becaJump.yOff=0; becaJump.phase='land'; becaJump.t=0; }
+  } else if(becaJump.phase==='land' && becaJump.t>=0.22){ becaJump=null; }
+}
+function boneLayout(){
+  walker.style.width = '110px'; walker.style.height = '168px';
+}
+function boneTickBeca(){
+  if(!becaBone) return;
+  const now = performance.now();
+  const dt = becaBone.lastNow ? Math.min((now-becaBone.lastNow)/1000, 0.05) : 0.016;
+  becaBone.lastNow = now;
+  boneLayout();
+  /* trạng thái từ game */
+  const st = becaJump ? 'jump' : beca.mode==='stairs' ? 'walk' : animState;
+  boneSetState(st);
+  /* hướng mặt: quay thật qua các góc (không lật) */
+  const want = boneFacingFor(facing);
+  if(want!==becaBone.facing && becaBone.turnT<=0){
+    const fi = BONE_FACINGS.indexOf(becaBone.facing), ti = BONE_FACINGS.indexOf(want);
+    const step = ti>fi ? 1 : -1;
+    boneStartTurn(BONE_FACINGS[fi+step] || want);
+  }
+  if(becaBone.turnT>=0 && becaBone.turnTo!==becaBone.facing){
+    becaBone.turnT += dt;
+    const D = 0.2; /* 200ms mỗi bước góc mặt */
+    if(becaBone.turnT>=D){
+      becaBone.facing = becaBone.turnTo; becaBone.turnT = 0;
+      const fi = BONE_FACINGS.indexOf(becaBone.facing), ti = BONE_FACINGS.indexOf(want);
+      if(fi!==ti) boneStartTurn(BONE_FACINGS[fi+(ti>fi?1:-1)]);
+      else becaBone.turnTo = becaBone.facing;
+    }
+  }
+  /* nhịp bước suy từ tốc độ (chân bám đất, không trượt) */
+  const speed = st==='run' ? 165 : st==='walk' ? 70 : 0;
+  if(speed>0){
+    const stride = 2*25*Math.sin(boneRad(st==='run'?42:28));
+    becaBone.phase += dt*speed/(2*stride);
+  } else if(st==='idle'){
+    becaBone.phase += dt*0.5;
+  }
+  if(becaJump) boneJumpTick(dt);
+  /* blend trạng thái (không giật) */
+  if(becaBone.blendT<1) becaBone.blendT = Math.min(1, becaBone.blendT + dt/becaBone.blendDur);
+  let pose = bonePoseFor(st, becaBone.phase%1, {jumpPhase: boneJumpPhase()});
+  if(becaBone.blendFrom && becaBone.blendT<1){
+    pose = bonePoseBlend(becaBone.blendFrom, pose, boneSmooth(becaBone.blendT));
+  }
+  becaBone.cur = pose;
+  /* cầu thang: nhấc chân theo bậc (dùng stairT của game) */
+  if(beca.mode==='stairs' && beca.stair){
+    const s = Math.sin(beca.stair.t*Math.PI*12)*8;
+    pose = Object.assign({}, pose, {hipL: pose.hipL+Math.max(0,s), kneeL: pose.kneeL+Math.max(0,s)*1.5, hipR: pose.hipR+Math.max(0,-s), kneeR: pose.kneeR+Math.max(0,-s)*1.5});
+  }
+  /* áp dụng: facing chính + facing kế (crossfade khi đang quay) */
+  const sc = beca.mode === 'stairs' ? stairScale(beca.stair.t) : (beca.mode === 'terrace' ? STAIRS.scaleTop : depthScale(beca.y));
+  const yOff = becaJump ? becaJump.yOff : 0;
+  const sy = becaJump && becaJump.phase==='land' ? 0.94 : 1;
+  const rigEl = document.getElementById('becaRig');
+  rigEl.style.transform = 'translateY('+(-yOff)+'px) scale('+sc+','+(sc*sy)+')';
+  rigEl.style.transformOrigin = '50% 100%';
+  const mix = becaBone.turnT>0 ? boneClamp(becaBone.turnT/0.2, 0, 1) : 0;
+  if(mix>0 && becaBone.turnTo!==becaBone.facing){
+    boneApply(pose, becaBone.facing, 1-mix, sc);
+    boneApply(pose, becaBone.turnTo, mix, sc);
+    becaBone.facingNext = becaBone.turnTo; becaBone.facingMix = mix;
+  } else {
+    for(const f of BONE_FACINGS) if(f!==becaBone.facing) becaBone.parts[f].style.opacity = 0;
+    boneApply(pose, becaBone.facing, 1, sc);
+    becaBone.facingNext = becaBone.facing; becaBone.facingMix = 0;
+  }
+  /* bóng dưới chân (theo yOff như cũ) */
+  const sh = document.querySelector('#walker .wshadow');
+  if(sh) sh.style.transform = 'translateY('+(yOff*0.3)+'px) scale('+(1-Math.abs(yOff)/400)+')';
+}
+becaBone = becaBone || null;
 /* ---------------- init ---------------- */
 load();
 if(!Array.isArray(state.served)) state.served=[];
@@ -1904,7 +2709,7 @@ applyLang(); renderHeader(); renderScene(); renderPalette(); syncTools();
 document.getElementById('landlordAvatarMap').innerHTML = '<div class="rig"></div>';
 document.getElementById('landlordAvatarMap').classList.add('rigAvatar');
 document.getElementById('landlordAvatar').innerHTML = custAvatarHTML(LANDLORD);
-rigPreload(); npcInit(); renderHotspots(); renderMap(); updateWalker(); updateCamera(); rigLayout();
+rigPreload(); npcInit(); boneInit(); renderHotspots(); renderMap(); updateWalker(); updateCamera(); rigLayout();
 requestAnimationFrame(mapLoop);
 requestAnimationFrame(()=>{ fitCanvas(); updateMeters(); });
 if(!state.seenStory) openStory();
@@ -1941,8 +2746,8 @@ window.__becaPainting = {
   debugTeleport(x,y){ beca.x=x; beca.y=y; moveTarget=null; dragVec=null; updateWalker(); updateCamera(); },
   debugUnserve(){ state.served=[]; save(); renderMap(); },
   debugGoMap: ()=>showMap(),
-  rig: ()=>({action: beca.mode==='stairs' ? 'stair' : animState, frame: becaRig.frame, sheet: becaRig.sheet, interval: becaRig.interval, yOff: becaRig.yOff, sy: becaRig.sy, scale: becaRig.scale, mode: beca.mode, stairT: beca.stair ? beca.stair.t : null, jump: becaJump ? becaJump.phase : null, x: beca.x, y: beca.y}),
-  npcs: ()=>Object.keys(npcs).map(id=>({id, x:npcs[id].x, y:npcs[id].y, mode:npcs[id].mode, frame:npcs[id].rig.frame, sheet:npcs[id].rig.sheet, facing:npcs[id].facing})),
+  rig: ()=>{ const bp = (typeof becaBone !== 'undefined' && becaBone) ? becaBone.pose() : null; return {action: beca.mode==='stairs' ? 'stair' : animState, bone: !!bp, facing: bp ? bp.facing : null, facingNext: bp ? bp.facingNext : null, facingMix: bp ? bp.facingMix : 0, state: bp ? bp.state : null, phase: bp ? +(bp.phase).toFixed(3) : 0, hipL: bp ? +bp.hipL.toFixed(1) : 0, kneeL: bp ? +bp.kneeL.toFixed(1) : 0, hipR: bp ? +bp.hipR.toFixed(1) : 0, kneeR: bp ? +bp.kneeR.toFixed(1) : 0, shoulderL: bp ? +bp.shoulderL.toFixed(1) : 0, elbowL: bp ? +bp.elbowL.toFixed(1) : 0, blendT: bp ? bp.blendT : 1, mode: beca.mode, stairT: beca.stair ? beca.stair.t : null, jump: becaJump ? becaJump.phase : null, x: beca.x, y: beca.y}; },
+  npcs: ()=>Object.keys(npcs).map(id=>({id, x:npcs[id].x, y:npcs[id].y, mode:npcs[id].mode, frame:npcs[id].rig.frame, sheet:npcs[id].rig.sheet, facing:npcs[id].facing, scale:npcs[id].rig.scale, height:RIGS[id].height})),
   debugJump: ()=>doJump(),
   debugClimb: (t)=>{ beca.x=STAIRS.x0; beca.y=STAIRS.y0; beca.mode='stairs'; beca.stair={t:0}; moveTarget={stair:Math.max(0,Math.min(1,t))}; dragVec=null; updateWalker(); updateCamera(); },
   debugStairs: ()=>({x0:STAIRS.x0, y0:STAIRS.y0, x1:STAIRS.x1, y1:STAIRS.y1, steps:STAIRS.steps, scaleTop:STAIRS.scaleTop, terrace:STAIRS.terrace}),
