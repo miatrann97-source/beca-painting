@@ -418,7 +418,7 @@ body.map-mode #mapView{display:block}
     </div>
     <section class="panel" id="scenePanel">
       <div id="becaBox">
-        <img id="becaImg" src="assets-ghibli/beca-sprite.webp?v=r11" alt="Bé cá">
+        <img id="becaImg" src="assets-ghibli/beca-sprite.webp?v=r11.2" alt="Bé cá">
         <div id="becaName">🐟 Bé Cá</div>
       </div>
       <div id="custBox">
@@ -549,7 +549,7 @@ body.map-mode #mapView{display:block}
 
 <div class="overlay" id="storyOverlay">
   <div class="modal">
-    <img id="storyImg" src="assets-ghibli/beca-sprite.webp?v=r11" alt="Bé cá">
+    <img id="storyImg" src="assets-ghibli/beca-sprite.webp?v=r11.2" alt="Bé cá">
     <div id="storyDots"></div>
     <h2 id="storyTitle">—</h2>
     <p id="storyText">—</p>
@@ -561,7 +561,7 @@ body.map-mode #mapView{display:block}
 </div>
 
 <div id="toast"></div>
-<script src="phaser-4.2.1.js?v=r11"></script>
+<script src="phaser-4.2.1.js?v=r11.2"></script>
 <script>
 "use strict";
 /* ================= Bé Cá Vẽ Tranh — game vẽ tranh kiểu Passpartout 2 =================
@@ -602,19 +602,19 @@ const SAVE_KEY = 'becaPaintingV1';
 const CONFIG = {
   /* ---- ảnh: file riêng trong assets-ghibli/, thay file là đổi giao diện ---- */
   IMAGES: {
-    town: 'map3d/bg-town.png?v=r11',   // SINGLE-TOWN: nền thị trấn duy nhất 1600x1400 (An duyệt 23:25)
-    beca: 'assets-ghibli/beca-sprite.webp?v=r11',     // bé cá toàn thân (nền trong)
-    becaEmpty: 'assets-ghibli/beca-sprite-empty.webp?v=r11', // bé cá TAY KHÔNG (bảng + khay đã xoá) — sprite dự phòng trên bản đồ: tay phải trống ở mọi trạng thái (đứng/đi/chạy); bản beca (cầm bảng+khay) chỉ dùng ở khung truyện / khung cảnh vẽ
-    storyBg: 'assets-ghibli/story-bg.webp?v=r11',     // nền màn truyện
-    zones: { town:'map3d/bg-town.png?v=r11' }, /* SINGLE-TOWN: 1 khu */
+    town: 'map3d/bg-town.png?v=r11.2',   // SINGLE-TOWN: nền thị trấn duy nhất 1600x1400 (An duyệt 23:25)
+    beca: 'assets-ghibli/beca-sprite.webp?v=r11.2',     // bé cá toàn thân (nền trong)
+    becaEmpty: 'assets-ghibli/beca-sprite-empty.webp?v=r11.2', // bé cá TAY KHÔNG (bảng + khay đã xoá) — sprite dự phòng trên bản đồ: tay phải trống ở mọi trạng thái (đứng/đi/chạy); bản beca (cầm bảng+khay) chỉ dùng ở khung truyện / khung cảnh vẽ
+    storyBg: 'assets-ghibli/story-bg.webp?v=r11.2',     // nền màn truyện
+    zones: { town:'map3d/bg-town.png?v=r11.2' }, /* SINGLE-TOWN: 1 khu */
     customers: {                                // mặt khách (ảnh vuông)
-      ba: 'assets-ghibli/cust-ba.webp?v=r11',
+      ba: 'assets-ghibli/cust-ba.webp?v=r11.2',
       /* cust-mai.webp: giữ file, không còn dùng (Bé Mai xoá hẳn 19/11) */
-      tung: 'assets-ghibli/cust-tung.webp?v=r11',
-      hoa: 'assets-ghibli/cust-hoa.webp?v=r11',
-      bay: 'assets-ghibli/cust-bay.webp?v=r11',
-      mimi: 'assets-ghibli/cust-mimi.webp?v=r11',
-      chu: 'assets-ghibli/cust-chu.webp?v=r11',       // ông chủ nhà
+      tung: 'assets-ghibli/cust-tung.webp?v=r11.2',
+      hoa: 'assets-ghibli/cust-hoa.webp?v=r11.2',
+      bay: 'assets-ghibli/cust-bay.webp?v=r11.2',
+      mimi: 'assets-ghibli/cust-mimi.webp?v=r11.2',
+      chu: 'assets-ghibli/cust-chu.webp?v=r11.2',       // ông chủ nhà
     },
   },
   /* ---- bản đồ: kích thước thế giới, vùng đi được, tốc độ ---- */
@@ -656,10 +656,10 @@ const CONFIG = {
        (action 'landlord' -> hội thoại mua tiệm 5.000đ). Rect chặn đúng thân
        building lấn vào dải đi (y>=760); nhà thờ/Bitexco nằm trên dải đi nên
        tường bắc chặn. NPC đứng TRƯỚC landmark, ngoài rect +18px. */
-    { id:'bldTower',  testid:'bld-tower',  action:'landlord', solid:true, rect:[1362, 1645, 597, 149], mmColor:'#E8C86A' },
+    { id:'bldTower',  testid:'bld-tower',  action:'landlord', solid:true, rect:[1390, 1140, 580, 665], mmColor:'#E8C86A' }, /* R11.2: full footprint thap dong ho (x1390-1970 y1140-1805, mep bac sat wallNorth) — rect cu [1362,1645,597,149] chi chan y1645-1794, be ca di XUYEN than thap tu dong/tay o y1200-1640 (repro 20/11: (1200,1500)->(2313,1551)) */
     { id:'bldChurch', testid:'bld-church', action:'none', solid:true, nohot:true, rect:[155, 1140, 765, 620], mmColor:'#C98A4B' }, /* R11.1: nhà thờ Đức Bà (An: không xuyên vật) — mặt tiền + đế, y 1140-1760; Bà Tư đứng ngoài rect (560,1950) nên vẫn chạm được */
     { id:'bldPalace', testid:'bld-palace', action:'none', solid:true, nohot:true, rect:[164, 2850, 1097, 375], mmColor:'#B0B8C0' },
-    { id:'bldPagoda', testid:'bld-pagoda', action:'none', solid:true, nohot:true, rect:[2659, 1709, 255, 180], mmColor:'#2E9E5B' },
+    { id:'bldPagoda', testid:'bld-pagoda', action:'none', solid:true, nohot:true, rect:[2650, 1250, 390, 650], mmColor:'#2E9E5B' }, /* R11.2: full footprint chua (x2650-3040 y1250-1900) — rect cu chi chan y1709-1889, be ca di XUYEN than chua tu dong/tay o y1300-1700 (repro: (2500,1500)->(3520,1540)) */
     { id:'bldTownL',  testid:'bld-town-l',  action:'none', solid:true, nohot:true, rect:[552, 2159, 420, 200], mmColor:'#E8A87C' },
     { id:'bldTownM',  testid:'bld-town-m',  action:'none', solid:true, nohot:true, rect:[2874, 2209, 278, 155], mmColor:'#E8A87C' },
     { id:'bldTownBR', testid:'bld-town-br', action:'none', solid:true, nohot:true, rect:[1609, 2809, 758, 146], mmColor:'#E8A87C' },
@@ -670,11 +670,23 @@ const CONFIG = {
     { id:'bldBenNhaRong', testid:'bld-bennharong', action:'none', solid:true, nohot:true, rect:[3460, 2862, 50, 56], mmColor:'#E8DCC8' }, /* Bến Nhà Rồng R9: DỜI lên bờ (An 05:58 — cũ ở dưới sông) x2010-2060 y1912-1968, collider full footprint (nhà nằm hẳn trong dải đi) */
     { id:'bldUBND', testid:'bld-ubnd', action:'none', solid:true, nohot:true, rect:[2050, 2329, 126, 131], mmColor:'#F3EAD8' }, /* UBND x920-1004 y1086-1173 */
     { id:'bldChoBinhTay', testid:'bld-chobinhtay', action:'none', solid:true, nohot:true, rect:[2900, 2700, 165, 78], mmColor:'#C98A4B' }, /* Chợ Bình Tây (Q6) x1160-1270 y1288-1390 */
-    { id:'bldNgocHoang', testid:'bld-ngochoang', action:'none', solid:true, nohot:true, rect:[1522, 2300, 210, 98], mmColor:'#C0392B' }, /* Chùa Ngọc Hoàng x12-200 y758-823 (chỉ phần trong dải đi x>=60) */
-    { id:'bldChungCu42', testid:'bld-chungcu42', action:'none', solid:true, nohot:true, rect:[3450, 2150, 54, 375], mmColor:'#B0B8C0' }, /* Chung cư 42 x1504-1598 y930-1180 (chỉ phần trong dải đi x<=1540) */
+    { id:'bldNgocHoang', testid:'bld-ngochoang', action:'none', solid:true, nohot:true, rect:[1450, 2300, 282, 98], mmColor:'#C0392B' }, /* R11.2: mo rong ve tay toi x1450 (full footprint chua Ngoc Hoang x1450-1732) — rect cu bat dau x1522, de ho 72px canh tay */
+    { id:'bldChungCu42', testid:'bld-chungcu42', action:'none', solid:true, nohot:true, rect:[3450, 2150, 90, 375], mmColor:'#B0B8C0' }, /* R11.2: mo rong ve dong toi x3540 (sat wallEast) — rect cu dung x3504, de khe 36px (= dung duong kinh body) giua rect va tuong, be ca co the luon vao sau nha */
     { id:'bldBaSonPillar', testid:'bld-bason', action:'none', solid:true, nohot:true, rect:[3360, 3180, 60, 60], mmColor:'#E8E8E8' }, /* Trụ vòm cầu Ba Son x1412-1520 y1248-1332 */
-    { id:'bldStatue', testid:'bld-statue', action:'none', solid:true, nohot:true, rect:[2308, 2422, 36, 38], mmColor:'#8B7355' }, /* Tượng Bác Hồ (bệ) x1092-1116 y1148-1173 */
+    { id:'bldStatue', testid:'bld-statue', action:'none', solid:true, nohot:true, rect:[2290, 2400, 80, 76], mmColor:'#8B7355' }, /* R11.2: full be tuong (x2290-2370 y2400-2476) — rect cu [2308,2422,36,38] hep hon be tuong, than be ca chong len mep be (case STATUE-W bien 0.5px tu r11) */
     { id:'bldLotus', testid:'bld-lotus', action:'none', solid:true, nohot:true, rect:[2437, 2410, 66, 50], mmColor:'#2E9E5B' }, /* Đài sen x1178-1222 y1140-1173 */
+    /* R11.2 (20/11): collider cac thap skyline + cum nha Bitexco. Truoc day CHI co
+       wallNorth (y<1140) chan dai bac; chan be ca (cao 140px) dung o y~1158 thi dau
+       chong len chan thap 80px (repro: Bitexco overlap 80px), va cum nha Bitexco
+       khong co rect nen di xuyen qua (repro: (1700,1200)->(2867,1211)). Rect 'vay'
+       keo xuong toi chan thap + 140px (dau be ca khoi chan thap). NPC Chu Bay
+       (2200,1420) nam ngoai cac rect, van cham duoc. */
+    { id:'bldVincom', testid:'bld-vincom', action:'none', solid:true, nohot:true, rect:[950, 480, 360, 700], mmColor:'#D8CDB8' }, /* Vincom: chan y1040 + 140 = 1180 */
+    { id:'bldL81', testid:'bld-l81', action:'none', solid:true, nohot:true, rect:[1500, 10, 180, 1175], mmColor:'#3FA7A0' }, /* Landmark 81: chan y1045 + 140 = 1185 */
+    { id:'bldBitexco', testid:'bld-bitexco', action:'none', solid:true, nohot:true, rect:[2000, 100, 220, 1160], mmColor:'#2E7FC2' }, /* Bitexco: chan y1120 + 140 = 1260 (loi live 10:18) */
+    { id:'bldMarina', testid:'bld-marina', action:'none', solid:true, nohot:true, rect:[2450, 135, 160, 1050], mmColor:'#7FA8C8' }, /* Marina: chan y1045 + 140 = 1185 */
+    { id:'bldTanDinh', testid:'bld-tandinh', action:'none', solid:true, nohot:true, rect:[2950, 400, 200, 780], mmColor:'#E8A0B0' }, /* Nha tho Tan Dinh hong: chan y1040 + 140 = 1180 */
+    { id:'bldHousesBitexco', testid:'bld-houses-bitexco', action:'none', solid:true, nohot:true, rect:[1900, 1150, 719, 124], mmColor:'#E8A87C' }, /* Cum nha truoc Bitexco: full footprint x1900-2619 y1150-1274 (do lai 20/11: canh dong that toi x2619, khong phai 2594 nhu rect cu) */
     { id:'bldRiver', testid:'bld-river', action:'none', solid:true, nohot:true, rect:[3500, 3060, 40, 80], mmColor:'#5DADE2' }, /* Mép sông Sài Gòn (góc dưới-phải, trong dải đi) */
     { id:'bldRiver2', testid:'bld-river2', action:'none', solid:true, nohot:true, rect:[3420, 3140, 40, 80], mmColor:'#5DADE2' }, /* R10: bờ sông chéo (đoạn giữa) */
     { id:'bldRiver3', testid:'bld-river3', action:'none', solid:true, nohot:true, rect:[3340, 3220, 40, 80], mmColor:'#5DADE2' }, /* R10: bờ sông chéo (đoạn dưới) */
@@ -729,17 +741,17 @@ const CONFIG = {
      hơn bé cá một chút, cô Hoa ngang bé cá, bà Tư thấp nhất
      (trừ mèo Mimi). idleFrame = khung đứng yên (khung "vượt qua", chân chụm). */
   RIGS: {
-    ba:   { walk:'assets-ghibli/rig-ba-walk.webp?v=r11',   jump:'assets-ghibli/rig-ba-jump.webp?v=r11',   walkFrames:6, jumpFrames:3, idleFrame:1, height:132, stepPx:44 },
-    mai:  { walk:'assets-ghibli/rig-mai-walk.webp?v=r11',  jump:'assets-ghibli/rig-mai-jump.webp?v=r11',  walkFrames:6, jumpFrames:3, idleFrame:1, height:100, stepPx:40 }, /* ZELDA/GENSHIN (19/11): trẻ con 65-70% người lớn cùng độ sâu — Mai 1,15m = 100px, KHÔNG 114px; bước 0.4*h */
-    tung: { walk:'assets-ghibli/rig-tung-walk.webp?v=r11', jump:'assets-ghibli/rig-tung-jump.webp?v=r11', walkFrames:6, jumpFrames:3, idleFrame:1, height:154, stepPx:62 },
-    hoa:  { walk:'assets-ghibli/rig-hoa-walk.webp?v=r11',  jump:'assets-ghibli/rig-hoa-jump.webp?v=r11',  walkFrames:6, jumpFrames:3, idleFrame:1, height:141, stepPx:48 },
-    bay:  { walk:'assets-ghibli/rig-bay-walk.webp?v=r11',  jump:'assets-ghibli/rig-bay-jump.webp?v=r11',  walkFrames:6, jumpFrames:3, idleFrame:1, height:154, stepPx:60 },
-    mimi: { walk:'assets-ghibli/rig-mimi-walk.webp?v=r11', jump:'assets-ghibli/rig-mimi-jump.webp?v=r11', walkFrames:6, jumpFrames:3, idleFrame:1, height:90, stepPx:42 }, /* ĐỢT SỬA #2 (B19): sheet Mimi 4 chân (An: mèo phải đi 4 chân) — cũ ở assets-openworld là sheet 2 chân */
-    chu:  { walk:'assets-ghibli/rig-chu-walk.webp?v=r11',  jump:'assets-ghibli/rig-chu-jump.webp?v=r11',  walkFrames:6, jumpFrames:3, idleFrame:1, height:154, stepPx:62 },
+    ba:   { walk:'assets-ghibli/rig-ba-walk.webp?v=r11.2',   jump:'assets-ghibli/rig-ba-jump.webp?v=r11.2',   walkFrames:6, jumpFrames:3, idleFrame:1, height:132, stepPx:44 },
+    mai:  { walk:'assets-ghibli/rig-mai-walk.webp?v=r11.2',  jump:'assets-ghibli/rig-mai-jump.webp?v=r11.2',  walkFrames:6, jumpFrames:3, idleFrame:1, height:100, stepPx:40 }, /* ZELDA/GENSHIN (19/11): trẻ con 65-70% người lớn cùng độ sâu — Mai 1,15m = 100px, KHÔNG 114px; bước 0.4*h */
+    tung: { walk:'assets-ghibli/rig-tung-walk.webp?v=r11.2', jump:'assets-ghibli/rig-tung-jump.webp?v=r11.2', walkFrames:6, jumpFrames:3, idleFrame:1, height:154, stepPx:62 },
+    hoa:  { walk:'assets-ghibli/rig-hoa-walk.webp?v=r11.2',  jump:'assets-ghibli/rig-hoa-jump.webp?v=r11.2',  walkFrames:6, jumpFrames:3, idleFrame:1, height:141, stepPx:48 },
+    bay:  { walk:'assets-ghibli/rig-bay-walk.webp?v=r11.2',  jump:'assets-ghibli/rig-bay-jump.webp?v=r11.2',  walkFrames:6, jumpFrames:3, idleFrame:1, height:154, stepPx:60 },
+    mimi: { walk:'assets-ghibli/rig-mimi-walk.webp?v=r11.2', jump:'assets-ghibli/rig-mimi-jump.webp?v=r11.2', walkFrames:6, jumpFrames:3, idleFrame:1, height:90, stepPx:42 }, /* ĐỢT SỬA #2 (B19): sheet Mimi 4 chân (An: mèo phải đi 4 chân) — cũ ở assets-openworld là sheet 2 chân */
+    chu:  { walk:'assets-ghibli/rig-chu-walk.webp?v=r11.2',  jump:'assets-ghibli/rig-chu-jump.webp?v=r11.2',  walkFrames:6, jumpFrames:3, idleFrame:1, height:154, stepPx:62 },
     /* NPC mới (sheet nền trắng đục -> game tự tách trắng thành trong suốt lúc tải) */
-    lan:  { walk:'assets-openworld/rig-lan-walk.webp?v=r11', jump:'assets-openworld/rig-lan-walk.webp?v=r11', walkFrames:6, jumpFrames:6, idleFrame:1, height:141, stepPx:56 },
-    nam:  { walk:'assets-openworld/rig-nam-walk.webp?v=r11', jump:'assets-openworld/rig-nam-walk.webp?v=r11', walkFrames:6, jumpFrames:6, idleFrame:1, height:132, stepPx:53 },
-    beca: { walk:'assets-ghibli/beca-walk.webp?v=r11', jump:'assets-ghibli/beca-jump.webp?v=r11', idle:'assets-ghibli/beca-idle.webp?v=r11', walkFront:'assets-ghibli/beca-walk-front.webp?v=r11', walkBack:'assets-ghibli/beca-walk-back.webp?v=r11', walkFrames:6, jumpFrames:3, idleFrame:0, height:140, stepPx:56 }, /* ĐỢT SỬA #2 (B17): sheet đi dọc (An 19:41) */
+    lan:  { walk:'assets-openworld/rig-lan-walk.webp?v=r11.2', jump:'assets-openworld/rig-lan-walk.webp?v=r11.2', walkFrames:6, jumpFrames:6, idleFrame:1, height:141, stepPx:56 },
+    nam:  { walk:'assets-openworld/rig-nam-walk.webp?v=r11.2', jump:'assets-openworld/rig-nam-walk.webp?v=r11.2', walkFrames:6, jumpFrames:6, idleFrame:1, height:132, stepPx:53 },
+    beca: { walk:'assets-ghibli/beca-walk.webp?v=r11.2', jump:'assets-ghibli/beca-jump.webp?v=r11.2', idle:'assets-ghibli/beca-idle.webp?v=r11.2', walkFront:'assets-ghibli/beca-walk-front.webp?v=r11.2', walkBack:'assets-ghibli/beca-walk-back.webp?v=r11.2', walkFrames:6, jumpFrames:3, idleFrame:0, height:140, stepPx:56 }, /* ĐỢT SỬA #2 (B17): sheet đi dọc (An 19:41) */
   },
   /* ---- rig xương THẬT cho bé cá (bone rig, KHÔNG lật ảnh) ----
      Bé cá được dựng từ các bộ phận rời nối bằng khớp (đầu, thân, tay trên/cẳng
@@ -3495,25 +3507,25 @@ function makeSeamStrip(scene, zid, bx){
    crop từ bg-town.png FINAL (sha d031ee1a, composite 0 pixel khác nền).
    add.image(anchor).setDepth(foot_y) — Y-sort thật (LAYOUT-FG.md §2/§4). */
 var FG3D = [
-  {id:'fgtower', key:'fg3d-tower', file:'map3d/fg-town-tower-c.png?v=r11', ax:1336, ay:1138, depth:1830, zone:'town'},
-  {id:'fgpalace', key:'fg3d-palace', file:'map3d/fg-town-palace-c.png?v=r11', ax:149, ay:2784, depth:3253, zone:'town'},
-  {id:'fgpagoda', key:'fg3d-pagoda', file:'map3d/fg-town-pagoda-c.png?v=r11', ax:2638, ay:1238, depth:1922, zone:'town'},
-  {id:'fghousesbitexco', key:'fg3d-houses-bitexco', file:'map3d/fg-town-houses-bitexco-c.png?v=r11', ax:1887, ay:1135, depth:1282, zone:'town'},
-  {id:'fghousesleft', key:'fg3d-houses-left', file:'map3d/fg-town-houses-left-c.png?v=r11', ax:537, ay:2151, depth:2383, zone:'town'},
-  {id:'fghousesmid', key:'fg3d-houses-mid', file:'map3d/fg-town-houses-mid-c.png?v=r11', ax:2835, ay:2189, depth:2392, zone:'town'},
-  {id:'fghousesbr', key:'fg3d-houses-br', file:'map3d/fg-town-houses-br-c.png?v=r11', ax:1588, ay:2789, depth:2973, zone:'town'},
-  {id:'fghousessq', key:'fg3d-houses-sq', file:'map3d/fg-town-houses-sq-c.png?v=r11', ax:2067, ay:2108, depth:2317, zone:'town'},
-  {id:'fgbushpalace', key:'fg3d-bush-palace', file:'map3d/fg-town-bush-palace-c.png?v=r11', ax:216, ay:2684, depth:2885, zone:'town'},
-  {id:'fgtreetower1', key:'fg3d-tree-tower-1', file:'map3d/fg-town-tree-tower-1-c.png?v=r11', ax:945, ay:1696, depth:1806, zone:'town'},
-  {id:'fgtreetower2', key:'fg3d-tree-tower-2', file:'map3d/fg-town-tree-tower-2-c.png?v=r11', ax:1318, ay:1718, depth:1810, zone:'town'},
-  {id:'fgtreetower3', key:'fg3d-tree-tower-3', file:'map3d/fg-town-tree-tower-3-c.png?v=r11', ax:1506, ay:1718, depth:1803, zone:'town'},
-  {id:'fgtreetower4', key:'fg3d-tree-tower-4', file:'map3d/fg-town-tree-tower-4-c.png?v=r11', ax:1709, ay:1718, depth:1803, zone:'town'},
-  {id:'fgtreetower5', key:'fg3d-tree-tower-5', file:'map3d/fg-town-tree-tower-5-c.png?v=r11', ax:1899, ay:1726, depth:1810, zone:'town'},
-  {id:'fgtreemidl', key:'fg3d-tree-mid-l', file:'map3d/fg-town-tree-mid-l-c.png?v=r11', ax:2799, ay:2262, depth:2352, zone:'town'},
-  {id:'fgtreemidr', key:'fg3d-tree-mid-r', file:'map3d/fg-town-tree-mid-r-c.png?v=r11', ax:3097, ay:2278, depth:2359, zone:'town'},
-  {id:'fgtreebrl', key:'fg3d-tree-br-l', file:'map3d/fg-town-tree-br-l-c.png?v=r11', ax:1623, ay:2815, depth:2929, zone:'town'},
-  {id:'fgtreebrr', key:'fg3d-tree-br-r', file:'map3d/fg-town-tree-br-r-c.png?v=r11', ax:2366, ay:2815, depth:2929, zone:'town'},
-  {id:'fgtreebitexco3', key:'fg3d-tree-bitexco-3', file:'map3d/fg-town-tree-bitexco-3-c.png?v=r11', ax:2566, ay:951, depth:1171, zone:'town'},
+  {id:'fgtower', key:'fg3d-tower', file:'map3d/fg-town-tower-c.png?v=r11.2', ax:1336, ay:1138, depth:1830, zone:'town'},
+  {id:'fgpalace', key:'fg3d-palace', file:'map3d/fg-town-palace-c.png?v=r11.2', ax:146, ay:2784, depth:3252, zone:'town'},
+  {id:'fgpagoda', key:'fg3d-pagoda', file:'map3d/fg-town-pagoda-c.png?v=r11.2', ax:2638, ay:1238, depth:1922, zone:'town'},
+  {id:'fghousesbitexco', key:'fg3d-houses-bitexco', file:'map3d/fg-town-houses-bitexco-c.png?v=r11.2', ax:1899, ay:1135, depth:1281, zone:'town'},
+  {id:'fghousesleft', key:'fg3d-houses-left', file:'map3d/fg-town-houses-left-c.png?v=r11.2', ax:546, ay:2151, depth:2383, zone:'town'},
+  {id:'fghousesmid', key:'fg3d-houses-mid', file:'map3d/fg-town-houses-mid-c.png?v=r11.2', ax:2835, ay:2189, depth:2392, zone:'town'},
+  {id:'fghousesbr', key:'fg3d-houses-br', file:'map3d/fg-town-houses-br-c.png?v=r11.2', ax:1596, ay:2789, depth:2972, zone:'town'},
+  {id:'fghousessq', key:'fg3d-houses-sq', file:'map3d/fg-town-houses-sq-c.png?v=r11.2', ax:2076, ay:2108, depth:2317, zone:'town'},
+  {id:'fgbushpalace', key:'fg3d-bush-palace', file:'map3d/fg-town-bush-palace-c.png?v=r11.2', ax:216, ay:2684, depth:2885, zone:'town'},
+  {id:'fgtreetower1', key:'fg3d-tree-tower-1', file:'map3d/fg-town-tree-tower-1-c.png?v=r11.2', ax:945, ay:1696, depth:1806, zone:'town'},
+  {id:'fgtreetower2', key:'fg3d-tree-tower-2', file:'map3d/fg-town-tree-tower-2-c.png?v=r11.2', ax:1318, ay:1718, depth:1810, zone:'town'},
+  {id:'fgtreetower3', key:'fg3d-tree-tower-3', file:'map3d/fg-town-tree-tower-3-c.png?v=r11.2', ax:1506, ay:1718, depth:1803, zone:'town'},
+  {id:'fgtreetower4', key:'fg3d-tree-tower-4', file:'map3d/fg-town-tree-tower-4-c.png?v=r11.2', ax:1709, ay:1718, depth:1803, zone:'town'},
+  {id:'fgtreetower5', key:'fg3d-tree-tower-5', file:'map3d/fg-town-tree-tower-5-c.png?v=r11.2', ax:1899, ay:1726, depth:1810, zone:'town'},
+  {id:'fgtreemidl', key:'fg3d-tree-mid-l', file:'map3d/fg-town-tree-mid-l-c.png?v=r11.2', ax:2799, ay:2262, depth:2352, zone:'town'},
+  {id:'fgtreemidr', key:'fg3d-tree-mid-r', file:'map3d/fg-town-tree-mid-r-c.png?v=r11.2', ax:3097, ay:2278, depth:2359, zone:'town'},
+  {id:'fgtreebrl', key:'fg3d-tree-br-l', file:'map3d/fg-town-tree-br-l-c.png?v=r11.2', ax:1623, ay:2815, depth:2929, zone:'town'},
+  {id:'fgtreebrr', key:'fg3d-tree-br-r', file:'map3d/fg-town-tree-br-r-c.png?v=r11.2', ax:2366, ay:2815, depth:2929, zone:'town'},
+  {id:'fgtreebitexco3', key:'fg3d-tree-bitexco-3', file:'map3d/fg-town-tree-bitexco-3-c.png?v=r11.2', ax:2566, ay:951, depth:1171, zone:'town'},
 ];
 function buildForeground(scene){
   FG3D.forEach(function(f){
@@ -4686,7 +4698,7 @@ class WorldScene extends Phaser.Scene {
   preload(){
     /* SINGLE-TOWN (đợt #6): 1 nền duy nhất bg-town.png 1600x1400 (An duyệt 23:25).
        3 nền cũ plaza/street/market KHÔNG còn tải — giữ file trên đĩa để rollback. */
-    this.load.image('bg-town', 'map3d/bg-town.png?v=r11');
+    this.load.image('bg-town', 'map3d/bg-town.png?v=r11.2');
     /* TIỀN CẢNH 3D: 18 sprite đã crop theo bbox (manifest.json) — vẽ tại
        anchor, depth = foot_y (Y-sort thật). File *-c.png, tổng ~571KB. */
     FG3D.forEach(function(f){ this.load.image(f.key, f.file); }, this);
