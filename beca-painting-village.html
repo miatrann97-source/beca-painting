@@ -9,8 +9,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Bé Cá Vẽ Tranh">
 <meta name="theme-color" content="#7ec8e3">
-<link rel="apple-touch-icon" href="assets-ghibli/beca-icon-512.png?v=vil1">
-<link rel="manifest" href="beca-painting-openworld.webmanifest?v=vil1">
+<link rel="apple-touch-icon" href="assets-ghibli/beca-icon-512.png?v=vil2">
+<link rel="manifest" href="beca-painting-openworld.webmanifest?v=vil2">
 <title>Bé Cá Vẽ Tranh — Quê Nhà Bé Cá 🎨</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%A8%3C/text%3E%3C/svg%3E">
 <style>
@@ -381,7 +381,7 @@ body.map-mode #mapView{display:block}
   background:#BFE3FF;display:block;margin:0 auto 8px;
 }
 #storyOverlay .modal{
-  background:linear-gradient(rgba(255,248,231,.93),rgba(255,248,231,.95)),url(assets-ghibli/story-bg.webp?v=vil1) center/cover;
+  background:linear-gradient(rgba(255,248,231,.93),rgba(255,248,231,.95)),url(assets-ghibli/story-bg.webp?v=vil2) center/cover;
 }
 #storyDots{font-size:13px;letter-spacing:5px;color:#C9B896;margin-bottom:6px}
 #storyDots .on{color:var(--sea)}
@@ -468,7 +468,7 @@ body.map-mode #mapView{display:block}
     </div>
     <section class="panel" id="scenePanel">
       <div id="becaBox">
-        <img id="becaImg" src="assets-ghibli/beca-sprite.webp?v=vil1" alt="Bé cá">
+        <img id="becaImg" src="assets-ghibli/beca-sprite.webp?v=vil2" alt="Bé cá">
         <div id="becaName">🐟 Bé Cá</div>
       </div>
       <div id="custBox">
@@ -635,7 +635,7 @@ body.map-mode #mapView{display:block}
 
 <div class="overlay" id="storyOverlay">
   <div class="modal">
-    <img id="storyImg" src="assets-ghibli/beca-sprite.webp?v=vil1" alt="Bé cá">
+    <img id="storyImg" src="assets-ghibli/beca-sprite.webp?v=vil2" alt="Bé cá">
     <div id="storyDots"></div>
     <h2 id="storyTitle">—</h2>
     <p id="storyText">—</p>
@@ -652,12 +652,12 @@ body.map-mode #mapView{display:block}
     <p style="text-align:center;font-size:12.5px;color:#7A6A55" data-i18n="villageMapHint">Chạm vào 📍 để xem địa điểm · Chấm trắng là bé cá</p>
     <div class="mapRow">
       <div id="villageMapWrap" style="position:relative">
-        <img id="villageMapImg" src="assets-village/village-home.webp?v=vil1" alt="Bản đồ làng" style="width:100%;display:block;border-radius:12px;border:2px solid var(--wood)">
+        <img id="villageMapImg" src="assets-village/village-home.webp?v=vil2" alt="Bản đồ làng" style="width:100%;display:block;border-radius:12px;border:2px solid var(--wood)">
         <div id="villageMapPins" style="position:absolute;inset:0;pointer-events:none"></div>
         <div id="villageMapBeca" title="Bé cá"></div>
       </div>
       <div class="mapCol">
-        <img id="villageMapTopImg" src="assets-village/village-home.webp?v=vil1" alt="Bản đồ làng nhìn từ trên" style="width:100%;display:block;border-radius:12px;border:2px solid var(--wood)">
+        <img id="villageMapTopImg" src="assets-village/village-home.webp?v=vil2" alt="Bản đồ làng nhìn từ trên" style="width:100%;display:block;border-radius:12px;border:2px solid var(--wood)">
         <p style="text-align:center;font-size:12.5px;color:#7A6A55;margin:4px 0 0">Quê nhà bé cá — nhìn từ trên 🏡</p>
       </div>
     </div>
@@ -666,7 +666,7 @@ body.map-mode #mapView{display:block}
 </div>
 
 <div id="toast"></div>
-<script src="phaser-4.2.1.min.js?v=vil1"></script>
+<script src="phaser-4.2.1.min.js?v=vil2"></script>
 <script>
 "use strict";
 /* ================= Bé Cá Vẽ Tranh — game vẽ tranh kiểu Passpartout 2 =================
@@ -709,20 +709,20 @@ const CONFIG = {
   IMAGES: {
     /* vil1 — ảnh làng đã duyệt (An 19:17): nền chơi duy nhất, hiển thị 1×;
        ảnh top dùng trong overlay bản đồ làng (lazy) */
-    worldTop: 'assets-village/village-home.webp?v=vil1',     // làng quê nhà (1920×1280)
-    worldAngle: 'assets-village/village-home.webp?v=vil1', // làng quê nhà — nền chơi duy nhất (1920×1280)
+    worldTop: 'assets-village/village-home.webp?v=vil2',     // làng quê nhà (1920×1280)
+    worldAngle: 'assets-village/village-home.webp?v=vil2', // làng quê nhà — nền chơi duy nhất (1920×1280)
 
-    beca: 'assets-ghibli/beca-sprite.webp?v=vil1',     // bé cá toàn thân (nền trong)
-    becaEmpty: 'assets-ghibli/beca-sprite-empty.webp?v=vil1', // bé cá TAY KHÔNG (bảng + khay đã xoá) — sprite dự phòng trên bản đồ: tay phải trống ở mọi trạng thái (đứng/đi/chạy); bản beca (cầm bảng+khay) chỉ dùng ở khung truyện / khung cảnh vẽ
-    storyBg: 'assets-ghibli/story-bg.webp?v=vil1',     // nền màn truyện
+    beca: 'assets-ghibli/beca-sprite.webp?v=vil2',     // bé cá toàn thân (nền trong)
+    becaEmpty: 'assets-ghibli/beca-sprite-empty.webp?v=vil2', // bé cá TAY KHÔNG (bảng + khay đã xoá) — sprite dự phòng trên bản đồ: tay phải trống ở mọi trạng thái (đứng/đi/chạy); bản beca (cầm bảng+khay) chỉ dùng ở khung truyện / khung cảnh vẽ
+    storyBg: 'assets-ghibli/story-bg.webp?v=vil2',     // nền màn truyện
     customers: {                                // mặt khách (ảnh vuông)
-      tung: 'assets-ghibli/cust-tung.webp?v=vil1',
-      hoa: 'assets-ghibli/cust-hoa.webp?v=vil1',
-      mimi: 'assets-ghibli/cust-mimi.webp?v=vil1',
-      chu: 'assets-ghibli/cust-chu.webp?v=vil1',       // bác nông dân
-      lan: 'assets-openworld/face-lan.webp?v=vil1',    // chị Lan, chủ quán cà phê
-      nam: 'assets-openworld/face-nam.webp?v=vil1',    // bà Năm, chủ của Mimi
-      thuyen: 'assets-ghibli/cust-bay.webp?v=vil1',    // bác Thuyền (tạm dùng chân dung đầu bếp — chưa có ảnh thuyền trưởng riêng)
+      tung: 'assets-ghibli/cust-tung.webp?v=vil2',
+      hoa: 'assets-ghibli/cust-hoa.webp?v=vil2',
+      mimi: 'assets-ghibli/cust-mimi.webp?v=vil2',
+      chu: 'assets-ghibli/cust-chu.webp?v=vil2',       // bác nông dân
+      lan: 'assets-openworld/face-lan.webp?v=vil2',    // chị Lan, chủ quán cà phê
+      nam: 'assets-openworld/face-nam.webp?v=vil2',    // bà Năm, chủ của Mimi
+      thuyen: 'assets-ghibli/cust-bay.webp?v=vil2',    // bác Thuyền (tạm dùng chân dung đầu bếp — chưa có ảnh thuyền trưởng riêng)
     },
   },
   /* ---- bản đồ: kích thước thế giới, vùng đi được, tốc độ ---- */
@@ -744,7 +744,7 @@ const CONFIG = {
   GROUND: [
     [0,330],[400,310],[800,280],[1200,260],[1600,300],[1920,330],
   ],
-  SPEED_MAX: 340,  // px/s khi kéo xa (chạy); kéo nhẹ = đi bộ chậm
+  SPEED_MAX: 220,  // px/s khi kéo xa (chạy); kéo nhẹ = đi bộ chậm — An 21:56: đi quá nhanh, giật lag nên giảm từ 340
   OBSTACLES: [      // vil1: gốc cây + đá trên ảnh làng — ĐO THẬT từ village-home.webp (21/11)
     { x: 69, y: 269, r: 45 },   // cây to góc trái-trên (thân)
     { x: 382, y: 520, r: 45 },  // cây ăn trái (điểm hái)
@@ -837,15 +837,15 @@ const CONFIG = {
      Bé cá 140px ở giữa làng; bác nông dân / anh câu cá cao hơn bé cá một chút,
      cô chủ tiệm ngang bé cá (trừ mèo Mimi). idleFrame = khung đứng yên (khung "vượt qua", chân chụm). */
   RIGS: {
-    hoa:  { walk:'assets-ghibli/rig-hoa-walk.webp?v=vil1',  jump:'assets-ghibli/rig-hoa-jump.webp?v=vil1',  walkFrames:6, jumpFrames:3, idleFrame:1, height:141, stepPx:48 },
-    tung: { walk:'assets-ghibli/rig-tung-walk.webp?v=vil1', jump:'assets-ghibli/rig-tung-jump.webp?v=vil1', walkFrames:6, jumpFrames:3, idleFrame:1, height:154, stepPx:62 },
-    chu:  { walk:'assets-ghibli/rig-chu-walk.webp?v=vil1',  jump:'assets-ghibli/rig-chu-jump.webp?v=vil1',  walkFrames:6, jumpFrames:3, idleFrame:1, height:154, stepPx:62 },
-    mimi: { walk:'assets-openworld/rig-mimi-walk-clean.webp?v=vil1', jump:'assets-openworld/rig-mimi-jump-clean.webp?v=vil1', walkFrames:6, jumpFrames:3, idleFrame:1, height:90, stepPx:42 }, /* vil1: Mimi mèo cam đi 4 chân, sheet đã tách nền + cắt đáy sẵn */
-    lan: { walk:'assets-openworld/rig-lan-walk-clean.webp?v=vil1', jump:'assets-openworld/rig-lan-walk-clean.webp?v=vil1', walkFrames:6, jumpFrames:6, idleFrame:1, height:141, stepPx:48 }, /* vil1 đảo: Chị Lan, chủ quán cà phê */
-    nam: { walk:'assets-openworld/rig-nam-walk-clean.webp?v=vil1', jump:'assets-openworld/rig-nam-walk-clean.webp?v=vil1', walkFrames:6, jumpFrames:6, idleFrame:1, height:132, stepPx:42 }, /* vil1 đảo: Bà Năm, bà cụ nón lá, chủ của Mimi */
-    thuyen: { walk:'assets-ghibli/rig-chu-walk.webp?v=vil1', jump:'assets-ghibli/rig-chu-jump.webp?v=vil1', walkFrames:6, jumpFrames:3, idleFrame:1, height:160, stepPx:62 }, /* vil1 đảo: Bác Thuyền, thuyền trưởng (tạm dùng sheet ông già) */
-    miu: { walk:'assets-openworld/rig-mimi-walk-clean.webp?v=vil1', jump:'assets-openworld/rig-mimi-walk-clean.webp?v=vil1', walkFrames:6, jumpFrames:6, idleFrame:1, height:72, stepPx:30, tint:0xE0D0C0 }, /* vil1 đảo: Miu, mèo con (tint sáng hơn Mimi) */
-    beca: { walk:'assets-ghibli/beca-walk-shorts.webp?v=vil1', jump:'assets-ghibli/beca-jump-shorts.webp?v=vil1', idle:'assets-ghibli/beca-idle-shorts.webp?v=vil1', walkFrames:6, jumpFrames:3, idleFrame:0, height:158, stepPx:56 }, /* vil1: bé cá quần NGẮN trên đầu gối + chân da + tất trắng ngắn sọc mint + bánh mì thò ra (An chuẩn 19:47, đã kiểm bằng mắt + đo pixel) — cao 158 (An 21:04: to hơn xíu cân bằng với NPC 141-160) */
+    hoa:  { walk:'assets-ghibli/rig-hoa-walk.webp?v=vil2',  jump:'assets-ghibli/rig-hoa-jump.webp?v=vil2',  walkFrames:6, jumpFrames:3, idleFrame:1, height:141, stepPx:48 },
+    tung: { walk:'assets-ghibli/rig-tung-walk.webp?v=vil2', jump:'assets-ghibli/rig-tung-jump.webp?v=vil2', walkFrames:6, jumpFrames:3, idleFrame:1, height:154, stepPx:62 },
+    chu:  { walk:'assets-ghibli/rig-chu-walk.webp?v=vil2',  jump:'assets-ghibli/rig-chu-jump.webp?v=vil2',  walkFrames:6, jumpFrames:3, idleFrame:1, height:154, stepPx:62 },
+    mimi: { walk:'assets-openworld/rig-mimi-walk-clean.webp?v=vil2', jump:'assets-openworld/rig-mimi-jump-clean.webp?v=vil2', walkFrames:6, jumpFrames:3, idleFrame:1, height:90, stepPx:42 }, /* vil1: Mimi mèo cam đi 4 chân, sheet đã tách nền + cắt đáy sẵn */
+    lan: { walk:'assets-openworld/rig-lan-walk-clean.webp?v=vil2', jump:'assets-openworld/rig-lan-walk-clean.webp?v=vil2', walkFrames:6, jumpFrames:6, idleFrame:1, height:141, stepPx:48 }, /* vil1 đảo: Chị Lan, chủ quán cà phê */
+    nam: { walk:'assets-openworld/rig-nam-walk-clean.webp?v=vil2', jump:'assets-openworld/rig-nam-walk-clean.webp?v=vil2', walkFrames:6, jumpFrames:6, idleFrame:1, height:132, stepPx:42 }, /* vil1 đảo: Bà Năm, bà cụ nón lá, chủ của Mimi */
+    thuyen: { walk:'assets-ghibli/rig-chu-walk.webp?v=vil2', jump:'assets-ghibli/rig-chu-jump.webp?v=vil2', walkFrames:6, jumpFrames:3, idleFrame:1, height:160, stepPx:62 }, /* vil1 đảo: Bác Thuyền, thuyền trưởng (tạm dùng sheet ông già) */
+    miu: { walk:'assets-openworld/rig-mimi-walk-clean.webp?v=vil2', jump:'assets-openworld/rig-mimi-walk-clean.webp?v=vil2', walkFrames:6, jumpFrames:6, idleFrame:1, height:72, stepPx:30, tint:0xE0D0C0 }, /* vil1 đảo: Miu, mèo con (tint sáng hơn Mimi) */
+    beca: { walk:'assets-ghibli/beca-walk-shorts.webp?v=vil2', jump:'assets-ghibli/beca-jump-shorts.webp?v=vil2', idle:'assets-ghibli/beca-idle-shorts.webp?v=vil2', walkFrames:6, jumpFrames:3, idleFrame:0, height:158, stepPx:56 }, /* vil1: bé cá quần NGẮN trên đầu gối + chân da + tất trắng ngắn sọc mint + bánh mì thò ra (An chuẩn 19:47, đã kiểm bằng mắt + đo pixel) — cao 158 (An 21:04: to hơn xíu cân bằng với NPC 141-160) */
   },
   /* ---- rig xương THẬT cho bé cá (bone rig, KHÔNG lật ảnh) ----
      Bé cá được dựng từ các bộ phận rời nối bằng khớp (đầu, thân, tay trên/cẳng
@@ -1337,7 +1337,7 @@ const CONFIG = {
      stairChance: tỉ lệ chọn leo cầu thang thay vì đi dạo;
      range: đi xa khỏi điểm gốc tối đa bao nhiêu px. */
   WANDER: {
-    idleMin:2, idleMax:6, walkSpeed:70, runSpeed:165,
+    idleMin:2, idleMax:6, walkSpeed:55, runSpeed:110,
     hopChance:0.10, runChance:0.12, stairChance:0, range:200,
   },
   /* ---- khu vực thế giới mở (3 khu ngang, mỗi khu 1600px) ---- */
@@ -2932,10 +2932,10 @@ const rigSheetURL = {};
 const rigSheetCanvas = {};
 const npcFaceURL = {};
 /* r11.5: mặt NPC cắt sẵn từ sheet đã tách nền (thay cho makeNpcFace chạy lúc boot) */
-npcFaceURL.mimi = 'assets-openworld/face-mimi.webp?v=vil1';
-npcFaceURL.lan = 'assets-openworld/face-lan.webp?v=vil1';
-npcFaceURL.nam = 'assets-openworld/face-nam.webp?v=vil1';
-npcFaceURL.miu = 'assets-openworld/face-mimi.webp?v=vil1'; /* Miu dùng chung mặt mèo với Mimi (chưa có ảnh riêng) */
+npcFaceURL.mimi = 'assets-openworld/face-mimi.webp?v=vil2';
+npcFaceURL.lan = 'assets-openworld/face-lan.webp?v=vil2';
+npcFaceURL.nam = 'assets-openworld/face-nam.webp?v=vil2';
+npcFaceURL.miu = 'assets-openworld/face-mimi.webp?v=vil2'; /* Miu dùng chung mặt mèo với Mimi (chưa có ảnh riêng) */
 function deWhiteRigSheet(id, which){
   const img = rigImgs[id] && rigImgs[id][which];
   if(!img || !img.naturalWidth) return;
@@ -3581,7 +3581,7 @@ function boneInit(){
     const img = new Image();
     img.onload = ()=>{ boneSheets[f] = {img, w:img.naturalWidth, h:img.naturalHeight}; boneBuildFacing(f); boneUpdateFallback(); };
     img.onerror = ()=>{ console.warn('[bone] sheet lỗi:', f); boneFailed[f] = true; boneUpdateFallback(); };
-    img.src = 'assets-ghibli/' + CONFIG.BECA_BONES.parts[f].sheet + '?v=vil1';
+    img.src = 'assets-ghibli/' + CONFIG.BECA_BONES.parts[f].sheet + '?v=vil2';
   }
   boneUpdateFallback(); /* hiện sprite dự phòng trong lúc chờ sheet đầu tiên */
 }
