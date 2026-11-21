@@ -301,6 +301,19 @@ body.map-mode #mapView{display:block}
   position:absolute;transform:translate(-50%,-50%);width:16px;height:16px;border-radius:50%;
   background:#fff;border:3px solid #2E86DE;box-shadow:0 0 0 2px rgba(255,255,255,.7);pointer-events:none;
 }
+/* vil1 — bản đồ làng: mặc định 2 ảnh xếp dọc; màn hình thấp (ngang điện thoại)
+   xếp 2 ảnh cạnh nhau để modal vừa khung 844x390, vẫn cuộn được nếu cần */
+.mapRow{display:block}
+.mapRow .mapCol{margin-top:10px}
+@media (max-height:500px){
+  #villageMapOverlay .modal{padding:10px 12px}
+  #villageMapOverlay .modal h2{font-size:19px;margin-bottom:4px}
+  #villageMapOverlay .modal p{margin-bottom:4px}
+  #villageMapOverlay .mapRow{display:flex;gap:8px;align-items:flex-start}
+  #villageMapOverlay .mapRow>*{flex:1;min-width:0}
+  #villageMapOverlay .mapRow .mapCol{margin-top:0}
+  #villageMapOverlay .bigbtn{padding:8px 14px;font-size:15px}
+}
 #offerThumb{width:100%;max-width:300px;border:3px solid var(--wood);border-radius:12px;margin:6px auto;display:block}
 #landlordAvatar{width:96px;height:96px;margin:0 auto 8px;border-radius:50%;overflow:hidden;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.2)}
 #landlordAvatar img{display:block;width:100%;height:100%;object-fit:cover}
@@ -337,12 +350,21 @@ body.map-mode #mapView{display:block}
 .shopItem .ds{font-size:13px;color:#7A6A55;line-height:1.35}
 .buyBtn{
   border:none;border-radius:10px;padding:8px 12px;cursor:pointer;font-weight:800;font-size:14px;
-  background:var(--gold);color:#fff;white-space:nowrap;
+  background:var(--gold);color:#4A2E00;white-space:nowrap;
 }
-.buyBtn:disabled{opacity:.45;cursor:not-allowed}
-.buyBtn.owned{background:#27AE60}
+.buyBtn:disabled{opacity:1;background:#EFE3C2;color:#7A6A55;cursor:not-allowed}
+.buyBtn.owned{background:#27AE60;color:#fff}
+/* vil1 — shop nội thất: 2 cột để đủ 5 món trong khung ngang 844x390, không cuộn */
+#furnList{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+#furnList .shopItem{margin-bottom:0;padding:6px 8px}
+#furnList .buyBtn{white-space:normal;text-align:center;line-height:1.25;padding:6px 8px;font-size:13px}
 .progress{height:12px;background:#EFE3C2;border-radius:99px;overflow:hidden;margin:6px 0}
 .progress>div{height:100%;background:linear-gradient(90deg,#F5B301,#FF6B9D)}
+/* vil1 đảo — khung cảnh trong nhà (phòng ấm: tường vàng + sàn gỗ) */
+.room{position:relative;height:210px;border-radius:14px;background:linear-gradient(#FFE8C2 0 62%, #D9A066 62% 100%);border:2px solid #E0B184;overflow:hidden;margin:8px 0}
+.roomItem{position:absolute;font-size:46px;line-height:1;display:none}
+#roomLamp{filter:drop-shadow(0 0 12px #FFD93D)}
+#roomEmpty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8B5A2B;font-size:14px;padding:0 24px;text-align:center}
 .confetti{position:absolute;width:10px;height:16px;top:-20px;animation:fall linear infinite;opacity:.9}
 @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
 #toast{
@@ -395,7 +417,7 @@ body.map-mode #mapView{display:block}
 #joyKnob{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px 0 0 -24px;border-radius:50%;background:rgba(46,134,222,.65);border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3)}
 #camCompass{position:absolute;right:8px;top:8px;z-index:8;background:rgba(58,46,34,.85);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:800;white-space:nowrap}
 #zonePill{position:absolute;left:8px;top:8px;z-index:8;background:rgba(255,253,245,.95);border:2px solid var(--wood);border-radius:999px;padding:4px 10px;font-weight:800;font-size:13px;box-shadow:0 3px 8px rgba(0,0,0,.25)}
-#questPanel{position:absolute;left:8px;top:46px;z-index:8;width:230px;background:rgba(255,253,245,.95);border:2px solid var(--wood);border-radius:12px;padding:6px 8px;font-size:12.5px;font-weight:700;box-shadow:0 3px 8px rgba(0,0,0,.25)}
+#questPanel{position:absolute;left:8px;top:46px;z-index:8;width:230px;max-height:230px;overflow-y:auto;background:rgba(255,253,245,.95);border:2px solid var(--wood);border-radius:12px;padding:6px 8px;font-size:12.5px;font-weight:700;box-shadow:0 3px 8px rgba(0,0,0,.25)}
 #questPanel .qpTitle{font-weight:800;font-size:13px;margin-bottom:2px}
 #questPanel .qpItem{cursor:pointer;padding:3px 4px;border-radius:8px;line-height:1.3}
 #questPanel .qpItem:hover{background:#FFF3D6}
@@ -422,7 +444,7 @@ body.map-mode #mapView{display:block}
     <h1>🎨 <span data-i18n="title">Bé Cá Vẽ Tranh</span></h1>
     <div class="spacer"></div>
     <span class="pill">💰 <b id="coins">0đ</b></span>
-    <span class="pill"><span data-i18n="day">Ngày</span> <b id="dayNum">1</b> · <span id="custCount">1/3</span></span>
+    <span class="pill">🏝️ Đảo Bé Cá</span>
     <button class="hbtn" id="soundBtn" title="Âm thanh">🔊</button>
     <button class="hbtn" id="mapBtn" data-testid="mapBtn" title="Về phố">🗺️ <span data-i18n="backToTown">Về phố</span></button>
     <button class="hbtn" id="storyBtn" data-testid="storyBtn" title="Câu chuyện">📖</button>
@@ -574,6 +596,42 @@ body.map-mode #mapView{display:block}
   </div>
 </div>
 
+<div class="overlay" id="rentOverlay">
+  <div class="modal">
+    <h2>🏠 <span data-i18n="rentTitle">Nhà cho thuê</span></h2>
+    <p data-i18n="rentDesc">Căn nhà vàng nhỏ xinh góc phải đảo. Thuê rồi bé cá sẽ có chỗ ở của riêng mình!</p>
+    <p>💰 <span id="rentMoney">0đ</span> · <span data-i18n="rentPriceLabel">Giá thuê:</span> <b id="rentPrice">1.000đ</b></p>
+    <div class="meter"><div class="fill" id="rentMeter" style="width:0%"></div></div>
+    <button class="bigbtn green" id="rentBtn" onclick="doRent()">🏠 Thuê nhà · 1.000đ</button>
+    <button class="bigbtn" onclick="closeOverlay('rentOverlay')">⏳ <span data-i18n="questLater">Để sau</span></button>
+  </div>
+</div>
+
+<div class="overlay" id="furnOverlay">
+  <div class="modal" style="text-align:left">
+    <h2 style="text-align:center">🛋️ <span data-i18n="furnTitle">Cửa hàng nội thất</span></h2>
+    <p style="text-align:center">💰 <span id="furnMoney">0đ</span> · <span data-i18n="furnCountLabel">Đã mua:</span> <b id="furnCount">0/5</b></p>
+    <div id="furnList"></div>
+    <div style="text-align:center"><button class="bigbtn" onclick="closeOverlay('furnOverlay')">✅ <span data-i18n="done">Xong</span></button></div>
+  </div>
+</div>
+
+<div class="overlay" id="interiorOverlay">
+  <div class="modal">
+    <h2>🏠 <span data-i18n="interiorTitle">Nhà của bé cá</span></h2>
+    <div class="room">
+      <div class="roomItem" id="roomLamp" style="top:8px;right:12px">💡</div>
+      <div class="roomItem" id="roomBed" style="left:12px;bottom:14px">🛏️</div>
+      <div class="roomItem" id="roomTable" style="left:50%;bottom:44px;transform:translateX(-50%)">🍽️</div>
+      <div class="roomItem" id="roomChair" style="right:56px;bottom:28px">🪑</div>
+      <div class="roomItem" id="roomRug" style="left:50%;bottom:6px;transform:translateX(-50%);font-size:34px">🟫</div>
+      <div id="roomEmpty" data-i18n="roomEmpty">Nhà còn trống — mua nội thất để trang trí nhé!</div>
+    </div>
+    <button class="bigbtn" onclick="closeOverlay('interiorOverlay');openFurniture()">🛍️ <span data-i18n="furnTitle">Cửa hàng nội thất</span></button>
+    <button class="bigbtn" onclick="closeOverlay('interiorOverlay')">✅ <span data-i18n="done">Xong</span></button>
+  </div>
+</div>
+
 <div class="overlay" id="storyOverlay">
   <div class="modal">
     <img id="storyImg" src="assets-ghibli/beca-sprite.webp?v=vil1" alt="Bé cá">
@@ -591,13 +649,17 @@ body.map-mode #mapView{display:block}
   <div class="modal" style="max-width:560px;text-align:left">
     <h2 style="text-align:center"><span data-i18n="villageMapTitle">🗺️ Bản đồ làng</span></h2>
     <p style="text-align:center;font-size:12.5px;color:#7A6A55" data-i18n="villageMapHint">Chạm vào 📍 để xem địa điểm · Chấm trắng là bé cá</p>
-    <div id="villageMapWrap" style="position:relative">
-      <img id="villageMapImg" src="assets-village/village-home.webp?v=vil1" alt="Bản đồ làng" style="width:100%;display:block;border-radius:12px;border:2px solid var(--wood)">
-      <div id="villageMapPins" style="position:absolute;inset:0;pointer-events:none"></div>
-      <div id="villageMapBeca" title="Bé cá"></div>
+    <div class="mapRow">
+      <div id="villageMapWrap" style="position:relative">
+        <img id="villageMapImg" src="assets-village/village-home.webp?v=vil1" alt="Bản đồ làng" style="width:100%;display:block;border-radius:12px;border:2px solid var(--wood)">
+        <div id="villageMapPins" style="position:absolute;inset:0;pointer-events:none"></div>
+        <div id="villageMapBeca" title="Bé cá"></div>
+      </div>
+      <div class="mapCol">
+        <img id="villageMapTopImg" src="assets-village/village-home.webp?v=vil1" alt="Bản đồ làng nhìn từ trên" style="width:100%;display:block;border-radius:12px;border:2px solid var(--wood)">
+        <p style="text-align:center;font-size:12.5px;color:#7A6A55;margin:4px 0 0">Quê nhà bé cá — nhìn từ trên 🏡</p>
+      </div>
     </div>
-    <img id="villageMapTopImg" data-src="assets-village/village-home.webp?v=vil1" alt="Bản đồ làng nhìn từ trên" style="width:100%;display:block;border-radius:12px;border:2px solid var(--wood);margin-top:10px">
-    <p style="text-align:center;font-size:12.5px;color:#7A6A55">Quê nhà bé cá — nhìn từ trên 🏡</p>
     <div style="text-align:center"><button class="bigbtn green" id="villageMapClose" data-testid="villageMapClose">✅ <span data-i18n="villageMapClose">Đóng</span></button></div>
   </div>
 </div>
@@ -657,6 +719,9 @@ const CONFIG = {
       hoa: 'assets-ghibli/cust-hoa.webp?v=vil1',
       mimi: 'assets-ghibli/cust-mimi.webp?v=vil1',
       chu: 'assets-ghibli/cust-chu.webp?v=vil1',       // bác nông dân
+      lan: 'assets-openworld/face-lan.webp?v=vil1',    // chị Lan, chủ quán cà phê
+      nam: 'assets-openworld/face-nam.webp?v=vil1',    // bà Năm, chủ của Mimi
+      thuyen: 'assets-ghibli/cust-bay.webp?v=vil1',    // bác Thuyền (tạm dùng chân dung đầu bếp — chưa có ảnh thuyền trưởng riêng)
     },
   },
   /* ---- bản đồ: kích thước thế giới, vùng đi được, tốc độ ---- */
@@ -708,13 +773,14 @@ const CONFIG = {
     { id:'housePinkTop', testid:'house-pinktop', action:'none', solid:true, nohot:true, rect:[730, 110, 220, 160], mmColor:'#F2A0B0' },
     { id:'houseMintMid', testid:'house-mintmid', action:'none', solid:true, nohot:true, rect:[330, 560, 300, 230], mmColor:'#A8D8C8' },
     { id:'housePinkBL', testid:'house-pinkbl', action:'none', solid:true, nohot:true, rect:[50, 660, 330, 270], mmColor:'#F2A0B0' },
-    { id:'houseCreamR', testid:'house-creamr', action:'none', solid:true, nohot:true, rect:[1560, 300, 290, 190], mmColor:'#F5E6C8' },
-    { id:'houseYellowR', testid:'house-yellowr', action:'none', solid:true, nohot:true, rect:[1630, 660, 270, 270], mmColor:'#F9D976' },
+    { id:'houseCreamR', testid:'house-creamr', action:'cafe', solid:true, rect:[1560, 300, 290, 190], mmColor:'#F5E6C8', sign:{ x:1640, y:275, text:'☕ Quán Cà Phê', bg:'#8B5A2B', size:20 } }, /* vil1 đảo: quán cà phê của Chị Lan */
+    { id:'houseYellowR', testid:'house-yellowr', action:'rent', solid:true, rect:[1630, 660, 270, 270], mmColor:'#F9D976', sign:{ x:1765, y:640, text:'🏠 CHO THUÊ · 1.000đ', bg:'#B7791F' } }, /* vil1 đảo: nhà vàng cho thuê */
     { id:'waterRiver1', testid:'water-river1', action:'none', solid:true, nohot:true, rect:[1080, 40, 420, 220], mmColor:'#29B6F6' },
     { id:'waterRiver1b', testid:'water-river1b', action:'none', solid:true, nohot:true, rect:[1180, 220, 260, 180], mmColor:'#29B6F6' },
     { id:'waterRiver2', testid:'water-river2', action:'none', solid:true, nohot:true, rect:[880, 240, 340, 200], mmColor:'#29B6F6' },
     { id:'waterRiver3', testid:'water-river3', action:'none', solid:true, nohot:true, rect:[640, 400, 420, 170], mmColor:'#29B6F6' },
     { id:'waterRiver4', testid:'water-river4', action:'none', solid:true, nohot:true, rect:[0, 520, 660, 180], mmColor:'#29B6F6' },
+    { id:'waterRiverEast', testid:'water-rivereast', action:'none', solid:true, nohot:true, rect:[1120, 400, 80, 180], mmColor:'#29B6F6' }, /* vil1 đảo: bịt khe nước đông cầu (bến tàu) — không đi xuống sông */
     { id:'wallWest',  testid:'wall-west',  action:'none', solid:true, nohot:true, rect:[0, 0, 40, 1280], mmColor:'#B0A090' },
     { id:'wallEast',  testid:'wall-east',  action:'none', solid:true, nohot:true, rect:[1880, 0, 40, 1280], mmColor:'#B0A090' },
     { id:'wallNorth', testid:'wall-north', action:'none', solid:true, nohot:true, rect:[0, 0, 1920, 60], mmColor:'#B0A090' },
@@ -732,16 +798,21 @@ const CONFIG = {
   /* ---- vị trí đứng của từng người trong làng (tọa độ thế giới = ảnh làng 1×1) ---- */
   SPOTS: {  // vil1: đã kiểm không nằm trong nhà/nước
     hoa: [1330, 800], chu: [460, 520],
-    tung: [1100, 610], mimi: [900, 950],
+    tung: [1120, 640], lan: [1700, 530], nam: [450, 830], thuyen: [1420, 470],
+    mimi: [900, 950], miu: [400, 860],
   },
   LANDLORD_SPOT: [460, 520],  // vil1: cùng vị trí bác nông dân (giữ để code cũ không vỡ)
-  LANDLORD: { id:'chu', name:'Bác nông dân', en:'The farmer', mood:1 },
+  LANDLORD: { id:'chu', name:'Bác Tư', en:'Uncle Tu', mood:1 },
   /* ---- người trong làng: thêm người mới thì thêm 1 dòng + 1 ảnh sprite ---- */
   CUSTOMERS: [
-    {id:'hoa',  name:'Cô chủ tiệm', en:'The shopkeeper', mood:3},
-    {id:'chu',  name:'Bác nông dân', en:'The farmer',     mood:1},
-    {id:'tung', name:'Anh câu cá',   en:'The fisherman',  mood:2},
-    {id:'mimi', name:'Mimi',         en:'Mimi',           mood:3},
+    {id:'hoa',  name:'Cô Hoa', en:'Miss Hoa', mood:3},
+    {id:'chu',  name:'Bác Tư', en:'Uncle Tu', mood:1},
+    {id:'tung', name:'Anh Hải', en:'Anh Hai', mood:2},
+    {id:'lan',  name:'Chị Lan', en:'Chi Lan', mood:3},
+    {id:'nam',  name:'Bà Năm', en:'Ba Nam', mood:2},
+    {id:'thuyen', name:'Bác Thuyền', en:'Uncle Thuyen', mood:2},
+    {id:'mimi', name:'Mimi',   en:'Mimi', mood:3},
+    {id:'miu',  name:'Miu',    en:'Miu',  mood:3},
   ],
   /* ---- rig hoạt hình từng khung hình (frame-by-frame, KHÔNG cắt rời bộ phận) ----
      Mỗi nhân vật có 2 sheet: walk (6 khung đi bộ) + jump (3 khung: nhún lấy đà,
@@ -758,7 +829,11 @@ const CONFIG = {
     tung: { walk:'assets-ghibli/rig-tung-walk.webp?v=vil1', jump:'assets-ghibli/rig-tung-jump.webp?v=vil1', walkFrames:6, jumpFrames:3, idleFrame:1, height:154, stepPx:62 },
     chu:  { walk:'assets-ghibli/rig-chu-walk.webp?v=vil1',  jump:'assets-ghibli/rig-chu-jump.webp?v=vil1',  walkFrames:6, jumpFrames:3, idleFrame:1, height:154, stepPx:62 },
     mimi: { walk:'assets-openworld/rig-mimi-walk-clean.webp?v=vil1', jump:'assets-openworld/rig-mimi-jump-clean.webp?v=vil1', walkFrames:6, jumpFrames:3, idleFrame:1, height:90, stepPx:42 }, /* vil1: Mimi mèo cam đi 4 chân, sheet đã tách nền + cắt đáy sẵn */
-    beca: { walk:'assets-ghibli/beca-walk.webp?v=vil1', jump:'assets-ghibli/beca-jump.webp?v=vil1', idle:'assets-ghibli/beca-idle.webp?v=vil1', walkFrames:6, jumpFrames:3, idleFrame:0, height:140, stepPx:56 }, /* vil1: bé cá quần NGẮN + bánh mì thò ra (đã kiểm bằng mắt) */
+    lan: { walk:'assets-openworld/rig-lan-walk-clean.webp?v=vil1', jump:'assets-openworld/rig-lan-walk-clean.webp?v=vil1', walkFrames:6, jumpFrames:6, idleFrame:1, height:141, stepPx:48 }, /* vil1 đảo: Chị Lan, chủ quán cà phê */
+    nam: { walk:'assets-openworld/rig-nam-walk-clean.webp?v=vil1', jump:'assets-openworld/rig-nam-walk-clean.webp?v=vil1', walkFrames:6, jumpFrames:6, idleFrame:1, height:132, stepPx:42 }, /* vil1 đảo: Bà Năm, bà cụ nón lá, chủ của Mimi */
+    thuyen: { walk:'assets-ghibli/rig-chu-walk.webp?v=vil1', jump:'assets-ghibli/rig-chu-jump.webp?v=vil1', walkFrames:6, jumpFrames:3, idleFrame:1, height:160, stepPx:62 }, /* vil1 đảo: Bác Thuyền, thuyền trưởng (tạm dùng sheet ông già) */
+    miu: { walk:'assets-openworld/rig-mimi-walk-clean.webp?v=vil1', jump:'assets-openworld/rig-mimi-walk-clean.webp?v=vil1', walkFrames:6, jumpFrames:6, idleFrame:1, height:72, stepPx:30, tint:0xE0D0C0 }, /* vil1 đảo: Miu, mèo con (tint sáng hơn Mimi) */
+    beca: { walk:'assets-ghibli/beca-walk-shorts.webp?v=vil1', jump:'assets-ghibli/beca-jump-shorts.webp?v=vil1', idle:'assets-ghibli/beca-idle-shorts.webp?v=vil1', walkFrames:6, jumpFrames:3, idleFrame:0, height:140, stepPx:56 }, /* vil1: bé cá quần NGẮN trên đầu gối + chân da + tất trắng ngắn sọc mint + bánh mì thò ra (An chuẩn 19:47, đã kiểm bằng mắt + đo pixel) */
   },
   /* ---- rig xương THẬT cho bé cá (bone rig, KHÔNG lật ảnh) ----
      Bé cá được dựng từ các bộ phận rời nối bằng khớp (đầu, thân, tay trên/cẳng
@@ -1256,25 +1331,44 @@ const CONFIG = {
   /* ---- khu vực thế giới mở (3 khu ngang, mỗi khu 1600px) ---- */
   /* vil1 — 1 khu duy nhất: cả làng (tọa độ thế giới = ảnh 1×1) */
   ZONES: [
-    { id:'village', x0:0, y0:0, x1:1920, y1:1280, nameVi:'Quê Nhà Bé Cá', nameEn:"Beca's Hometown" },
+    { id:'village', x0:0, y0:0, x1:1920, y1:1280, nameVi:'Đảo Bé Cá', nameEn:"Beca's Island" },
   ],
   /* ---- nhiệm vụ làng (3 loại: vẽ biển / hái trái / câu cá) ----
      Phần thưởng hiện trước trong bảng nhiệm vụ; trạng thái lưu trong save v2. */
   QUESTS: [
-    /* vil1 — qSign: nhiệm vụ ĐẦU TIÊN sau truyện mở đầu: vẽ biển hiệu cho tiệm tạp hoá. */
-    { id:'qSign', type:'paint', giver:'hoa', target:{x:1420, y:790},
-      titleVi:'Vẽ biển hiệu cho tiệm tạp hoá', titleEn:'Paint a sign for the grocery store',
-      descVi:'Cô chủ tiệm muốn một biển hiệu thật đẹp cho tiệm tạp hoá — vẽ một bông hoa thật tươi lên bảng nhé! Biển hiệu cũ mờ hết chữ rồi.', descEn:'The shopkeeper wants a beautiful sign for her grocery store — paint a bright flower on it! The old sign has faded.',
-      reward:300, rewardVi:'+300đ · Cô chủ mời 1 ổ bánh mì', rewardEn:'+300 coins · The shopkeeper treats you to a banh mi',
+    /* vil1 đảo — 6 việc lặt vặt LẶP LẠI ĐƯỢC: làm xong nhận lại để kiếm thêm tiền.
+       (An 19:39 giao toàn quyền; 19:42: không giới hạn ngày/giờ, không thua.) */
+    { id:'jFish', type:'fish', giver:'tung', target:{x:1010, y:620},
+      titleVi:'Câu cá giúp Anh Hải', titleEn:'Fish for Anh Hai', shortVi:'Câu cá', shortEn:'Fishing',
+      descVi:'Anh Hải nhờ bé cá câu giúp 1 con cá ở bờ sông gần cầu gỗ. Chạm vào điểm câu rồi chờ cá cắn câu nhé! Làm xong có thể nhận lại việc để kiếm thêm tiền.',
+      descEn:'Anh Hai asks Beca to catch a fish at the riverbank by the wooden bridge. Tap the fishing spot and wait for a bite! You can take this job again to earn more.',
+      reward:250, rewardVi:'+250đ · Anh Hải cho 1 con cá ngon', rewardEn:'+250 coins · Anh Hai gives you a tasty fish' },
+    { id:'jPlant', type:'pick', giver:'chu', target:{x:230, y:530},
+      titleVi:'Trồng hoa giúp Bác Tư', titleEn:'Plant flowers for Uncle Tu', shortVi:'Trồng hoa', shortEn:'Planting',
+      descVi:'Bác Tư nhờ bé cá trồng hoa vào 3 luống hoa trên bãi cỏ gần bờ sông. Chạm vào luống hoa 3 lần để trồng đủ nhé!',
+      descEn:'Uncle Tu asks Beca to plant flowers in the 3 flower beds on the grass by the river. Tap the flower beds 3 times!',
+      reward:200, rewardVi:'+200đ · Bác Tư cho 1 giỏ hoa', rewardEn:'+200 coins · Uncle Tu gives you a basket of flowers' },
+    { id:'jCafe', type:'pick', giver:'lan', target:{x:1700, y:520},
+      titleVi:'Phục vụ quán cà phê giúp Chị Lan', titleEn:'Serve at the café for Chi Lan', shortVi:'Quán cà phê', shortEn:'Café',
+      descVi:'Quán cà phê của Chị Lan đông khách lắm! Bé cá phụ chị phục vụ 3 khách nhé. Chạm vào quầy trước quán 3 lần.',
+      descEn:'Chi Lan’s café is so busy! Help her serve 3 customers. Tap the counter in front of the café 3 times.',
+      reward:250, rewardVi:'+250đ · Chị Lan mời 1 ly cà phê sữa đá', rewardEn:'+250 coins · Chi Lan treats you to an iced milk coffee' },
+    { id:'jPet', type:'pick', giver:'nam', target:{x:540, y:880},
+      titleVi:'Chăm thú cưng giúp Bà Năm', titleEn:'Look after the pets for Ba Nam', shortVi:'Thú cưng', shortEn:'Pets',
+      descVi:'Bà Năm nhờ bé cá chăm Mimi và Miu giúp bà. Ra góc thú cưng gần nhà Bà Năm, chạm 3 lần để vuốt ve và cho các bé ăn nhé!',
+      descEn:'Ba Nam asks Beca to look after Mimi and Miu for her. Go to the pet corner by Ba Nam’s house and tap 3 times to pet and feed them!',
+      reward:200, rewardVi:'+200đ · Bà Năm cho 1 gói bánh', rewardEn:'+200 coins · Ba Nam gives you a pack of snacks' },
+    { id:'jSign', type:'paint', giver:'hoa', target:{x:1420, y:790},
+      titleVi:'Vẽ biển hiệu cho tiệm tạp hoá', titleEn:'Paint a sign for the grocery store', shortVi:'Vẽ biển hiệu', shortEn:'Paint sign',
+      descVi:'Cô Hoa muốn một biển hiệu thật đẹp cho tiệm tạp hoá — vẽ một bông hoa thật tươi lên bảng nhé! Biển hiệu cũ mờ hết chữ rồi.',
+      descEn:'Miss Hoa wants a beautiful sign for her grocery store — paint a bright flower on it! The old sign has faded.',
+      reward:300, rewardVi:'+300đ · Cô Hoa mời 1 ổ bánh mì', rewardEn:'+300 coins · Miss Hoa treats you to a banh mi',
       request:'flower' },
-    { id:'qPick', type:'pick', giver:'chu', target:{x:380, y:500},
-      titleVi:'Hái trái giúp bác', titleEn:'Pick fruit for the farmer',
-      descVi:'Bác nông dân nhờ bé cá hái giúp 3 trái trên cây ăn trái gần đường làng. Chạm vào cây 3 lần để hái đủ nhé!', descEn:'The farmer asks Beca to pick 3 fruits from the fruit tree by the village road. Tap the tree 3 times!',
-      reward:200, rewardVi:'+200đ · Bác cho 1 giỏ trái cây', rewardEn:'+200 coins · The farmer gives you a basket of fruit' },
-    { id:'qFish', type:'fish', giver:'tung', target:{x:1010, y:620},
-      titleVi:'Câu cá giúp anh', titleEn:'Fish for the fisherman',
-      descVi:'Anh câu cá nhờ bé cá câu giúp 1 con cá ở bờ sông gần cầu gỗ. Chạm vào điểm câu rồi chờ cá cắn câu nhé!', descEn:'The fisherman asks Beca to catch a fish at the riverbank by the wooden bridge. Tap the fishing spot and wait for a bite!',
-      reward:250, rewardVi:'+250đ · Anh cho 1 con cá ngon', rewardEn:'+250 coins · The fisherman gives you a tasty fish' },
+    { id:'jBoat', type:'pick', giver:'thuyen', target:{x:1250, y:380},
+      titleVi:'Chuẩn bị thuyền giúp Bác Thuyền', titleEn:'Prepare the boat for Uncle Thuyen', shortVi:'Chuẩn bị thuyền', shortEn:'Boat prep',
+      descVi:'Thuyền lớn của Bác Thuyền sắp ra khơi, cần chuẩn bị cho kỹ. Ra bến tàu, chạm vào thuyền lớn 3 lần để kiểm tra buồm, dây neo và khoang cá nhé!',
+      descEn:'Uncle Thuyen’s big boat is about to set sail and needs a good prepare. Go to the pier and tap the big boat 3 times to check the sail, ropes and fish hold!',
+      reward:250, rewardVi:'+250đ · Bác Thuyền cho 1 giỏ cá tươi', rewardEn:'+250 coins · Uncle Thuyen gives you a basket of fresh fish' },
   ],
   /* ---- câu thoại rôm rả của dân phố (hiện bong bóng khi đi dạo) ---- */
   CHAT_LINES: {
@@ -1283,7 +1377,11 @@ const CONFIG = {
     hoa: { vi:['Tiệm tạp hoá nhà tôi đây! 🛒','Bánh mì mới ra lò thơm lắm!'], en:['This is my grocery store! 🛒','Fresh bread, just out of the oven!'] },
     chu: { vi:['Trái cây nhà bác chín rồi! 🌳','Hái trái giúp bác nhé!'], en:['My fruit is ripe! 🌳','Help me pick some fruit!'] },
     tung: { vi:['Cá sông này to lắm! 🎣','Câu cá phải kiên nhẫn nha!'], en:['The river fish here are big! 🎣','Fishing takes patience!'] },
+    lan: { vi:['Quán cà phê của chị đây! ☕','Cà phê sữa đá ở đây ngon nhất đảo đó!'], en:['This is my café! ☕','Our iced milk coffee is the best on the island!'] },
+    nam: { vi:['Mimi với Miu ngoan lắm! 🐱','Bà ngồi đây ngắm hai đứa mèo chơi.'], en:['Mimi and Miu are so good! 🐱','I sit here watching the two cats play.'] },
+    thuyen: { vi:['Thuyền của bác đây! ⛵','Sóng hôm nay êm, ra khơi là trúng cá lớn!'], en:['This is my boat! ⛵','The waves are calm today, a big catch awaits!'] },
     mimi: { vi:['Meo meo! 🐱','Mimi thích nằm phơi nắng ở bãi cỏ!'], en:['Meow! 🐱','Mimi loves sunbathing on the grass!'] },
+    miu: { vi:['Miu~ 🐾','Meo meo! 🐱'], en:['Miu~ 🐾','Meow meow! 🐱'] },
   },
   /* ---- yêu cầu vẽ: colors[0] = màu chính, c2 = màu phụ (ngày 3+) ---- */
   REQUESTS: [
@@ -1343,15 +1441,15 @@ const CONFIG = {
 },
   /* ---- truyện mở đầu 3 trang (chỉ hiện lần đầu) ---- */
   STORY: [
-  {titleVi:'Về quê nhà!', titleEn:'Back home!',
-   textVi:'Bé cá về quê nhà rồi nè! Sau bao ngày ở thành phố, bé cá về lại ngôi làng nhỏ xinh có sông, có cầu gỗ, có tiệm tạp hoá của cô chủ.',
-   textEn:"Beca is back home! After so many days in the city, she's back in the little village with its river, wooden bridge, and the shopkeeper's grocery store."},
-  {titleVi:'Mọi người cần giúp!', titleEn:'Everyone needs help!',
-   textVi:'Mọi người trong làng ai cũng quý bé cá. Hôm nay, cô chủ tiệm, bác nông dân và anh câu cá đều cần bé cá giúp một tay đó!',
-   textEn:'Everyone in the village loves Beca. Today, the shopkeeper, the farmer, and the fisherman all need a hand from Beca!'},
-  {titleVi:'Giúp làng nhé!', titleEn:"Let's help the village!",
-   textVi:'Đi tới từng người, nhận việc rồi giúp họ nha. Làm xong, bé cá sẽ được thưởng tiền — để dành mở tiệm vẽ của riêng mình!',
-   textEn:"Go to each person, take their job, and help them. When you finish, Beca earns money — to save up for her very own art shop!"},
+  {titleVi:'Mới ra trường!', titleEn:'Fresh out of school!',
+   textVi:'Bé cá vừa mới ra trường! Chưa có việc làm, chưa có chỗ ở — bé cá lên hòn đảo nhỏ này tìm việc làm lặt vặt để kiếm tiền.',
+   textEn:'Beca just graduated! No job yet, no place to live — Beca came to this little island to find odd jobs and earn some money.'},
+  {titleVi:'Đảo cần giúp!', titleEn:'The island needs help!',
+   textVi:'Trên đảo, mọi người ai cũng cần giúp một tay: câu cá, trồng hoa, phục vụ quán cà phê, chăm sóc thú cưng, vẽ biển hiệu… Làm việc gì cũng có tiền công!',
+   textEn:'On the island, everyone needs a hand: fishing, planting flowers, serving at the café, looking after pets, painting signs… Every job pays!'},
+  {titleVi:'Ước mơ của bé cá', titleEn:'Beca’s dream',
+   textVi:'Bé cá mơ ước: thuê được một căn nhà nhỏ, sắm đủ nội thất, rồi tiết kiệm đủ 5.000đ để lên thành phố thăm ông bà!',
+   textEn:'Beca’s dream: rent a little house, fill it with furniture, then save up 5,000đ to visit Grandma and Grandpa in the city!'},
 ],
   /* ---- toàn bộ chữ VI | EN của game ---- */
   I18N: {
@@ -1361,11 +1459,11 @@ vi:{
   brushS:'Nhỏ', brushM:'Vừa', brushL:'To', eraser:'Tẩy', undo:'Hoàn tác', clearAll:'Xóa hết',
   sell:'Bán tranh', shop:'Cửa hàng', done:'Xong', reset:'Chơi lại từ đầu',
   nextCustomer:'Khách tiếp theo', nextDay:'Sang ngày mai',
-  winTitle:'Bé cá đã có tiệm vẽ riêng!',
-  winText:'Bé cá dành đủ 5.000đ mua lại tiệm vẽ trên phố! Từ nay khách tới tận tiệm xem tranh. Cảm ơn An đã vẽ cùng bé cá!',
+  winTitle:'Bé cá sắp lên thành phố! 🌆',
+  winText:'Bé cá đã tiết kiệm đủ 5.000đ! Hẹn gặp ông bà ở thành phố nhé — cảm ơn An đã chơi cùng bé cá!',
   keepPlaying:'Chơi tiếp tự do',
   skip:'Bỏ qua', next:'Tiếp', startDrawing:'Bắt đầu vẽ',
-  winStory:'Ước mơ thành thật rồi — từ cô sinh viên mới ra trường tay trắng, bé cá đã có tiệm vẽ của riêng mình!',
+  winStory:'Ước mơ thành thật rồi — từ cô sinh viên mới ra trường tay trắng, bé cá đã thuê được nhà, sắm đủ nội thất và tiết kiệm đủ tiền lên thành phố!',
   rules1:'⭐⭐⭐: đúng màu chính ≥{m}%, tô ≥{a}% tranh, ≥{n} nét',
   rules2:'⭐⭐: đúng màu ≥{m}%, tô ≥{a}%, ≥{n} nét',
   rules3:'⭐: có vẽ là được chút tiền nè',
@@ -1376,15 +1474,15 @@ vi:{
   bought:'Mua rồi nè! 🎉', owned:'Đã có', soldOut:'Đã mua',
   dayEnd:'Hết ngày {d}!',
   daySummary:'Hôm nay bé cá bán được {n} tranh, kiếm {m}đ, được {s} sao ⭐',
-  shopGoal:'Mua lại tiệm vẽ',
-  shopGoalDesc:'Đủ 5.000đ là bé cá có tiệm vẽ riêng trên phố! Đã có {m}đ.',
-  buyShop:'Mua tiệm 5.000đ',
+  shopGoal:'Lên thành phố thăm ông bà',
+  shopGoalDesc:'Tiết kiệm đủ 5.000đ để lên thành phố thăm ông bà! Đã có {m}đ.',
+  buyShop:'🎫 Lên thành phố!',
   resetConfirm:'Chơi lại từ đầu? Tiền và đồ đã mua sẽ mất hết đó!',
   reqTitle:'đặt vẽ:',
   mood1:'Đang đợi tranh...', mood2:'Háo hức xem tranh!', mood3:'Thích tranh đẹp!',
   res1:'Khách gật gù...', res2:'Khách mỉm cười!', res3:'Khách mê tít!',
   detail:'Đúng màu {c}% · Đã tô {a}% · {n} nét vẽ',
-  winStats:'{d} ngày · {n} tranh · {s} sao ⭐',
+  winStats:'{n} việc đã làm · {s} sao ⭐',
   hintLabel:'Gợi ý: ',
   backToTown:'Về làng',
   offerTitle:'Khách muốn mua tranh này!',
@@ -1413,11 +1511,21 @@ vi:{
   questDeliverHint:'Mang tranh tới đây nè! Đứng gần là giao được.',
   questPaintDone:'Đã vẽ xong biển hiệu!',
   questNeedAccept:'Nhận nhiệm vụ từ {name} trước đã nha!',
-  questPickHint:'Tới cây ăn trái gần đường làng, chạm vào cây để hái đủ 3 trái nhé!',
+  questPickHint:'Ra điểm làm việc đã đánh dấu, chạm 3 lần để làm việc nhé!',
   questFishHint:'Ra bờ sông gần cầu gỗ, chạm vào điểm câu để câu cá nhé!',
   villageAllDone:'Bé cá đã giúp cả làng rồi! 🎉',
+  questAcceptAgain:'Nhận lại việc',
+  stageRent:'Thuê nhà:', stageFurn:'Nội thất:', stageFurnUnit:'món', stageCity:'Lên thành phố thăm ông bà:',
+  stageFurnDone:'Nhà đã đủ nội thất! Giờ tiết kiệm lên thành phố thôi! 🌆',
+  rentDone:'Bé cá đã thuê nhà! Nhà còn trống — mua nội thất nhé! 🏠',
+  furnOwned:'Đã mua ✓', furnBuy:'Mua', furnCant:'Chưa đủ tiền',
+  rentTitle:'Nhà cho thuê', rentDesc:'Căn nhà vàng nhỏ xinh góc phải đảo. Thuê rồi bé cá sẽ có chỗ ở của riêng mình!',
+  rentPriceLabel:'Giá thuê:', furnTitle:'Cửa hàng nội thất', furnCountLabel:'Đã mua:',
+  interiorTitle:'Nhà của bé cá', roomEmpty:'Nhà còn trống — mua nội thất để trang trí nhé!',
+  jobNoActive:'Nhận việc từ {name} trước đã nha!',
+  jobDone:'Xong việc! 🎉',
   dayPhase0:'🌞 Sáng', dayPhase1:'🌇 Chiều', dayPhase2:'🌙 Tối',
-  toastCafe:'Quán cà phê đông vui quá! Ngồi nghỉ chút nha!',
+  toastCafe:'☕ Quán Cà Phê — Chị Lan cần bé cá phụ phục vụ đó!',
   toastComTam:'Cơm tấm thơm quá! Ăn trưa ở đây ngon lắm!',
   toastTea:'Trà sữa ngọt mát — mát lạnh ngày hè!',
   toastOc:'Quán ốc của chú Bảy — tối ra đây ăn là đúng bài!',
@@ -1449,11 +1557,11 @@ en:{
   brushS:'Small', brushM:'Medium', brushL:'Big', eraser:'Eraser', undo:'Undo', clearAll:'Clear',
   sell:'Sell painting', shop:'Shop', done:'Done', reset:'Start over',
   nextCustomer:'Next customer', nextDay:'Next day',
-  winTitle:'Beca has her own art shop!',
-  winText:'Beca saved 5,000đ and bought the art shop on the street! From now on customers come to the shop to see her paintings. Thanks for drawing with Beca!',
+  winTitle:'Beca is off to the city! 🌆',
+  winText:'Beca saved up 5,000đ! Time to visit Grandma and Grandpa in the city — thanks for playing with Beca!',
   keepPlaying:'Keep playing',
   skip:'Skip', next:'Next', startDrawing:'Start drawing',
-  winStory:'The dream came true — from a fresh graduate with empty pockets, Beca now has an art shop of her own!',
+  winStory:'The dream came true — from a fresh graduate with empty pockets, Beca rented a house, furnished it, and saved enough to visit the city!',
   rules1:'⭐⭐⭐: main color ≥{m}%, covered ≥{a}%, ≥{n} strokes',
   rules2:'⭐⭐: main color ≥{m}%, covered ≥{a}%, ≥{n} strokes',
   rules3:'⭐: any drawing earns a little',
@@ -1464,15 +1572,15 @@ en:{
   bought:'Bought it! 🎉', owned:'Owned', soldOut:'Bought',
   dayEnd:'Day {d} is over!',
   daySummary:'Today Beca sold {n} paintings, earned {m}đ, got {s} stars ⭐',
-  shopGoal:'Buy the art shop',
-  shopGoalDesc:'Save 5,000đ and Beca owns her own art shop! You have {m}đ.',
-  buyShop:'Buy shop 5,000đ',
+  shopGoal:'Visit Grandma & Grandpa in the city',
+  shopGoalDesc:'Save up 5,000đ to visit Grandma and Grandpa in the city! You have {m}đ.',
+  buyShop:'🎫 Off to the city!',
   resetConfirm:'Start over? Your money and items will be gone!',
   reqTitle:'wants:',
   mood1:'Waiting for the painting...', mood2:'Excited to see it!', mood3:'Loves beautiful art!',
   res1:'The customer nods...', res2:'The customer smiles!', res3:'The customer loves it!',
   detail:'Right color {c}% · Covered {a}% · {n} strokes',
-  winStats:'{d} days · {n} paintings · {s} stars ⭐',
+  winStats:'{n} jobs done · {s} stars ⭐',
   hintLabel:'Hint: ',
   backToTown:'Back to village',
   offerTitle:'The customer wants this painting!',
@@ -1501,11 +1609,21 @@ en:{
   questDeliverHint:'Bring the painting here! Stand close to deliver.',
   questPaintDone:'Finished the sign!',
   questNeedAccept:'Accept the quest from {name} first!',
-  questPickHint:'Go to the fruit tree by the village road and tap it to pick 3 fruits!',
+  questPickHint:'Go to the marked work spot and tap 3 times to work!',
   questFishHint:'Go to the riverbank by the wooden bridge and tap the fishing spot!',
   villageAllDone:'Beca has helped the whole village! 🎉',
+  questAcceptAgain:'Take the job again',
+  stageRent:'Rent a house:', stageFurn:'Furniture:', stageFurnUnit:'items', stageCity:'Visit Grandma & Grandpa in the city:',
+  stageFurnDone:'The house is fully furnished! Now save up for the city! 🌆',
+  rentDone:'Beca rented the house! It is empty — buy some furniture! 🏠',
+  furnOwned:'Bought ✓', furnBuy:'Buy', furnCant:'Not enough',
+  rentTitle:'House for rent', rentDesc:'A cute little yellow house at the corner of the island. Rent it and Beca will have a place of her own!',
+  rentPriceLabel:'Rent:', furnTitle:'Furniture shop', furnCountLabel:'Bought:',
+  interiorTitle:"Beca's house", roomEmpty:'The house is empty — buy some furniture to decorate!',
+  jobNoActive:'Take the job from {name} first!',
+  jobDone:'Job done! 🎉',
   dayPhase0:'🌞 Morning', dayPhase1:'🌇 Afternoon', dayPhase2:'🌙 Evening',
-  toastCafe:'The café is so lively! Take a break here!',
+  toastCafe:'☕ The Café — Chi Lan needs Beca to help serve!',
   toastComTam:'The broken rice smells amazing! Great lunch spot!',
   toastTea:'Sweet cool milk tea — perfect on a hot day!',
   toastOc:"Uncle Bay's snail shop — the evening spot!",
@@ -1543,6 +1661,14 @@ const REQUESTS = CONFIG.REQUESTS;
 const CUSTOMERS = CONFIG.CUSTOMERS;
 const REACTIONS = CONFIG.REACTIONS;
 const SHOP_ITEMS = CONFIG.SHOP_ITEMS;
+/* vil1 đảo — nội thất nhà thuê (đúng giá An chốt 19:39) */
+const FURNITURE = [
+  {id:'bed', icon:'🛏️', vi:'Giường', en:'Bed', price:200},
+  {id:'table', icon:'🍽️', vi:'Bàn', en:'Table', price:150},
+  {id:'chair', icon:'🪑', vi:'Ghế', en:'Chair', price:100},
+  {id:'lamp', icon:'💡', vi:'Đèn', en:'Lamp', price:120},
+  {id:'rug', icon:'🟫', vi:'Thảm', en:'Rug', price:80},
+];
 const STORY = CONFIG.STORY;
 function t(k){ return (I18N[state.lang]||I18N.vi)[k] ?? I18N.vi[k] ?? k; }
 
@@ -1767,20 +1893,14 @@ function updateMeters(){
 
 /* ---------------- vòng lặp ngày / khách / yêu cầu ---------------- */
 function pickDay(){
-  const ids = [...CUSTOMERS.map(c=>c.id)];
-  const out=[];
-  while(out.length<3){ const i=Math.floor(Math.random()*ids.length); out.push(ids.splice(i,1)[0]); }
-  state.customersToday = out;
-  /* mỗi ngày 3 yêu cầu KHÁC NHAU (rút không hoàn lại): trước đây rút ngẫu nhiên
-     có hoàn lại nên 2 khách hay trùng 1 yêu cầu -> cùng 1 bong bóng
-     "Vẽ cho tôi một con cá vàng!" hiện 2 chỗ */
-  const pool = [...REQUESTS];
-  state.requestsToday = out.map(()=>{
-    const r = pool.splice(Math.floor(Math.random()*pool.length), 1)[0];
-    const twoChance = state.day>=5 ? CONFIG.SCORING.twoChance.day5 : state.day>=3 ? CONFIG.SCORING.twoChance.day3 : 0;
-    const two = Math.random() < twoChance;
-    return {id:r.id, two, colors: two ? [r.colors[0], r.c2] : [r.colors[0]]};
-  });
+  /* vil1 đảo: KHÔNG còn ngày/giờ — khách vẽ cố định, không ngẫu nhiên, không hết ngày.
+     (An 19:42: không bộ đếm ngày, không giới hạn việc mỗi ngày, không mất quest.) */
+  state.customersToday = ['hoa','chu','tung'];
+  state.requestsToday = [
+    {id:'flower', two:false, colors:['#FF6B9D']},
+    {id:'flower', two:false, colors:['#FF6B9D']},
+    {id:'flower', two:false, colors:['#FF6B9D']},
+  ];
   state.custIdx = 0; state.todayEarned=0; state.todayStars=0; state.served=[];
 }
 function makeRequest(){
@@ -1800,8 +1920,6 @@ function newCanvas(){ strokes=[]; curStroke=null; redraw(); updateMeters(); }
 /* ---------------- render ---------------- */
 function renderHeader(){
   document.getElementById('coins').textContent = state.coins.toLocaleString('vi-VN')+'đ';
-  document.getElementById('dayNum').textContent = state.day;
-  document.getElementById('custCount').textContent = state.served.length+'/3';
   document.getElementById('soundBtn').textContent = state.sound ? '🔊' : '🔇';
 }
 function renderScene(){
@@ -1904,6 +2022,19 @@ function showMap(){
   renderMap();
   if(window.__phaserGame) window.__phaserGame.scale.refresh();
   updateCamera();
+  /* vil1: sau khi vẽ xong quay lại bản đồ, #mapView vừa hiện lại — Phaser Scale
+     chỉ đo lại kích thước khi có resize; refresh() đồng bộ chạy trước khi trình
+     duyệt tính lại layout nên game kẹt 0x0 (canvas trống màu nền, tap trượt hết,
+     ảnh chụp beige). Đo lại ở frame sau khi layout đã ổn định. */
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    var g = window.__phaserGame;
+    if(g){
+      var par = document.getElementById('phaserMap');
+      if(par && par.clientWidth>0 && par.clientHeight>0) g.scale.resize(par.clientWidth, par.clientHeight);
+      else g.scale.refresh();
+    }
+    updateCamera();
+  }));
 }
 function showPaint(){
   document.body.classList.remove('map-mode');
@@ -1978,14 +2109,23 @@ function drawMinimap(){
    Vị trí ghim (fx, fy = tỉ lệ trên ảnh làng 1920×1280, đo mắt từ ảnh). */
 const VILLAGE_PINS = [
   {id:'shop', fx:0.73, fy:0.58, nameVi:'Tiệm tạp hoá', nameEn:'Grocery store',
-   vi:'Tiệm tạp hoá của cô chủ — bán đủ thứ: bánh mì, trái cây, đồ dùng hằng ngày. Cô chủ đang cần bé cá vẽ biển hiệu mới!',
-   en:"The shopkeeper's grocery store — bread, fruit, and daily goods. She needs Beca to paint a new sign!"},
-  {id:'tree', fx:0.20, fy:0.34, nameVi:'Cây ăn trái', nameEn:'Fruit tree',
-   vi:'Cây ăn trái sum suê bên đường làng — trái chín vàng, ngọt lịm. Bác nông dân nhờ bé cá hái giúp 3 trái.',
-   en:'The fruit tree by the village road — golden ripe fruit. The farmer asks Beca to pick 3 fruits.'},
-  {id:'bridge', fx:0.47, fy:0.38, nameVi:'Cầu gỗ', nameEn:'Wooden bridge',
-   vi:'Cầu gỗ bắc qua sông làng — dân làng đi qua đây mỗi ngày. Anh câu cá hay câu ở bờ sông gần cầu.',
-   en:'The wooden bridge over the village river — villagers cross it every day. The fisherman fishes at the riverbank nearby.'},
+   vi:'Tiệm tạp hoá của Cô Hoa — bán đủ thứ: bánh mì, trái cây, đồ dùng hằng ngày. Cô Hoa đang cần bé cá vẽ biển hiệu mới!',
+   en:"Miss Hoa's grocery store — bread, fruit, and daily goods. She needs Beca to paint a new sign!"},
+  {id:'beds', fx:0.12, fy:0.41, nameVi:'Luống hoa', nameEn:'Flower beds',
+   vi:'Luống hoa trên bãi cỏ gần bờ sông — Bác Tư nhờ bé cá trồng hoa giúp.',
+   en:'The flower beds on the grass by the river — Uncle Tu asks Beca to plant flowers.'},
+  {id:'cafe', fx:0.89, fy:0.41, nameVi:'Quán Cà Phê', nameEn:'Café',
+   vi:'Quán cà phê của Chị Lan — đông khách, thơm mùi cà phê sữa đá. Chị Lan cần bé cá phụ phục vụ.',
+   en:'Chi Lan’s café — busy, smelling of iced milk coffee. She needs Beca to help serve.'},
+  {id:'bridge', fx:0.47, fy:0.38, nameVi:'Cầu gỗ · Bến tàu', nameEn:'Wooden bridge · Pier',
+   vi:'Cầu gỗ bắc qua sông làng — Anh Hải hay câu cá ở bờ sông gần cầu, bến tàu và thuyền lớn ở gần đây.',
+   en:'The wooden bridge over the village river — Anh Hai fishes at the riverbank nearby, and the pier with the big boat is close by.'},
+  {id:'rent', fx:0.92, fy:0.59, nameVi:'Nhà cho thuê', nameEn:'House for rent',
+   vi:'Căn nhà vàng góc phải đảo — nhà cho thuê 1.000đ. Đủ tiền thì bé cá dọn vào ở!',
+   en:'The yellow house at the corner of the island — for rent at 1,000đ. Save up and Beca can move in!'},
+  {id:'boat', fx:0.65, fy:0.30, nameVi:'Thuyền lớn', nameEn:'Big boat',
+   vi:'Thuyền lớn của Bác Thuyền neo trên sông — sắp ra khơi, cần chuẩn bị cho kỹ.',
+   en:'Uncle Thuyen’s big boat moored on the river — about to set sail, needs a good prepare.'},
 ];
 function openVillageMap(){
   const wrap = document.getElementById('villageMapPins');
@@ -2018,9 +2158,45 @@ document.getElementById('villageMapClose').onclick = ()=>closeOverlay('villageMa
 function renderHotspots(){ /* Phaser: biển hiệu + vùng chạm tòa nhà do scene xây */ }
 
 /* ---------------- render bản đồ ---------------- */
+/* vil1 đảo — giai đoạn chơi: rent (chưa thuê) -> furn (chưa đủ nội thất) -> city */
+function vilStage(){
+  if(!state.rented) return 'rent';
+  if((state.furnitureOwned||[]).length < FURNITURE.length) return 'furn';
+  return 'city';
+}
+function totalJobs(){
+  let n = 0;
+  for(const id in (state.jobCounts||{})) n += state.jobCounts[id]||0;
+  return n;
+}
+function vilStageText(){
+  const m = state.coins.toLocaleString('vi-VN');
+  const st = vilStage();
+  if(st==='rent') return '🏠 ' + t('stageRent') + ' ' + m + 'đ/1.000đ';
+  if(st==='furn') return '🛋️ ' + t('stageFurn') + ' ' + (state.furnitureOwned||[]).length + '/5 ' + t('stageFurnUnit');
+  return '🌆 ' + t('stageCity') + ' ' + m + 'đ/5.000đ';
+}
+function checkStageProgress(){
+  /* vil1: chúc mừng khi đủ nội thất (mốc tiền thuê/thành phố do LW.milestones lo) */
+  if(vilStage()==='furn' && (state.furnitureOwned||[]).length>=FURNITURE.length && !state._stageToastFurn){
+    state._stageToastFurn = true; save();
+    toast(t('stageFurnDone'));
+  }
+}
+function checkCityWin(){
+  if(state.won) return;
+  if(!document.body.classList.contains('map-mode')) return; /* chỉ mừng khi đang ở bản đồ */
+  if(vilStage()==='city' && state.coins>=GOAL){
+    state.won = true; save(); ting(); confetti();
+    document.getElementById('winStats').textContent = t('winStats')
+      .replace('{n}', totalJobs()).replace('{s}', state.totalStars||0);
+    openOverlay('winOverlay');
+  }
+}
 function renderMap(){
-  document.getElementById('mapGoal').textContent =
-    '💰 ' + state.coins.toLocaleString('vi-VN') + 'đ · ' + t('mapGoal') + ' ' + CONFIG.QUESTS.filter(q=>questState(q.id).status==='done').length + '/' + CONFIG.QUESTS.length;
+  document.getElementById('mapGoal').textContent = vilStageText();
+  checkStageProgress();
+  checkCityWin();
   document.getElementById('mapHint').textContent = t('mapHint');
   /* NPC/marker/bong bóng giờ do Phaser scene vẽ (syncPhaserWorld); landlord bubble
      "Bán tiệm 5.000đ!" do scene giữ. Bé Mai đã xoá HẲN (An 16:56) — không NPC,
@@ -2037,6 +2213,7 @@ function tapCustomer(id){
   if(q){
     const st = questState(q.id);
     if(st.status==='new'){ openQuest(q.id); return; }
+    if(st.status==='done'){ openQuest(q.id); return; } /* việc xong rồi -> nhận lại */
     if(st.status==='active' && q.type==='paint'){ openQuestPaint(q.id); return; }
     if(st.status==='active' && q.type==='pick'){ toast(t('questPickHint')); return; }
     if(st.status==='active' && q.type==='fish'){ toast(t('questFishHint')); return; }
@@ -2257,32 +2434,32 @@ function dayNightTick(dt){
 }
 
 /* ---------------- nhiệm vụ thế giới mở (CONFIG.QUESTS) ---------------- */
-let questPainting = null; /* id nhiệm vụ đang vẽ tranh cho (qSign) */
+let questPainting = null; /* id nhiệm vụ đang vẽ tranh cho (jSign) */
 function questState(id){ return state.quests[id] || (state.quests[id] = {status:'new', found:0, foundIdx:[]}); }
 function questByGiver(id){ return CONFIG.QUESTS.find(q=>q.giver===id); }
 /* vil1 — xong 1 nhiệm vụ làng: cộng tiền, ting, kiểm tra xong cả 3 */
 function villageQuestDone(q){
   const st = questState(q.id);
   if(st.status==='done') return;
-  st.status='done'; state.coins += q.reward; save(); ting();
+  st.status='done';
+  if(!state.jobCounts) state.jobCounts = {};
+  state.jobCounts[q.id] = (state.jobCounts[q.id]||0) + 1;
+  state.coins += q.reward; save(); ting();
   toast(t('questDone') + ' +' + q.reward + 'đ');
   renderQuestPanel(); renderQuestItems(); renderHeader(); renderMap();
   checkAllQuestsDone();
 }
 function checkAllQuestsDone(){
-  const done = CONFIG.QUESTS.filter(function(q){ return questState(q.id).status==='done'; }).length;
-  if(done >= CONFIG.QUESTS.length && !state._villageCheered){
-    state._villageCheered = true; save();
-    toast(t('villageAllDone'));
-  }
+  /* vil1 đảo: việc lặp lại vô hạn nên không còn "xong hết việc" — chúc mừng theo giai đoạn ở checkStageProgress() */
 }
 function renderQuestPanel(){
   const el = document.getElementById('questPanel');
   const rows = CONFIG.QUESTS.map(q=>{
     const st = questState(q.id);
     const icon = st.status==='done' ? '✅' : st.status==='active' ? '⭐' : '❗';
-    const sub = st.status==='done' ? t('questDone') : (state.lang==='vi' ? q.titleVi : q.titleEn);
-    return '<div class="qpItem'+(st.status==='done'?' done':'')+'" data-qid="'+q.id+'">'+icon+' '+sub+' <span style="color:#B7791F">· '+(state.lang==='vi'?q.rewardVi:q.rewardEn)+'</span></div>';
+    const n = (state.jobCounts||{})[q.id]||0;
+    const sub = st.status==='done' ? t('questDone') : (state.lang==='vi' ? (q.shortVi||q.titleVi) : (q.shortEn||q.titleEn));
+    return '<div class="qpItem'+(st.status==='done'?' done':'')+'" data-qid="'+q.id+'">'+icon+' '+sub+(n?' ×'+n:'')+' <span style="color:#B7791F">· +'+q.reward+'đ</span></div>';
   }).join('');
   el.innerHTML = '<div class="qpTitle">📋 ' + t('questTitle') + '</div>' + rows;
 }
@@ -2292,7 +2469,7 @@ document.getElementById('questPanel').addEventListener('click', e=>{
   const st = questState(q.id);
   if(st.status==='new') openQuest(q.id);
   else if(st.status==='active') toast(t('questActive'));
-  else toast(t('questDone'));
+  else openQuest(q.id); /* việc xong rồi -> nhận lại để làm tiếp */
 });
 function renderQuestItems(){
   /* vil1: marker 📍 chỉ tới điểm làm việc của nhiệm vụ đang làm */
@@ -2308,18 +2485,22 @@ function openQuest(id){
   const q = CONFIG.QUESTS.find(x=>x.id===id); if(!q) return;
   pendingQuest = q;
   const g = CUSTOMERS.find(c=>c.id===q.giver);
+  const times = (state.jobCounts||{})[q.id]||0;
   document.getElementById('questAvatar').innerHTML = custAvatarHTML(g);
   document.getElementById('questTitle').textContent = state.lang==='vi' ? q.titleVi : q.titleEn;
-  document.getElementById('questDesc').textContent = state.lang==='vi' ? q.descVi : q.descEn;
+  document.getElementById('questDesc').textContent = (state.lang==='vi' ? q.descVi : q.descEn) +
+    (times ? (state.lang==='vi' ? ' (Đã làm ' + times + ' lần — làm lại vẫn được thưởng!)' : ' (Done ' + times + ' times — doing it again still pays!)') : '');
   document.getElementById('questReward').textContent = '🎁 ' + (state.lang==='vi' ? q.rewardVi : q.rewardEn);
+  const accSpan = document.querySelector('#questAccept span');
+  if(accSpan) accSpan.textContent = times ? t('questAcceptAgain') : t('questAccept');
   openOverlay('questOverlay');
 }
 document.getElementById('questAccept').onclick=()=>{
   if(!pendingQuest) return;
   const st = questState(pendingQuest.id);
-  st.status = 'active';
-  /* vil1 — nhiệm vụ vẽ (qSign): người giao phải là khách hôm nay thì mới vẽ được.
-     Chèn vào ô khách chưa vẽ xong đầu tiên (giữ nguyên hành vi cũ của qSign: Cô Năm vào danh sách hôm nay). */
+  st.status = 'active'; st.found = 0; st.foundIdx = [];
+  /* vil1 đảo — nhiệm vụ vẽ (jSign): người giao phải là khách hôm nay thì mới vẽ được.
+     pickDay cố định hoa/chu/tung nên Cô Hoa luôn có trong danh sách hôm nay. */
   if(pendingQuest.type==='paint'){
     const giver = pendingQuest.giver;
     if(state.customersToday.indexOf(giver) < 0 && state.served.length < 3){
@@ -2349,9 +2530,9 @@ function openQuestPaint(qid){
   renderScene(); renderMap(); showPaint();
 }
 function questTick(){
-  /* vil1: không còn nhiệm vụ giao hàng — chỉ giữ tên hiển thị trên đầu bé cá */
-  const done = CONFIG.QUESTS.filter(function(q){ return questState(q.id).status==='done'; }).length;
-  const want = done > 0 ? '🐟 Bé Cá ⭐' + done + '/3' : '🐟 Bé Cá';
+  /* vil1 đảo: tên trên đầu bé cá hiện TỔNG số việc đã làm (việc lặp lại vô hạn) */
+  const n = totalJobs();
+  const want = n > 0 ? '🐟 Bé Cá ⭐' + n : '🐟 Bé Cá';
   if(typeof window.__phaserSetName==='function') window.__phaserSetName(want);
 }
 
@@ -2375,13 +2556,15 @@ function mapTapBuilding(id){
   if(!b) return;
   if(b.action==='shop'){ renderShop(); openOverlay('shopOverlay'); }
   else if(b.action==='questPaint'){
-    const q = CONFIG.QUESTS.find(x=>x.id==='qSign');
+    const q = CONFIG.QUESTS.find(x=>x.id==='jSign');
     if(!q) return;
     const st = questState(q.id);
     if(st.status==='new') openQuest(q.id);
     else if(st.status==='active') openQuestPaint(q.id);
-    else toast(t('questDone'));
+    else openQuest(q.id); /* vẽ xong rồi -> nhận lại việc */
   }
+  else if(b.action==='cafe'){ toast(t('toastCafe')); }
+  else if(b.action==='rent'){ if(state.rented){ openInterior(); } else { openRent(); } }
   else if(b.action==='landlord'){ openLandlord(); }
   else if(b.action==='toast' && b.toastKey){ toast(t(b.toastKey)); }
 }
@@ -2481,7 +2664,12 @@ document.getElementById('offerAccept').onclick=()=>{
   if(questPainting){
     const q = CONFIG.QUESTS.find(x=>x.id===questPainting);
     const st = questState(questPainting);
-    if(q && st.status==='active'){ st.status='done'; state.coins += q.reward; save(); toast(t('questPaintDone')+' +'+q.reward+'đ'); renderQuestPanel(); renderQuestItems(); checkAllQuestsDone(); }
+    if(q && st.status==='active'){
+      st.status='done';
+      if(!state.jobCounts) state.jobCounts = {};
+      state.jobCounts[questPainting] = (state.jobCounts[questPainting]||0) + 1;
+      state.coins += q.reward; save(); toast(t('questPaintDone')+' +'+q.reward+'đ'); renderQuestPanel(); renderQuestItems(); checkAllQuestsDone();
+    }
     questPainting = null;
   }
   const react = REACTIONS[r.stars][state.lang][Math.floor(Math.random()*3)];
@@ -2492,8 +2680,7 @@ document.getElementById('offerAccept').onclick=()=>{
   document.getElementById('resEarn').textContent = '+'+r.money.toLocaleString('vi-VN')+'đ'+(r.frameBonus?' (🖼️ +'+r.frameBonus+'đ)':'');
   document.getElementById('resDetail').textContent = t('detail')
     .replace('{c}', r.mainPct.toFixed(0)).replace('{a}', r.coverage.toFixed(0)).replace('{n}', strokes.length);
-  document.getElementById('resNext').querySelector('span').textContent =
-    state.served.length>=3 ? t('nextDay') : t('backToTown');
+  document.getElementById('resNext').querySelector('span').textContent = t('backToTown');
   openOverlay('resultOverlay');
   renderHeader(); renderMap();
 };
@@ -2505,14 +2692,7 @@ document.getElementById('offerDecline').onclick=()=>{
 document.getElementById('resNext').onclick=()=>{
   closeOverlay('resultOverlay');
   newCanvas();
-  if(state.served.length>=3){
-    document.getElementById('dayTitle').textContent = '🌇 '+t('dayEnd').replace('{d}', state.day);
-    document.getElementById('daySummary').textContent = t('daySummary')
-      .replace('{n}', 3).replace('{m}', state.todayEarned.toLocaleString('vi-VN')).replace('{s}', state.todayStars);
-    openOverlay('dayOverlay');
-  }else{
-    showMap();
-  }
+  showMap(); /* vil1 đảo: không còn hết ngày — bán xong về làng luôn */
 };
 document.getElementById('dayNext').onclick=()=>{
   closeOverlay('dayOverlay');
@@ -2528,12 +2708,12 @@ function renderShop(){
   // thẻ mục tiêu tiệm vẽ
   const goal = document.createElement('div');
   goal.className='shopItem'; goal.style.border='3px solid var(--gold)'; goal.style.background='#FFF8E7';
-  goal.innerHTML = `<div class="ic">🏠</div><div class="inf"><div class="nm">${t('shopGoal')}</div>
+  goal.innerHTML = `<div class="ic">🌆</div><div class="inf"><div class="nm">${t('shopGoal')}</div>
     <div class="ds">${t('shopGoalDesc').replace('{m}', state.coins.toLocaleString('vi-VN'))}</div>
     <div class="progress"><div style="width:${Math.min(100, state.coins/GOAL*100)}%"></div></div></div>`;
   const gb=document.createElement('button');
   gb.className='buyBtn'+(state.won?' owned':''); gb.textContent = state.won ? '✅ '+t('owned') : t('buyShop');
-  gb.disabled = state.won || state.coins<GOAL;
+  gb.disabled = state.won || state.coins<GOAL || vilStage()!=='city';
   gb.onclick=()=>{ buyShop(); };
   goal.appendChild(gb); list.appendChild(goal);
   for(const it of SHOP_ITEMS){
@@ -2561,14 +2741,74 @@ function buyItem(it){
   toast(t('bought'));
 }
 function buyShop(){
-  if(state.won || state.coins<GOAL){ toast(t('notEnough')); return; }
-  state.coins -= GOAL; state.won = true; save(); ting();
+  /* vil1 đảo: lên thành phố là mục tiêu TIẾT KIỆM, không phải mua — đủ 5.000đ ở giai đoạn city thì mở màn thắng (không trừ tiền) */
+  if(state.won || state.coins<GOAL || vilStage()!=='city'){ toast(t('notEnough')); return; }
+  state.won = true; save(); ting();
   document.getElementById('winStats').textContent = t('winStats')
-    .replace('{d}', state.day).replace('{n}', state.totalPaintings).replace('{s}', state.totalStars);
+    .replace('{n}', totalJobs()).replace('{s}', state.totalStars||0);
   closeOverlay('shopOverlay');
   confetti();
   openOverlay('winOverlay');
   renderHeader(); renderShop();
+}
+
+/* ---------------- vil1 đảo: nhà thuê + nội thất ---------------- */
+function openRent(){
+  document.getElementById('rentMoney').textContent = state.coins.toLocaleString('vi-VN')+'đ';
+  document.getElementById('rentPrice').textContent = '1.000đ';
+  document.getElementById('rentMeter').style.width = Math.min(100, state.coins/1000*100)+'%';
+  const btn = document.getElementById('rentBtn');
+  btn.disabled = state.coins < 1000;
+  btn.textContent = (state.lang==='vi' ? '🏠 Thuê nhà · 1.000đ' : '🏠 Rent the house · 1,000đ');
+  openOverlay('rentOverlay');
+}
+function doRent(){
+  if(state.rented || state.coins<1000){ toast(t('notEnough')); return; }
+  state.coins -= 1000; state.rented = true; save();
+  ting(); closeOverlay('rentOverlay');
+  if(typeof window.__vilUpdateRentVisual==='function') window.__vilUpdateRentVisual();
+  renderHeader(); renderMap(); checkStageProgress();
+  toast(t('rentDone'));
+  openFurniture();
+}
+function openFurniture(){
+  renderFurniture();
+  openOverlay('furnOverlay');
+}
+function renderFurniture(){
+  const box = document.getElementById('furnList');
+  const owned = state.furnitureOwned||[];
+  box.innerHTML = FURNITURE.map(function(f){
+    const has = owned.includes(f.id);
+    const afford = state.coins >= f.price;
+    const label = has ? t('furnOwned') : (afford ? t('furnBuy') : t('furnCant'));
+    return '<div class="shopItem"><div><div style="font-weight:800">' + f.icon + ' ' + (state.lang==='vi'?f.vi:f.en) + '</div><div style="font-size:12px;color:#666">' + f.price.toLocaleString('vi-VN') + 'đ</div></div><button class="buyBtn' + (has?' owned':'') + '" onclick="buyFurniture(\'' + f.id + '\')" ' + (has||!afford?'disabled':'') + ' style="' + (has?'background:#2ECC71':'') + '">' + label + '</button></div>';
+  }).join('');
+  document.getElementById('furnMoney').textContent = state.coins.toLocaleString('vi-VN')+'đ';
+  document.getElementById('furnCount').textContent = owned.length + '/5';
+}
+function buyFurniture(id){
+  const f = FURNITURE.find(function(x){ return x.id===id; });
+  if(!f) return false;
+  if((state.furnitureOwned||[]).includes(id)) return false;
+  if(state.coins < f.price){ toast(t('notEnough')); return false; }
+  state.coins -= f.price;
+  state.furnitureOwned.push(id);
+  save(); ting();
+  renderFurniture(); renderHeader(); renderMap(); checkStageProgress();
+  toast((state.lang==='vi' ? 'Đã mua ' : 'Bought ') + (state.lang==='vi'?f.vi:f.en) + ' ✓');
+  return true;
+}
+function openInterior(){
+  const owned = state.furnitureOwned||[];
+  const has = function(id){ return owned.includes(id); };
+  document.getElementById('roomBed').style.display = has('bed')?'block':'none';
+  document.getElementById('roomTable').style.display = has('table')?'block':'none';
+  document.getElementById('roomChair').style.display = has('chair')?'block':'none';
+  document.getElementById('roomLamp').style.display = has('lamp')?'block':'none';
+  document.getElementById('roomRug').style.display = has('rug')?'block':'none';
+  document.getElementById('roomEmpty').style.display = owned.length?'none':'flex';
+  openOverlay('interiorOverlay');
 }
 function confetti(){
   const ov=document.getElementById('winOverlay');
@@ -2635,8 +2875,8 @@ function finishStory(){
   /* vil1 — lần đầu xem truyện xong: cô chủ tiệm giao nhiệm vụ ĐẦU TIÊN (vẽ biển hiệu tiệm tạp hoá) */
   if(first){
     setTimeout(function(){
-      const st = questState('qSign');
-      if(st.status === 'new') openQuest('qSign');
+      const st = questState('jSign');
+      if(st.status === 'new') openQuest('jSign');
     }, 500);
   }
 }
@@ -2675,6 +2915,9 @@ const rigSheetCanvas = {};
 const npcFaceURL = {};
 /* r11.5: mặt NPC cắt sẵn từ sheet đã tách nền (thay cho makeNpcFace chạy lúc boot) */
 npcFaceURL.mimi = 'assets-openworld/face-mimi.webp?v=vil1';
+npcFaceURL.lan = 'assets-openworld/face-lan.webp?v=vil1';
+npcFaceURL.nam = 'assets-openworld/face-nam.webp?v=vil1';
+npcFaceURL.miu = 'assets-openworld/face-mimi.webp?v=vil1'; /* Miu dùng chung mặt mèo với Mimi (chưa có ảnh riêng) */
 function deWhiteRigSheet(id, which){
   const img = rigImgs[id] && rigImgs[id][which];
   if(!img || !img.naturalWidth) return;
@@ -3890,11 +4133,13 @@ function buildSignsAndBuildings(scene){
   (CONFIG.BUILDINGS||[]).forEach(function(b){
     if(b.sign){
       var t = scene.add.text(b.sign.x, b.sign.y, b.sign.text, {
-        fontFamily:'system-ui, sans-serif', fontSize:'26px', fontStyle:'bold',
+        fontFamily:'system-ui, sans-serif', fontSize:((b.sign.size||26))+'px', fontStyle:'bold',
         color:'#fff', backgroundColor:b.sign.bg, padding:{x:12, y:6},
       });
       t.setOrigin(0.5, 0.5);
       t.setDepth(700);
+      t._bld = b; /* biển nào thuộc nhà nào (chạm biển hiện đúng tên) */
+      if(b.id==='houseYellowR') PH.rentSign = t;
       PH.signs.push(t);
     }
     if(b.nohot || b.action==='none') return;
@@ -3953,6 +4198,7 @@ function buildNpc(scene, id){
   /* scale theo KHUNG CROP (fw×fh), KHÔNG dùng setDisplaySize — nó tính scale
      theo cả sheet (fw×frames) nên NPC chỉ còn 1/frames chiều rộng = vệt mảnh */
   img.setScale(dispW/fw, dispH/fh);
+  if(cfg.tint) img.setTint(cfg.tint); /* vil1 đảo: Miu nhạt màu hơn Mimi */
   cont.add(img);
   /* Zone chạm đúng cỡ thân (ảnh crop có hitArea = cả sprite sheet nên bắt tap từ xa).
      Zone phải là con của SCENE (Zone trong Container không được hit-test) -> cập nhật
@@ -4070,6 +4316,34 @@ function separateNpcs(){
       if(PH.playerBody) PH.playerBody.body.reset(beca.x, beca.y);
     }
   }
+  /* vil1: tách NPC với nhau (trước đây chỉ tách khỏi bé cá) — hai NPC đứng chồng
+     nhau thì chạm vào người này lại mở hội thoại người kia (tap chọn tâm gần nhất).
+     Đẩy mỗi bên một nửa khoảng chồng, rồi kẹp lại trong vùng đi được. */
+  var ids = [];
+  for(var k in npcs){ var nk = npcs[k]; if(nk && nk.mode!=='stairs' && nk.mode!=='terrace' && PH.npcObjs[k]) ids.push(k); }
+  for(var a=0; a<ids.length; a++){
+    for(var b=a+1; b<ids.length; b++){
+      var n1 = npcs[ids[a]], n2 = npcs[ids[b]];
+      var o1 = PH.npcObjs[ids[a]], o2 = PH.npcObjs[ids[b]];
+      var h1 = (o1.dispW/2) * (n1.rig.scale || depthScale(n1.y));
+      var h2 = (o2.dispW/2) * (n2.rig.scale || depthScale(n2.y));
+      var md = h1 + h2;
+      var dx2 = n2.x - n1.x, dy2 = n2.y - n1.y;
+      var d2 = Math.hypot(dx2, dy2);
+      if(d2 >= md) continue;
+      if(d2 < 0.01){ dx2 = md; dy2 = 0; d2 = md; }
+      var ux2 = dx2/d2, uy2 = dy2/d2, push2 = (md - d2)/2;
+      [n1, n2].forEach(function(nn, idx){
+        var sgn = idx===0 ? -1 : 1;
+        var nx2 = nn.x + ux2*push2*sgn, ny2 = nn.y + uy2*push2*sgn;
+        nn.x = Math.min(WALK.x1, Math.max(WALK.x0, nx2));
+        nn.y = Math.min(WALK.y1, Math.max(walkMinY(nn.x), ny2));
+        pushOutPoint(nn);
+        nn.x = Math.min(WALK.x1, Math.max(WALK.x0, nn.x));
+        nn.y = Math.min(WALK.y1, Math.max(walkMinY(nn.x), nn.y));
+      });
+    }
+  }
 }
 
 /* ---- PLAYER (rig + physics body) ---- */
@@ -4185,6 +4459,7 @@ var LW = {
   birdT: 10, ambientT: 25, petT: 0,
   musicT: 0, musicOn: false,
   interactZones: [],
+  jobStories: {},      // vil1 đảo: câu nói khi làm việc ở từng điểm
   npcShadows: {},      // id -> ellipse bóng
 };
 /* --- textures dùng chung cho thế giới sống (canvas, không cần file) --- */
@@ -4814,14 +5089,18 @@ window.lwGiveCoins = lwGiveCoins;
 function buildInteractables(scene){
   lwInteractPanel();
   var defs = [
-    /* vil1 — HÁI TRÁI CÂY: cây ăn trái gần đường làng; nhận quest bác nông dân rồi chạm cây 3 lần để hái đủ 3 trái. */
-    {id:'treeFruit', kind:'fruit', fruit:'mango', fruitVi:'quả xoài', fruitEn:'a mango', sell:20,
-     x:380, y:430, r:110, title:'🌳 Cây ăn trái', who:'Làng quê',
-     text:'Cây ăn trái sum suê bên đường làng — trái chín vàng, ngọt lịm. Bác nông dân nhờ bé cá hái giúp 3 trái.'},
-    /* vil1 — CÂU CÁ: bờ sông gần cầu gỗ, tối đa 3 con/ngày/điểm. */
-    {id:'fishBridge', kind:'fish', sell:25,
-     x:1010, y:620, r:120, title:'🎣 Bờ sông gần cầu gỗ', who:'Sông làng',
+    /* vil1 đảo — điểm làm việc của 6 việc lặt vặt (chạm 3 lần / câu 1 con để xong việc).
+       Tiệm tạp hoá (vẽ biển) là BUILDING, chạm nhà mở questPaint — không cần def ở đây. */
+    {id:'fishBridge', kind:'fishjob', job:'jFish', x:1010, y:620, r:120, title:'🎣 Bờ sông gần cầu gỗ', who:'Sông làng',
      text:'Bờ sông gần cầu gỗ — nước trong, cá hay bơi ven bờ. Ngồi đây câu cá, ngắm sông là đúng bài!'},
+    {id:'bedFlower', kind:'job', job:'jPlant', x:230, y:530, r:110, title:'🌸 Luống hoa', who:'Bãi cỏ',
+     text:'Luống hoa trên bãi cỏ gần bờ sông — đất tơi xốp, trồng hoa gì cũng tươi tốt!'},
+    {id:'cafeCounter', kind:'job', job:'jCafe', x:1700, y:520, r:100, title:'☕ Quán Cà Phê', who:'Quán cà phê',
+     text:'Trước quán cà phê của Chị Lan — khách ra vào tấp nập, thơm mùi cà phê sữa đá!'},
+    {id:'petCorner', kind:'job', job:'jPet', x:540, y:880, r:110, title:'🐾 Góc thú cưng', who:'Nhà Bà Năm',
+     text:'Góc thú cưng gần nhà Bà Năm — Mimi và Miu hay nằm phơi nắng ở đây!'},
+    {id:'boatPrep', kind:'job', job:'jBoat', x:1250, y:380, r:110, title:'⛵ Thuyền lớn', who:'Bến tàu',
+     text:'Thuyền lớn của Bác Thuyền neo ở bến tàu — sắp ra khơi, cần kiểm tra cho kỹ!'},
   ];
   defs.forEach(function(d){
     var zn = scene.add.zone(d.x, d.y, d.r*2, d.r*1.1);
@@ -4837,7 +5116,7 @@ function buildInteractables(scene){
   PH.signs.forEach(function(t, i){
     t.setInteractive({useHandCursor:true});
     t.on('pointerdown', function(){
-      var b = (CONFIG.BUILDINGS||[])[i];
+      var b = t._bld || (CONFIG.BUILDINGS||[])[i];
       lwShowInteract('🪧 ' + (b && b.sign ? b.sign.text : 'Biển hiệu'),
         state.lang==='vi'
           ? 'Biển hiệu treo trước tiệm, chữ rõ ràng, màu sắc rực rỡ — ai đi ngang cũng đọc được. Đây là một trong những tiệm lâu đời của khu phố.'
@@ -4849,9 +5128,9 @@ function buildInteractables(scene){
 function lwTapInteract(id){
   var d = LW.interactDefs[id];
   if(!d) return false;
-  /* r11.4 — hái trái / câu cá có logic riêng (không phải mua bán ở sạp) */
-  if(d.kind==='fruit') return lwPickFruit(d);
-  if(d.kind==='fish') return lwFish(d);
+  /* vil1 đảo — điểm làm việc: job (chạm 3 lần) / fishjob (câu 1 con) */
+  if(d.kind==='job') return lwJobWork(d);
+  if(d.kind==='fishjob') return lwJobFish(d);
   var dayKey = (state.day||1) + ':' + id;
   var used = LW.claimed[dayKey];
   var btns = [];
@@ -4870,102 +5149,59 @@ function lwTapInteract(id){
   lwShowInteract(d.title, d.text, btns);
   return true;
 }
-/* r11.4 — HÁI TRÁI CÂY: 1 lần/ngày/cây; bán lấy tiền hoặc cất vào giỏ để tặng NPC */
-function lwPickFruit(d){
-  /* vil1 — đang làm quest hái trái: chạm cây 3 lần, mỗi lần hái 1 trái */
-  var qp = CONFIG.QUESTS.find(function(x){ return x.id==='qPick'; });
-  var qps = qp ? questState('qPick') : null;
-  if(qp && qps && qps.status==='active'){
-    qps.found = (qps.found||0) + 1;
-    save();
-    if(qps.found >= 3){
-      lwShowInteract(d.title, state.lang==='vi' ? 'Hái đủ 3 trái rồi! Bác nông dân cảm ơn bé cá nhiều lắm! 🌳' : 'Picked all 3 fruits! The farmer thanks Beca so much! 🌳', []);
-      villageQuestDone(qp);
-    } else {
-      lwSound('coin');
-      lwShowInteract(d.title, (state.lang==='vi' ? 'Đã hái ' + qps.found + '/3 trái — chạm cây lần nữa nhé! 🌳' : 'Picked ' + qps.found + '/3 fruits — tap the tree again! 🌳'), []);
-    }
+/* vil1 đảo — LÀM VIỆC LẶT VẶT (pick): chạm điểm làm việc 3 lần để xong việc.
+   Không giới hạn ngày, không giỏ, không bán lẻ — chỉ làm khi đã nhận việc. */
+function lwJobWork(d){
+  var q = CONFIG.QUESTS.find(function(x){ return x.id===d.job; });
+  var qs = q ? questState(q.id) : null;
+  var giver = q ? (CUSTOMERS.find(function(c){ return c.id===q.giver; })||{}) : {};
+  if(!q || !qs || qs.status!=='active'){
+    lwShowInteract(d.title, d.text + ' ' + t('jobNoActive').replace('{name}', giver.name||''), []);
     return true;
   }
-  var dayKey = (state.day||1) + ':' + d.id;
-  if(LW.claimed[dayKey]){
-    lwShowInteract(d.title, d.text + ' ' + t('fruitDoneToday'), []);
-    return true;
-  }
-  LW.claimed[dayKey] = true;
-  if(!state.bag) state.bag = {mango:0, rambutan:0, mangosteen:0, fish:0};
-  state.bag[d.fruit] = (state.bag[d.fruit]||0) + 1;
+  qs.found = (qs.found||0) + 1;
   save();
-  lwSound('coin');
-  lwShowInteract(d.title,
-    t('fruitPicked').replace('{fruit}', state.lang==='vi' ? d.fruitVi : d.fruitEn) + ' ' + d.text,
-    [
-      {label: (state.lang==='vi' ? 'Bán ngay +' : 'Sell now +') + d.sell + 'đ', onClick: function(){
-        state.bag[d.fruit] = Math.max(0, (state.bag[d.fruit]||0) - 1); save();
-        lwGiveCoins(d.sell, state.lang==='vi' ? 'Bán ' + d.fruitVi : 'Sold ' + d.fruitEn);
-        renderHeader();
-      }},
-      {label: state.lang==='vi' ? 'Cất vào giỏ 🎒' : 'Keep in bag 🎒', onClick: function(){
-        toast(t('bagTitle') + ': ' + bagText());
-      }},
-    ]);
+  var story = (LW.jobStories && LW.jobStories[q.id]) ? (state.lang==='vi' ? LW.jobStories[q.id].vi : LW.jobStories[q.id].en) : '';
+  if(qs.found >= 3){
+    lwShowInteract(d.title, (state.lang==='vi' ? 'Xong việc rồi! ' : 'Job done! ') + story, []);
+    villageQuestDone(q);
+  } else {
+    lwSound('coin');
+    lwShowInteract(d.title, (state.lang==='vi' ? 'Đã làm ' + qs.found + '/3 — chạm lần nữa nhé! ' : 'Done ' + qs.found + '/3 — tap again! ') + story, []);
+  }
   return true;
 }
-/* r11.4 — CÂU CÁ: thả cần, chờ 1.2s, 70% câu được; tối đa 3 con/ngày/điểm */
-function lwFish(d){
-  var dayKey = (state.day||1) + ':' + d.id;
-  LW.fishCount = LW.fishCount || {};
-  var n = LW.fishCount[dayKey] || 0;
-  var qfL = CONFIG.QUESTS.find(function(x){ return x.id==='qFish'; });
-  var qfLs = qfL ? questState('qFish') : null;
-  var qfActive = !!(qfL && qfLs && qfLs.status==='active');
-  if(n >= 3 && !qfActive){
-    lwShowInteract(d.title, d.text + ' ' + t('fishLimit'), []);
+/* vil1 đảo — CÂU CÁ (fish): thả cần, chờ 1.2s, luôn câu được khi đang làm việc.
+   Không giới hạn ngày, không tỉ lệ tuột (cozy, không thua). */
+function lwJobFish(d){
+  var q = CONFIG.QUESTS.find(function(x){ return x.id===d.job; });
+  var qs = q ? questState(q.id) : null;
+  var giver = q ? (CUSTOMERS.find(function(c){ return c.id===q.giver; })||{}) : {};
+  if(!q || !qs || qs.status!=='active'){
+    lwShowInteract(d.title, d.text + ' ' + t('jobNoActive').replace('{name}', giver.name||''), []);
     return true;
   }
   lwShowInteract(d.title, state.lang==='vi' ? '🎣 Đang câu... chờ cá cắn câu...' : '🎣 Fishing... waiting for a bite...', []);
   setTimeout(function(){
-    if(Math.random() < 0.3){
-      lwSound('splash');
-      lwShowInteract(d.title, t('fishEscaped'), [{label: state.lang==='vi' ? 'Câu lại 🎣' : 'Fish again 🎣', onClick: function(){ lwFish(d); }}]);
-      return;
-    }
-    /* vil1 — đang làm quest câu cá: câu được 1 con là xong quest (không cất vào giỏ) */
-    if(qfActive){
-      lwSound('coin');
-      var fishesQ = state.lang==='vi' ? ['cá rô phi', 'cá chép', 'cá lóc'] : ['tilapia', 'carp', 'snakehead'];
-      var fq = fishesQ[Math.floor(Math.random()*fishesQ.length)];
-      lwShowInteract(d.title, t('fishCaught').replace('{fish}', fq) + ' ' + d.text, []);
-      villageQuestDone(qfL);
-      return;
-    }
-    LW.fishCount[dayKey] = n + 1;
-    if(!state.bag) state.bag = {mango:0, rambutan:0, mangosteen:0, fish:0};
-    state.bag.fish = (state.bag.fish||0) + 1;
-    save();
     lwSound('coin');
-    var fishes = state.lang==='vi' ? ['cá rô phi', 'cá chép', 'cá lóc'] : ['tilapia', 'carp', 'snakehead'];
-    var f = fishes[Math.floor(Math.random()*fishes.length)];
-    lwShowInteract(d.title, t('fishCaught').replace('{fish}', f) + ' ' + d.text,
-      [
-        {label: (state.lang==='vi' ? 'Bán ngay +' : 'Sell now +') + d.sell + 'đ', onClick: function(){
-          state.bag.fish = Math.max(0, (state.bag.fish||0) - 1); save();
-          lwGiveCoins(d.sell, state.lang==='vi' ? 'Bán ' + f : 'Sold ' + f);
-          renderHeader();
-        }},
-        {label: state.lang==='vi' ? 'Cất vào giỏ 🎒' : 'Keep in bag 🎒', onClick: function(){ toast(t('bagTitle') + ': ' + bagText()); }},
-      ]);
+    var fishesQ = state.lang==='vi' ? ['cá rô phi', 'cá chép', 'cá lóc'] : ['tilapia', 'carp', 'snakehead'];
+    var fq = fishesQ[Math.floor(Math.random()*fishesQ.length)];
+    lwShowInteract(d.title, t('fishCaught').replace('{fish}', fq) + ' ' + d.text, []);
+    villageQuestDone(q);
   }, 1200);
   return true;
 }
-/* --- cốt truyện dệt vào thế giới: nhiệm vụ có chuyện, NPC có tính cách, lịch sử thật --- */
 function lwExtendContent(){
   /* NPC: thêm câu thoại tính cách (giữ câu cũ, thêm câu mới) */
   var extra = {
     hoa: {vi:['Tiệm tạp hoá nhà tôi mở từ 5h sáng, khách quen toàn người trong làng!','Bé cá vẽ biển hiệu cho tôi, tiệm đông khách hẳn!'], en:['My store opens at 5am for the whole village!','Beca painted my sign and the store got busier!']},
-    chu: {vi:['Vườn nhà bác trồng đủ thứ trái cây, năm nào cũng sai quả!','Bé cá hái trái giúp bác, bác mừng lắm!'], en:['My garden grows all kinds of fruit — a big harvest every year!','Beca picking fruit for me makes me so happy!']},
+    chu: {vi:['Vườn nhà bác trồng đủ thứ hoa, năm nào cũng rực rỡ!','Bé cá trồng hoa giúp bác, bác mừng lắm!'], en:['My garden grows all kinds of flowers — colorful every year!','Beca planting flowers for me makes me so happy!']},
     tung: {vi:['Tôi câu cá ở sông làng từ nhỏ, con nào to con nào nhỏ tôi biết hết!','Bé cá câu cá giỏi, tôi phục lắm!'], en:["I've fished this river since I was little — I know every fish!",'Beca fishes so well, I admire her!']},
+    lan: {vi:['Quán cà phê của chị đông khách lắm! Bé cá phụ chị phục vụ nhé?','Cà phê sữa đá ở đây ngon nhất đảo đó!'], en:['My café is so busy! Can you help me serve?','Our iced milk coffee is the best on the island!']},
+    nam: {vi:['Mimi với Miu ngoan lắm, chỉ thích được vuốt ve thôi.','Bà già rồi, nhờ bé cá chăm hai đứa giúp bà nhé.'], en:['Mimi and Miu are so good — they just love being petted.','I’m old now, could you look after the two of them for me?']},
+    thuyen: {vi:['Thuyền của bác sắp ra khơi, cần chuẩn bị cho kỹ.','Sóng hôm nay êm, ra khơi là trúng cá lớn!'], en:['My boat is about to set sail — it needs a good prepare.','The waves are calm today, a big catch awaits!']},
     mimi: {vi:['Meo meo! 🐱','Mimi thích nằm phơi nắng ở bãi cỏ!'], en:['Meow! 🐱','Mimi loves sunbathing on the grass!']},
+    miu: {vi:['Miu~ 🐾','Meo meo! 🐱'], en:['Miu~ 🐾','Meow meow! 🐱']},
   };
   Object.keys(extra).forEach(function(id){
     if(CONFIG.CHAT_LINES[id]){
@@ -4974,35 +5210,36 @@ function lwExtendContent(){
     }
   });
   /* nhiệm vụ: thêm câu chuyện (gắn vào desc để openQuest hiện) */
-  var qS = CONFIG.QUESTS.find(function(q){ return q.id==='qSign'; });
-  if(qS && !qS._storied){
-    qS._storied = true;
-    qS.descVi += ' Cô chủ kể: tiệm tạp hoá nhà cô mở đã lâu, mà biển hiệu cũ mờ hết chữ rồi — khách lạ đi ngang không biết đây là tiệm gì.';
-    qS.descEn += ' The shopkeeper says: her store has been open for years, but the old sign faded — strangers passing by cannot tell what the store sells.';
-  }
-  var qP = CONFIG.QUESTS.find(function(q){ return q.id==='qPick'; });
-  if(qP && !qP._storied){
-    qP._storied = true;
-    qP.descVi += ' Bác kể: năm nay cây sai quả lắm, mà lưng bác đau nên trèo hái không nổi — nhờ bé cá giúp bác nhé!';
-    qP.descEn += ' The farmer says: the tree is full of fruit this year, but his back hurts and he cannot climb — please help him, Beca!';
-  }
-  var qF = CONFIG.QUESTS.find(function(q){ return q.id==='qFish'; });
-  if(qF && !qF._storied){
-    qF._storied = true;
-    qF.descVi += ' Anh kể: tối nay nhà anh có khách, mà anh bận vá lưới nên chưa câu được con nào — nhờ bé cá câu giúp 1 con nhé!';
-    qF.descEn += ' The fisherman says: guests are coming tonight, but he is busy mending nets and has caught nothing yet — please catch one fish for him!';
-  }
+  var qStories = {
+    jSign: {vi:' Cô Hoa kể: tiệm tạp hoá nhà cô mở đã lâu, mà biển hiệu cũ mờ hết chữ rồi — khách lạ đi ngang không biết đây là tiệm gì.', en:' Miss Hoa says: her store has been open for years, but the old sign faded — strangers passing by cannot tell what the store sells.'},
+    jPlant: {vi:' Bác Tư kể: năm nay bác trồng hoa nhiều lắm, mà lưng bác đau nên cúi trồng không nổi — nhờ bé cá giúp bác nhé!', en:' Uncle Tu says: he planted so many flowers this year, but his back hurts and he cannot bend down — please help him, Beca!'},
+    jFish: {vi:' Anh Hải kể: tối nay nhà anh có khách, mà anh bận vá lưới nên chưa câu được con nào — nhờ bé cá câu giúp 1 con nhé!', en:' Anh Hai says: guests are coming tonight, but he is busy mending nets and has caught nothing yet — please catch one fish for him!'},
+    jCafe: {vi:' Chị Lan kể: quán đông quá, một mình chị phục vụ không xuể — bé cá phụ chị một tay nhé!', en:' Chi Lan says: the café is so busy, she cannot serve everyone alone — please lend her a hand!'},
+    jPet: {vi:' Bà Năm kể: bà già rồi, đi lại khó khăn, hai đứa mèo thì cứ quấn chân — nhờ bé cá chăm giúp bà nhé!', en:' Ba Nam says: she is old and moves slowly, and the two cats keep tangling around her feet — please look after them for her!'},
+    jBoat: {vi:' Bác Thuyền kể: thuyền sắp ra khơi mà buồm với dây neo chưa kiểm tra xong — nhờ bé cá phụ bác một tay!', en:' Uncle Thuyen says: the boat is about to sail but the sail and ropes are not checked yet — please help him!'},
+  };
+  Object.keys(qStories).forEach(function(id){
+    var q = CONFIG.QUESTS.find(function(x){ return x.id===id; });
+    if(q && !q._storied){ q._storied = true; q.descVi += qStories[id].vi; q.descEn += qStories[id].en; }
+  });
+  /* câu nói khi làm việc ở từng điểm (lwJobWork/lwJobFish hiện) */
+  LW.jobStories = {
+    jFish:{vi:'Cá cắn câu rồi! Kéo lên nào!', en:'A fish bit! Reel it in!'},
+    jPlant:{vi:'Trồng thêm một bông hoa nữa nhé!', en:'Plant one more flower!'},
+    jCafe:{vi:'Khách tới rồi! Phục vụ nhanh nào!', en:'A customer! Serve them quick!'},
+    jPet:{vi:'Miu với Mimi thích được vuốt ve lắm!', en:'Miu and Mimi love being petted!'},
+    jBoat:{vi:'Chuẩn bị thuyền cho chắc chắn nào!', en:'Let’s get the boat ready!'},
+  };
   /* chú thích khi chạm vùng trời / điểm mốc trong làng */
   LW.history = [
     {x:900, name:'Cầu gỗ', vi:'Cầu gỗ bắc qua sông làng — dân làng đi qua đây mỗi ngày ra đồng, ra chợ. Đứng trên cầu ngắm sông, gió mát rượi.', en:'The wooden bridge over the village river — villagers cross it every day to the fields and the market. Stand on it and feel the cool river breeze.'},
     {x:1420, name:'Tiệm tạp hoá', vi:'Tiệm tạp hoá của cô chủ — bán đủ thứ: bánh mì, trái cây, đồ dùng hằng ngày. Ai trong làng cũng ghé đây.', en:"The shopkeeper's grocery store — bread, fruit, and daily goods. Everyone in the village stops by."},
     {x:380, name:'Cây ăn trái', vi:'Cây ăn trái sum suê bên đường làng — trái chín vàng, ngọt lịm. Mùa nào cây cũng sai quả.', en:'The fruit tree by the village road — golden ripe fruit, sweet as can be. It bears fruit every season.'},
   ];
-  /* cột mốc hành trình giúp làng (tiền thưởng quest tối đa 750đ — mốc nhỏ cho vui) */
+  /* cột mốc hành trình đảo (theo ví tiền: đủ thuê nhà 1.000đ / đủ lên thành phố 5.000đ) */
   LW.milestones = [
-    {at:200, done:false, vi:'💰 Đã kiếm 200đ từ việc giúp làng! Cố lên bé cá!', en:'💰 Earned 200 coins helping the village! Keep going!'},
-    {at:500, done:false, vi:'💰 Đã được 500đ — gần giúp xong cả làng rồi!', en:'💰 500 coins — almost helped the whole village!'},
-    {at:750, done:false, vi:'💰 750đ! Bé cá đã giúp cả làng rồi!', en:'💰 750 coins! Beca has helped the whole village!'},
+    {at:1000, done:false, vi:'💰 Đủ 1.000đ thuê nhà rồi! Ra nhà vàng góc phải đảo nhé! 🏠', en:'💰 1,000 coins — enough to rent the house! Go to the yellow house! 🏠'},
+    {at:5000, done:false, vi:'💰 Đủ 5.000đ lên thành phố rồi! 🌆', en:'💰 5,000 coins — enough for the city trip! 🌆'},
   ];
 }
 function lwMilestoneTick(){
@@ -5015,6 +5252,63 @@ function lwMilestoneTick(){
   });
 }
 /* --- lắp ráp thế giới sống + vòng lặp cập nhật mỗi khung --- */
+/* vil1 đảo — thuyền gỗ trên sông + bến tàu + luống hoa (Phaser Graphics, vẽ tay).
+   Tọa độ đã kiểm bằng mắt trên ảnh làng: thuyền lớn (1250,380) trên sông,
+   thuyền nhỏ (800,560) tây cầu và (300,620) trên sông trái, bến tàu x=1150. */
+function buildIslandProps(scene){
+  var g = scene.add.graphics();
+  PH.islandProps = g;
+  /* luống hoa: 3 luống đất + hoa (bãi cỏ gần Bác Tư, bờ sông tây) */
+  var beds = [[220,500],[300,540],[160,520]];
+  beds.forEach(function(b){
+    g.fillStyle(0x8B5A2B, 1); g.fillRoundedRect(b[0]-42, b[1]-16, 84, 32, 10);
+    g.fillStyle(0xFF6B9D, 1); g.fillCircle(b[0]-24, b[1]-8, 5); g.fillCircle(b[0], b[1]+4, 5); g.fillCircle(b[0]+24, b[1]-6, 5);
+    g.fillStyle(0xFFD93D, 1); g.fillCircle(b[0]-12, b[1]+6, 4); g.fillCircle(b[0]+12, b[1]+2, 4);
+    g.fillStyle(0x2ECC71, 1); g.fillCircle(b[0]-30, b[1]+8, 3); g.fillCircle(b[0]+30, b[1]+8, 3);
+  });
+  /* bến tàu: ván gỗ từ bờ nam vào sông (đông cầu, x=1150) */
+  g.fillStyle(0xB07A3F, 1);
+  for(var i=0;i<4;i++){ g.fillRoundedRect(1150-26, 545+i*15, 52, 12, 3); }
+  g.fillStyle(0x7A4A21, 1); g.fillCircle(1128, 552, 5); g.fillCircle(1172, 552, 5);
+  /* thuyền: thân nâu + cột buồm + buồm trắng; đung đưa nhẹ trên nước */
+  PH.boats = [];
+  var boats = [{x:1250, y:380, s:1.25}, {x:800, y:560, s:0.9}, {x:300, y:620, s:0.9}];
+  boats.forEach(function(b, i){
+    var c = scene.add.container(b.x, b.y);
+    var bg = scene.add.graphics();
+    bg.fillStyle(0x8B5A2B, 1); bg.fillEllipse(0, 0, 90*b.s, 34*b.s);
+    bg.fillStyle(0x6B4423, 1); bg.fillEllipse(0, 4, 90*b.s, 22*b.s);
+    bg.fillStyle(0x7A4A21, 1); bg.fillRect(-2, -52*b.s, 4, 52*b.s);
+    bg.fillStyle(0xFFFFFF, 1); bg.fillTriangle(4, -52*b.s, 4, -8, 34*b.s, -8);
+    bg.fillStyle(0xFFF3D6, 1); bg.fillTriangle(-4, -48*b.s, -4, -8, -28*b.s, -8);
+    c.add(bg);
+    c.setDepth(Math.round(b.y));
+    PH.boats.push(c);
+    scene.tweens.add({targets:c, y:b.y+4, duration:1800+i*350, yoyo:true, repeat:-1, ease:'Sine.easeInOut'});
+    scene.tweens.add({targets:c, angle:1.5, duration:2200+i*400, yoyo:true, repeat:-1, ease:'Sine.easeInOut'});
+  });
+  updateRentalHouseVisual(scene);
+}
+/* vil1 đảo — khói bếp + đèn ấm của nhà thuê (chỉ khi đã thuê); đổi biển hiệu */
+function updateRentalHouseVisual(scene){
+  scene = scene || PH.scene; if(!scene) return;
+  if(PH.rentSign) PH.rentSign.setText(state.rented ? '🏠 Nhà của bé cá' : '🏠 CHO THUÊ · 1.000đ');
+  if(PH.rentFx){ PH.rentFx.forEach(function(o){ o.destroy(); }); }
+  PH.rentFx = [];
+  if(!state.rented) return;
+  var smoke = scene.add.graphics();
+  smoke.fillStyle(0xFFFFFF, 0.85);
+  smoke.fillCircle(1790, 648, 9); smoke.fillCircle(1796, 632, 12); smoke.fillCircle(1786, 614, 14);
+  smoke.setDepth(1000);
+  PH.rentFx.push(smoke);
+  scene.tweens.add({targets:smoke, y:'-=6', alpha:0.5, duration:2400, yoyo:true, repeat:-1, ease:'Sine.easeInOut'});
+  var lamp = scene.add.graphics();
+  lamp.fillStyle(0xFFD93D, 0.55); lamp.fillCircle(1715, 835, 26);
+  lamp.fillStyle(0xFFE98A, 0.9); lamp.fillCircle(1715, 835, 14);
+  lamp.setDepth(1000);
+  PH.rentFx.push(lamp);
+}
+window.__vilUpdateRentVisual = updateRentalHouseVisual;
 function buildLivingWorld(scene){
   lwMakeTextures(scene);
   buildSkyBodies(scene);
@@ -5131,13 +5425,14 @@ class WorldScene extends Phaser.Scene {
     buildAngleWorld(scene); /* vil1: nền làng 1×, không còn 3 khu + tiền cảnh cắt */
     buildClouds(scene);
     buildSignsAndBuildings(scene);
+    buildIslandProps(scene); /* vil1 đảo: thuyền + bến tàu + luống hoa + khói/đèn nhà thuê */
     buildLivingWorld(scene); /* thế giới sống (An 16:09/16:13/16:15) */
     /* quest marker (📍 điểm làm việc) — ẩn mặc định, renderQuestItems bật/tắt */
     var qm = scene.add.text(0, 0, '📍', {fontSize:'30px'});
     qm.setOrigin(0.5, 1);
     qm.setVisible(false);
-    qm.setInteractive({useHandCursor:true});
-    qm.setData('questItem', 'deliver');
+    /* vil1 đảo: marker CHỈ để nhìn, KHÔNG bắt tap — trước đây nó cướp tap của NPC
+       (tâm marker gần điểm chạm hơn tâm zone NPC nên chạm Cô Hoa lại chỉ toast) */
     scene.add.existing(qm);
     PH.questMarker = qm;
     buildPlayer(scene);
@@ -5455,7 +5750,10 @@ window.__phaserInit = function(){
 /* ---------------- init ---------------- */
 load();
 if(!Array.isArray(state.served)) state.served=[];
-if(!state.customersToday || state.customersToday.length!==3 || !state.requestsToday || state.requestsToday.length!==3 || state.customersToday.some(id=>!CUSTOMERS.some(c=>c.id===id))) pickDay(); /* migration 19/11: save cũ còn Mai -> rút lại ngày */
+if(typeof state.rented!=='boolean') state.rented=false;
+if(!Array.isArray(state.furnitureOwned)) state.furnitureOwned=[];
+if(!state.jobCounts || typeof state.jobCounts!=='object') state.jobCounts={};
+if(!state.customersToday || state.customersToday.length!==3 || !state.requestsToday || state.requestsToday.length!==3 || state.customersToday.some(id=>!CUSTOMERS.some(c=>c.id===id)) || state.customersToday.join(',')!=='hoa,chu,tung') pickDay(); /* vil1 đảo: khách vẽ cố định hoa/chu/tung — save cũ rút lại ngày */
 applyLang(); renderHeader(); renderScene(); renderPalette(); syncTools();
 updateRotatePrompt(); /* r11.4: hiện prompt xoay ngang nếu đang cầm dọc trên điện thoại */
 /* ông chủ nhà: khung vẽ vẫn dùng ảnh chân dung; trên map do Phaser scene vẽ */
@@ -5488,7 +5786,7 @@ window.__becaPainting = {
   minimap: ()=>({x: beca.x/1920, y: beca.y/1280}),
   mapToWorld: (x,y)=>screenToWorld(x,y),
   debugGoto(id){
-    const spots = Object.assign({}, CONFIG.SPOTS, {shop:[1420,790], tree:[380,500], fish:[1010,620], spawn:[960,1000], bridge:[900,520]}); /* vil1: tọa độ làng */
+    const spots = Object.assign({}, CONFIG.SPOTS, {shop:[1420,790], tree:[380,500], fish:[1010,620], spawn:[960,1000], bridge:[900,520], beds:[230,530], cafe:[1700,520], pet:[540,880], boat:[1250,380], rent:[1765,760]}); /* vil1: tọa độ làng */
     const s = spots[id] || [1050,1850];
     beca.x = s[0]; beca.y = s[1]; moveTarget=null; dragVec=null;
     updateWalker(); updateCamera();
@@ -5506,7 +5804,9 @@ window.__becaPainting = {
   debugSetYaw: (deg)=>{ camTargetYaw = deg; camYaw = deg; updateCamera(); },
   debugSetPitch: (deg)=>{ camTargetPitch = deg; camPitch = deg; updateCamera(); },
   quests: ()=>JSON.parse(JSON.stringify(state.quests)),
-  debugQuest: (id)=>{ const st = questState(id); st.status='active'; if(id==='qSign' && state.customersToday.indexOf('hoa') < 0 && state.served.length < 3){ state.customersToday[2] = 'hoa'; state.requestsToday[2] = {id:'flower', two:false, colors:['#FF6B9D']}; } save(); renderQuestPanel(); renderQuestItems(); renderMap(); },
+  debugQuest: (id)=>{ const st = questState(id); st.status='active'; st.found=0; save(); renderQuestPanel(); renderQuestItems(); renderMap(); },
+  debugRent: ()=>{ if(!state.rented && state.coins>=1000){ state.coins-=1000; state.rented=true; save(); if(typeof window.__vilUpdateRentVisual==='function') window.__vilUpdateRentVisual(); renderHeader(); renderMap(); } return state.rented; },
+  debugBuyFurn: (id)=>buyFurniture(id),
   debugSetPhase: (n)=>{ state.timePhase = n; save(); updateDayNight(); },
   colliders: ()=>({circles: OBSTACLES, rects: CONFIG.BUILDINGS.filter(b=>b.solid).map(b=>b.rect)}),
   fg: ()=>{ const W = window.__phaserWorld; return (CONFIG.FG||[]).map(f=>{ const o = W && W.fgs ? W.fgs.find(function(g){return g.id===f.id;}) : null; return {id:f.id, zone:f.zone, y:f.y, z: o ? Math.round(o.img.depth) : null, built: !!o}; }); },
@@ -5541,6 +5841,15 @@ window.__becaPainting = {
     };
   },
 
+};
+
+/* vil1 đảo — debug hooks cho vòng lặp (parent kiểm full loop không cần cày) */
+window.__vilDebug = {
+  setMoney(n){ state.coins = n; save(); renderHeader(); renderMap(); },
+  warp(x,y){ beca.x=x; beca.y=y; moveTarget=null; dragVec=null; updateWalker(); updateCamera(); },
+  state(){ return {money: state.coins, rented: !!state.rented, furnitureOwned: (state.furnitureOwned||[]).slice(), stage: vilStage(), jobs: Object.assign({}, state.jobCounts||{})}; },
+  rent(){ if(!state.rented && state.coins>=1000){ state.coins-=1000; state.rented=true; save(); if(typeof window.__vilUpdateRentVisual==='function') window.__vilUpdateRentVisual(); renderHeader(); renderMap(); } return state.rented; },
+  buyFurn(id){ return buyFurniture(id); },
 };
 </script>
 </body>
