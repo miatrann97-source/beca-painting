@@ -1514,6 +1514,7 @@ vi:{
   toastFlower:'Tiệm hoa xinh quá! Vẽ xong rồi ghé ngắm hoa nha!',
   toastHouses:'Khu nhà ở yên tĩnh — hàng xóm của bé cá!',
   mapHint:'Trái: kéo để đi · Phải: kéo xoay camera · Nhấn ⬆️ để nhảy · Chạm người trong làng để nhận việc',
+  mapHintKeys:'Laptop: WASD/mũi tên để đi · Space để nhảy · Q/E xoay camera',
   mapGoal:'Đã giúp:',
   questTitle:'Nhiệm vụ', questLater:'Để sau', questAccept:'Nhận nhiệm vụ',
   questNew:'Nhận nhiệm vụ mới!', questDone:'Xong nhiệm vụ!',
@@ -1612,6 +1613,7 @@ en:{
   toastFlower:'The flower shop is so pretty! Come see the flowers after painting!',
   toastHouses:'A quiet neighborhood — Beca\'s neighbors live here!',
   mapHint:'Left: drag to walk · Right: drag to rotate camera · Tap ⬆️ to jump · Tap a villager to get a quest',
+  mapHintKeys:'Laptop: WASD/arrows to walk · Space to jump · Q/E to rotate camera',
   mapGoal:'Helped:',
   questTitle:'Quests', questLater:'Later', questAccept:'Accept quest',
   questNew:'New quest accepted!', questDone:'Quest complete!',
@@ -2016,6 +2018,7 @@ const LANDLORD_SPOT = CONFIG.LANDLORD_SPOT;
 const LANDLORD = CONFIG.LANDLORD;
 let beca = { x: 960, y: 1000 };  // vil1: bãi cỏ tròn trước làng — đất trống, không nằm trong bán kính đẩy của NPC nào lúc boot
 let camX = 0, camY = 0, dragVec = null, moveTarget = null, walking = false;
+let keysHeld = {}; /* phím đang giữ: WASD/mũi tên/Q/E (bàn phím laptop) */
 let camYaw = 0, camTargetYaw = 0, camPitch = 0, camTargetPitch = 0; /* camera 360°: yaw = góc xoay, pitch = ngẩng/cúi */
 let animState = 'idle', facing = 'right', curSpeed = 0;
 let dragStart = null, dragMode = null, dragT0 = 0;
@@ -2209,7 +2212,10 @@ function renderMap(){
   document.getElementById('mapGoal').textContent = vilStageText();
   checkStageProgress();
   checkCityWin();
-  document.getElementById('mapHint').textContent = t('mapHint');
+  var hintTxt = t('mapHint');
+  var hasKeyboard = (window.matchMedia && window.matchMedia('(pointer:fine)').matches) || !('ontouchstart' in window);
+  if(hasKeyboard) hintTxt += ' · ' + t('mapHintKeys');
+  document.getElementById('mapHint').textContent = hintTxt;
   /* NPC/marker/bong bóng giờ do Phaser scene vẽ (syncPhaserWorld); landlord bubble
      "Bán tiệm 5.000đ!" do scene giữ. Bé Mai đã xoá HẲN (An 16:56) — không NPC,
      không khách vẽ, không thẻ tĩnh; chỉ còn biển hiệu tiệm "Trà Sữa Bé Mai". */
@@ -3323,6 +3329,27 @@ function npcTick(dt){
 /* nút nhảy ⬆️ trên bản đồ (pointerdown chặn kéo bản đồ) */
 document.getElementById('jumpBtn').addEventListener('pointerdown', e=>{ e.stopPropagation(); doJump(); });
 document.getElementById('jumpBtn').addEventListener('click', e=>{ e.stopPropagation(); });
+
+/* ---- bàn phím (laptop): WASD/mũi tên đi, Space nhảy, Q/E xoay camera ----
+   Chỉ nhận khi đang ở bản đồ và không có hộp thoại nào mở, không gõ chữ. */
+(function(){
+  var MOVE_KEYS = {KeyW:1, ArrowUp:1, KeyS:1, ArrowDown:1, KeyA:1, ArrowLeft:1, KeyD:1, ArrowRight:1};
+  function isTyping(){ var a=document.activeElement; return a && (a.tagName==='INPUT'||a.tagName==='TEXTAREA'||a.isContentEditable); }
+  function overlayOpen(){ return !!document.querySelector('.overlay.open'); }
+  function gameActive(){ return document.body.classList.contains('map-mode') && !overlayOpen() && !isTyping(); }
+  window.addEventListener('keydown', function(e){
+    if(!gameActive()) return;
+    if(MOVE_KEYS[e.code] || e.code==='Space' || e.code==='KeyQ' || e.code==='KeyE'){
+      e.preventDefault();
+      if(e.repeat) return;
+      if(e.code==='Space'){ doJump(); return; }
+      keysHeld[e.code]=true;
+      moveTarget=null; /* bấm phím thì hủy điểm chạm-tới */
+    }
+  });
+  window.addEventListener('keyup', function(e){ delete keysHeld[e.code]; });
+  window.addEventListener('blur', function(){ for(var k in keysHeld) delete keysHeld[k]; });
+})();
 
 /* ================= BONE RIG — bé cá (rig xương thật, DOM + canvas) =================
    Bé cá được dựng từ các bộ phận rời (CONFIG.BECA_BONES.parts) nối bằng khớp:
@@ -5469,6 +5496,9 @@ class WorldScene extends Phaser.Scene {
     if(!document.body.classList.contains('map-mode')) return;
     var dt = Math.min(0.05, delta/1000 || 0.016);
     var scene = this;
+    /* bàn phím: Q/E xoay camera (giữ để xoay liên tục, 120°/s) */
+    if(keysHeld.KeyQ) camTargetYaw -= 120*dt;
+    if(keysHeld.KeyE) camTargetYaw += 120*dt;
     /* camera yaw/pitch lerp (8/s) + nghiêng ±7° */
     var ck = 1 - Math.exp(-8*dt);
     camYaw += (camTargetYaw - camYaw)*ck;
@@ -5489,6 +5519,15 @@ class WorldScene extends Phaser.Scene {
       mag = dragVec.m || 0;
       vx = dragVec.x*SPEED_MAX; vy = dragVec.y*SPEED_MAX;
       moveIsScreen = true;
+    } else if(keysHeld.KeyW||keysHeld.ArrowUp||keysHeld.KeyS||keysHeld.ArrowDown||keysHeld.KeyA||keysHeld.ArrowLeft||keysHeld.KeyD||keysHeld.ArrowRight){
+      /* bàn phím laptop: WASD/mũi tên — screen-space, xoay theo camYaw như kéo */
+      var kx=0, ky=0;
+      if(keysHeld.KeyW||keysHeld.ArrowUp) ky-=1;
+      if(keysHeld.KeyS||keysHeld.ArrowDown) ky+=1;
+      if(keysHeld.KeyA||keysHeld.ArrowLeft) kx-=1;
+      if(keysHeld.KeyD||keysHeld.ArrowRight) kx+=1;
+      var kl=Math.hypot(kx,ky);
+      if(kl>0){ vx=kx/kl*SPEED_MAX; vy=ky/kl*SPEED_MAX; mag=1; moveIsScreen=true; moveTarget=null; }
     } else if(moveTarget){
       var dx = moveTarget.x-beca.x, dy = moveTarget.y-beca.y, d = Math.hypot(dx,dy);
       if(d<8){ moveTarget=null; }
