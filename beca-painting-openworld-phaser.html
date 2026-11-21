@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<!-- r11.3: chơi xoay ngang + Add to Home Screen (An gợi ý 16:18) -->
+<!-- r11.4: bỏ nút "Xoay ngang" (An dặn 16:40) — giữ prompt xoay ngang + Add to Home Screen từ r11.3 -->
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Bé Cá Vẽ Tranh">
 <meta name="theme-color" content="#7ec8e3">
-<link rel="apple-touch-icon" href="assets-ghibli/beca-icon-512.png?v=r11.3">
-<link rel="manifest" href="beca-painting-openworld.webmanifest?v=r11.3">
+<link rel="apple-touch-icon" href="assets-ghibli/beca-icon-512.png?v=r11.4">
+<link rel="manifest" href="beca-painting-openworld.webmanifest?v=r11.4">
 <title>Bé Cá Vẽ Tranh — Thế Giới Mở Sài Gòn 🎨</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%A8%3C/text%3E%3C/svg%3E">
 <style>
@@ -161,7 +161,7 @@ header .spacer{flex:1}
 @media (min-width:700px) and (orientation:portrait){
   #layout{max-width:640px;margin:0 auto;width:100%}
 }
-/* ---------- r11.3: prompt xoay ngang + nút toàn màn hình ---------- */
+/* ---------- r11.4: prompt xoay ngang (không nút) + nút toàn màn hình ---------- */
 #rotatePrompt{
   position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;
   background:linear-gradient(180deg,rgba(126,200,227,.96),rgba(255,239,210,.97));
@@ -176,12 +176,8 @@ body.show-rotate #rotatePrompt{display:flex}
 @keyframes rpSpin{0%,25%{transform:rotate(0)}55%,80%{transform:rotate(90deg)}100%{transform:rotate(0)}}
 #rotatePrompt .rpTitle{font-size:20px;font-weight:800;margin:10px 0 6px}
 #rotatePrompt .rpSub{font-size:14px;line-height:1.5;color:#7A6A55}
-#rotatePrompt .rpGo{
-  margin-top:14px;border:none;border-radius:14px;padding:12px 18px;cursor:pointer;
-  font-size:16px;font-weight:800;color:#fff;
-  background:linear-gradient(180deg,#2E86DE,#1B5FAA);box-shadow:0 4px 0 #12497F;
-}
-#rotatePrompt .rpGo:active{transform:translateY(2px);box-shadow:0 2px 0 #12497F}
+/* r11.4 (An dặn 16:40): BỎ nút "Xoay ngang" — chỉ giữ chữ nhắc + icon điện thoại.
+   Nút fullscreen ⛶ ở header vẫn giữ (toggleFullscreen → tryRotateLandscape). */
 /* ---------- map: quảng trường phố Việt ---------- */
 body.paint-mode #mapView{display:none}
 body.map-mode #scenePanel, body.map-mode #canvasPanel, body.map-mode #controlPanel{display:none}
@@ -293,8 +289,17 @@ body.map-mode #mapView{display:block}
   #mapHint{font-size:11px;white-space:normal;text-align:center;line-height:1.35;max-width:88%}
 }
 #minimap{
-  position:absolute;right:8px;top:8px;z-index:8;width:160px;height:48px;
-  border:2px solid var(--wood);border-radius:8px;background:#7FB069;box-shadow:0 3px 10px rgba(0,0,0,.3);
+  position:absolute;right:8px;top:8px;z-index:8;width:96px;height:96px;cursor:pointer;
+  border:2px solid var(--wood);border-radius:50%;background:#7FB069;box-shadow:0 3px 10px rgba(0,0,0,.3);
+}
+/* r11.4 — bản đồ thành phố 3D (chạm minimap tròn để mở): ảnh top + ghim 📍 + chấm bé cá */
+#worldMapPins button{
+  position:absolute;transform:translate(-50%,-100%);background:none;border:none;cursor:pointer;pointer-events:auto;
+  font-size:20px;line-height:1;padding:0;filter:drop-shadow(0 2px 2px rgba(0,0,0,.4));
+}
+#worldMapBeca{
+  position:absolute;transform:translate(-50%,-50%);width:16px;height:16px;border-radius:50%;
+  background:#fff;border:3px solid #2E86DE;box-shadow:0 0 0 2px rgba(255,255,255,.7);pointer-events:none;
 }
 #offerThumb{width:100%;max-width:300px;border:3px solid var(--wood);border-radius:12px;margin:6px auto;display:block}
 #landlordAvatar{width:96px;height:96px;margin:0 auto 8px;border-radius:50%;overflow:hidden;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.2)}
@@ -354,7 +359,7 @@ body.map-mode #mapView{display:block}
   background:#BFE3FF;display:block;margin:0 auto 8px;
 }
 #storyOverlay .modal{
-  background:linear-gradient(rgba(255,248,231,.93),rgba(255,248,231,.95)),url(assets-ghibli/story-bg.webp?v=r11.3) center/cover;
+  background:linear-gradient(rgba(255,248,231,.93),rgba(255,248,231,.95)),url(assets-ghibli/story-bg.webp?v=r11.4) center/cover;
 }
 #storyDots{font-size:13px;letter-spacing:5px;color:#C9B896;margin-bottom:6px}
 #storyDots .on{color:var(--sea)}
@@ -388,7 +393,7 @@ body.map-mode #mapView{display:block}
 .questItem{position:absolute;width:44px;height:44px;margin:-22px 0 0 -22px;font-size:30px;text-align:center;cursor:pointer;pointer-events:auto;z-index:8;animation:custBob 2s ease-in-out infinite;filter:drop-shadow(0 2px 2px rgba(0,0,0,.3))}
 #joystick{position:absolute;width:110px;height:110px;margin:-55px 0 0 -55px;border-radius:50%;border:3px solid rgba(255,255,255,.75);background:rgba(46,134,222,.18);display:none;pointer-events:none;z-index:7}
 #joyKnob{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px 0 0 -24px;border-radius:50%;background:rgba(46,134,222,.65);border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3)}
-#camCompass{position:absolute;right:8px;top:64px;z-index:8;background:rgba(58,46,34,.85);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:800;white-space:nowrap}
+#camCompass{position:absolute;right:8px;top:112px;z-index:8;background:rgba(58,46,34,.85);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:800;white-space:nowrap}
 #zonePill{position:absolute;left:8px;top:8px;z-index:8;background:rgba(255,253,245,.95);border:2px solid var(--wood);border-radius:999px;padding:4px 10px;font-weight:800;font-size:13px;box-shadow:0 3px 8px rgba(0,0,0,.25)}
 #questPanel{position:absolute;left:8px;top:46px;z-index:8;width:230px;background:rgba(255,253,245,.95);border:2px solid var(--wood);border-radius:12px;padding:6px 8px;font-size:12.5px;font-weight:700;box-shadow:0 3px 8px rgba(0,0,0,.25)}
 #questPanel .qpTitle{font-weight:800;font-size:13px;margin-bottom:2px}
@@ -404,13 +409,12 @@ body.map-mode #mapView{display:block}
 </style>
 </head>
 <body class="map-mode">
-<!-- r11.3: prompt xoay ngang (chỉ hiện khi cầm dọc trên điện thoại) -->
+<!-- r11.4: prompt xoay ngang (chỉ hiện khi cầm dọc trên điện thoại) — KHÔNG còn nút "Xoay ngang" (An dặn 16:40 "Bỏ cái nút xoay ngang đi / Ko cần đâu"), chỉ giữ chữ nhắc + icon -->
 <div id="rotatePrompt" role="dialog" aria-live="polite">
   <div class="rpCard">
     <div class="rpPhone">📱</div>
     <div class="rpTitle" data-i18n="rotateTitle">Xoay ngang điện thoại để chơi 🎨</div>
     <div class="rpSub" data-i18n="rotateHint">Game chơi ngang cho đã — nhớ tắt khóa xoay màn hình trước nhé!</div>
-    <button class="rpGo" id="rotateGoBtn">🔄 <span data-i18n="rotateGo">Xoay ngang</span></button>
   </div>
 </div>
 <div id="app">
@@ -428,7 +432,7 @@ body.map-mode #mapView{display:block}
   <main id="layout">
     <div id="mapView" data-testid="mapView">
       <div id="phaserMap"></div>
-      <canvas id="minimap" data-testid="minimap" width="160" height="48"></canvas>
+      <canvas id="minimap" data-testid="minimap" width="96" height="96" title="Bản đồ thành phố"></canvas>
       <div id="zonePill" data-testid="zonePill"></div>
       <div id="questPanel" data-testid="questPanel"></div>
       <div id="camCompass" data-testid="camCompass"></div>
@@ -441,7 +445,7 @@ body.map-mode #mapView{display:block}
     </div>
     <section class="panel" id="scenePanel">
       <div id="becaBox">
-        <img id="becaImg" src="assets-ghibli/beca-sprite.webp?v=r11.3" alt="Bé cá">
+        <img id="becaImg" src="assets-ghibli/beca-sprite.webp?v=r11.4" alt="Bé cá">
         <div id="becaName">🐟 Bé Cá</div>
       </div>
       <div id="custBox">
@@ -572,7 +576,7 @@ body.map-mode #mapView{display:block}
 
 <div class="overlay" id="storyOverlay">
   <div class="modal">
-    <img id="storyImg" src="assets-ghibli/beca-sprite.webp?v=r11.3" alt="Bé cá">
+    <img id="storyImg" src="assets-ghibli/beca-sprite.webp?v=r11.4" alt="Bé cá">
     <div id="storyDots"></div>
     <h2 id="storyTitle">—</h2>
     <p id="storyText">—</p>
@@ -583,8 +587,23 @@ body.map-mode #mapView{display:block}
   </div>
 </div>
 
+<div class="overlay" id="worldMapOverlay">
+  <div class="modal" style="max-width:560px;text-align:left">
+    <h2 style="text-align:center"><span data-i18n="worldMapTitle">🗺️ Bản đồ thành phố</span></h2>
+    <p style="text-align:center;font-size:12.5px;color:#7A6A55" data-i18n="worldMapHint">Chạm vào 📍 để xem địa danh · Chấm trắng là bé cá · Bản đồ 3D An đã duyệt</p>
+    <div id="worldMapWrap" style="position:relative">
+      <img id="worldMapImg" src="assets-openworld/worldmap-top.webp?v=r11.4" alt="Bản đồ thành phố 3D" style="width:100%;display:block;border-radius:12px;border:2px solid var(--wood)">
+      <div id="worldMapPins" style="position:absolute;inset:0;pointer-events:none"></div>
+      <div id="worldMapBeca" title="Bé cá"></div>
+    </div>
+    <img src="assets-openworld/worldmap-angle.webp?v=r11.4" alt="Thành phố nhìn góc chéo" style="width:100%;display:block;border-radius:12px;border:2px solid var(--wood);margin-top:10px">
+    <p style="text-align:center;font-size:12.5px;color:#7A6A55">Thành phố nhìn từ trên cao — bản đồ 3D An đã duyệt 🏙️</p>
+    <div style="text-align:center"><button class="bigbtn green" id="worldMapClose" data-testid="worldMapClose">✅ <span data-i18n="worldMapClose">Đóng</span></button></div>
+  </div>
+</div>
+
 <div id="toast"></div>
-<script src="phaser-4.2.1.js?v=r11.3\"></script>
+<script src="phaser-4.2.1.js?v=r11.4\"></script>
 <script>
 "use strict";
 /* ================= Bé Cá Vẽ Tranh — game vẽ tranh kiểu Passpartout 2 =================
@@ -625,19 +644,31 @@ const SAVE_KEY = 'becaPaintingV1';
 const CONFIG = {
   /* ---- ảnh: file riêng trong assets-ghibli/, thay file là đổi giao diện ---- */
   IMAGES: {
-    town: 'assets-openworld/plaza-bright.webp?v=r11.3',   // nền quảng trường (khu 1/3, thế giới 4800x1400)
-    beca: 'assets-ghibli/beca-sprite.webp?v=r11.3',     // bé cá toàn thân (nền trong)
-    becaEmpty: 'assets-ghibli/beca-sprite-empty.webp?v=r11.3', // bé cá TAY KHÔNG (bảng + khay đã xoá) — sprite dự phòng trên bản đồ: tay phải trống ở mọi trạng thái (đứng/đi/chạy); bản beca (cầm bảng+khay) chỉ dùng ở khung truyện / khung cảnh vẽ
-    storyBg: 'assets-ghibli/story-bg.webp?v=r11.3',     // nền màn truyện
-    zones: { plaza:'assets-openworld/plaza-bright.webp?v=r11.3', street:'assets-openworld/street-nguyenhue.webp?v=r11.3', market:'assets-openworld/market-benthanh.webp?v=r11.3' },
+    town: 'assets-openworld/plaza-bright.webp?v=r11.4',   // nền quảng trường (khu 1/3, thế giới 4800x1400)
+    /* r11.4 — bản đồ 3D đã duyệt (An 16:39, render Blender): minimap tròn + bản đồ
+       thành phố dùng ảnh top; góc chéo dùng trong bản đồ + truyện mở đầu */
+    worldTop: 'assets-openworld/worldmap-top.webp?v=r11.4',     // thành phố nhìn từ trên (1600×1500)
+    worldAngle: 'assets-openworld/worldmap-angle.webp?v=r11.4', // thành phố góc chéo 3/4 (1600×1500)
+    landmarks: {
+      benthanh: 'assets-openworld/lm-benthanh.webp?v=r11.4',
+      church: 'assets-openworld/lm-church.webp?v=r11.4',
+      bitexco: 'assets-openworld/lm-bitexco.webp?v=r11.4',
+      dinh: 'assets-openworld/lm-dinh.webp?v=r11.4',
+      nhahat: 'assets-openworld/lm-nhahat.webp?v=r11.4',
+      bennharong: 'assets-openworld/lm-bennharong.webp?v=r11.4',
+    },
+    beca: 'assets-ghibli/beca-sprite.webp?v=r11.4',     // bé cá toàn thân (nền trong)
+    becaEmpty: 'assets-ghibli/beca-sprite-empty.webp?v=r11.4', // bé cá TAY KHÔNG (bảng + khay đã xoá) — sprite dự phòng trên bản đồ: tay phải trống ở mọi trạng thái (đứng/đi/chạy); bản beca (cầm bảng+khay) chỉ dùng ở khung truyện / khung cảnh vẽ
+    storyBg: 'assets-ghibli/story-bg.webp?v=r11.4',     // nền màn truyện
+    zones: { plaza:'assets-openworld/plaza-bright.webp?v=r11.4', street:'assets-openworld/street-nguyenhue.webp?v=r11.4', market:'assets-openworld/market-benthanh.webp?v=r11.4' },
     customers: {                                // mặt khách (ảnh vuông)
-      ba: 'assets-ghibli/cust-ba.webp?v=r11.3',
+      ba: 'assets-ghibli/cust-ba.webp?v=r11.4',
       /* cust-mai.webp: giữ file, không còn dùng (Bé Mai xoá hẳn 19/11) */
-      tung: 'assets-ghibli/cust-tung.webp?v=r11.3',
-      hoa: 'assets-ghibli/cust-hoa.webp?v=r11.3',
-      bay: 'assets-ghibli/cust-bay.webp?v=r11.3',
-      mimi: 'assets-ghibli/cust-mimi.webp?v=r11.3',
-      chu: 'assets-ghibli/cust-chu.webp?v=r11.3',       // ông chủ nhà
+      tung: 'assets-ghibli/cust-tung.webp?v=r11.4',
+      hoa: 'assets-ghibli/cust-hoa.webp?v=r11.4',
+      bay: 'assets-ghibli/cust-bay.webp?v=r11.4',
+      mimi: 'assets-ghibli/cust-mimi.webp?v=r11.4',
+      chu: 'assets-ghibli/cust-chu.webp?v=r11.4',       // ông chủ nhà
     },
   },
   /* ---- bản đồ: kích thước thế giới, vùng đi được, tốc độ ---- */
@@ -839,17 +870,17 @@ const CONFIG = {
      hơn bé cá một chút, cô Hoa ngang bé cá, bà Tư thấp nhất
      (trừ mèo Mimi). idleFrame = khung đứng yên (khung "vượt qua", chân chụm). */
   RIGS: {
-    ba:   { walk:'assets-ghibli/rig-ba-walk.webp?v=r11.3',   jump:'assets-ghibli/rig-ba-jump.webp?v=r11.3',   walkFrames:6, jumpFrames:3, idleFrame:1, height:132, stepPx:44 },
-    mai:  { walk:'assets-ghibli/rig-mai-walk.webp?v=r11.3',  jump:'assets-ghibli/rig-mai-jump.webp?v=r11.3',  walkFrames:6, jumpFrames:3, idleFrame:1, height:100, stepPx:40 }, /* ZELDA/GENSHIN (19/11): trẻ con 65-70% người lớn cùng độ sâu — Mai 1,15m = 100px, KHÔNG 114px; bước 0.4*h */
-    tung: { walk:'assets-ghibli/rig-tung-walk.webp?v=r11.3', jump:'assets-ghibli/rig-tung-jump.webp?v=r11.3', walkFrames:6, jumpFrames:3, idleFrame:1, height:154, stepPx:62 },
-    hoa:  { walk:'assets-ghibli/rig-hoa-walk.webp?v=r11.3',  jump:'assets-ghibli/rig-hoa-jump.webp?v=r11.3',  walkFrames:6, jumpFrames:3, idleFrame:1, height:141, stepPx:48 },
-    bay:  { walk:'assets-ghibli/rig-bay-walk.webp?v=r11.3',  jump:'assets-ghibli/rig-bay-jump.webp?v=r11.3',  walkFrames:6, jumpFrames:3, idleFrame:1, height:154, stepPx:60 },
-    mimi: { walk:'assets-openworld/rig-mimi-walk.webp?v=r11.3', jump:'assets-ghibli/rig-mimi-jump.webp?v=r11.3', walkFrames:6, jumpFrames:3, idleFrame:1, height:90, stepPx:42 },
-    chu:  { walk:'assets-ghibli/rig-chu-walk.webp?v=r11.3',  jump:'assets-ghibli/rig-chu-jump.webp?v=r11.3',  walkFrames:6, jumpFrames:3, idleFrame:1, height:154, stepPx:62 },
+    ba:   { walk:'assets-ghibli/rig-ba-walk.webp?v=r11.4',   jump:'assets-ghibli/rig-ba-jump.webp?v=r11.4',   walkFrames:6, jumpFrames:3, idleFrame:1, height:132, stepPx:44 },
+    mai:  { walk:'assets-ghibli/rig-mai-walk.webp?v=r11.4',  jump:'assets-ghibli/rig-mai-jump.webp?v=r11.4',  walkFrames:6, jumpFrames:3, idleFrame:1, height:100, stepPx:40 }, /* ZELDA/GENSHIN (19/11): trẻ con 65-70% người lớn cùng độ sâu — Mai 1,15m = 100px, KHÔNG 114px; bước 0.4*h */
+    tung: { walk:'assets-ghibli/rig-tung-walk.webp?v=r11.4', jump:'assets-ghibli/rig-tung-jump.webp?v=r11.4', walkFrames:6, jumpFrames:3, idleFrame:1, height:154, stepPx:62 },
+    hoa:  { walk:'assets-ghibli/rig-hoa-walk.webp?v=r11.4',  jump:'assets-ghibli/rig-hoa-jump.webp?v=r11.4',  walkFrames:6, jumpFrames:3, idleFrame:1, height:141, stepPx:48 },
+    bay:  { walk:'assets-ghibli/rig-bay-walk.webp?v=r11.4',  jump:'assets-ghibli/rig-bay-jump.webp?v=r11.4',  walkFrames:6, jumpFrames:3, idleFrame:1, height:154, stepPx:60 },
+    mimi: { walk:'assets-openworld/rig-mimi-walk.webp?v=r11.4', jump:'assets-ghibli/rig-mimi-jump.webp?v=r11.4', walkFrames:6, jumpFrames:3, idleFrame:1, height:90, stepPx:42 },
+    chu:  { walk:'assets-ghibli/rig-chu-walk.webp?v=r11.4',  jump:'assets-ghibli/rig-chu-jump.webp?v=r11.4',  walkFrames:6, jumpFrames:3, idleFrame:1, height:154, stepPx:62 },
     /* NPC mới (sheet nền trắng đục -> game tự tách trắng thành trong suốt lúc tải) */
-    lan:  { walk:'assets-openworld/rig-lan-walk.webp?v=r11.3', jump:'assets-openworld/rig-lan-walk.webp?v=r11.3', walkFrames:6, jumpFrames:6, idleFrame:1, height:141, stepPx:56 },
-    nam:  { walk:'assets-openworld/rig-nam-walk.webp?v=r11.3', jump:'assets-openworld/rig-nam-walk.webp?v=r11.3', walkFrames:6, jumpFrames:6, idleFrame:1, height:132, stepPx:53 },
-    beca: { walk:'assets-ghibli/beca-walk.webp?v=r11.3', jump:'assets-ghibli/beca-jump.webp?v=r11.3', idle:'assets-ghibli/beca-idle.webp?v=r11.3', walkFrames:6, jumpFrames:3, idleFrame:0, height:140, stepPx:56 },
+    lan:  { walk:'assets-openworld/rig-lan-walk.webp?v=r11.4', jump:'assets-openworld/rig-lan-walk.webp?v=r11.4', walkFrames:6, jumpFrames:6, idleFrame:1, height:141, stepPx:56 },
+    nam:  { walk:'assets-openworld/rig-nam-walk.webp?v=r11.4', jump:'assets-openworld/rig-nam-walk.webp?v=r11.4', walkFrames:6, jumpFrames:6, idleFrame:1, height:132, stepPx:53 },
+    beca: { walk:'assets-ghibli/beca-walk.webp?v=r11.4', jump:'assets-ghibli/beca-jump.webp?v=r11.4', idle:'assets-ghibli/beca-idle.webp?v=r11.4', walkFrames:6, jumpFrames:3, idleFrame:0, height:140, stepPx:56 },
   },
   /* ---- rig xương THẬT cho bé cá (bone rig, KHÔNG lật ảnh) ----
      Bé cá được dựng từ các bộ phận rời nối bằng khớp (đầu, thân, tay trên/cẳng
@@ -1355,6 +1386,13 @@ const CONFIG = {
   QUESTS: [
     /* qBrush (Tìm 3 cây cọ — giver Bé Mai) ĐÃ XOÁ 19/11 cùng Bé Mai (An 15:19):
        bỏ luôn, không gán sang NPC khác. Chỉ còn qDeliver (Lan) + qSign (Nam). */
+    /* r11.4 — qSignHoa: nhiệm vụ ĐẦU TIÊN sau truyện mở đầu (An chốt cốt truyện
+       13:28 + quest mẫu Cô Hoa ở Chợ Bến Thành): vẽ biển hiệu cho tiệm bánh Cô Hoa. */
+    { id:'qSignHoa', type:'paint', giver:'hoa',
+      titleVi:'Vẽ biển hiệu cho tiệm bánh Cô Hoa', titleEn:'Paint a sign for Ms. Hoa’s bakery',
+      descVi:'Cô Hoa ở Chợ Bến Thành muốn một biển hiệu thật đẹp cho tiệm bánh của cô — vẽ một bông hoa thật tươi lên bảng nhé! Cô Hoa kể: tiệm bánh nhà cô mở đã lâu, mà biển hiệu cũ mờ hết chữ rồi.', descEn:'Ms. Hoa at Ben Thanh Market wants a beautiful sign for her bakery — paint a bright flower on it! Her bakery has been open for years, but the old sign has faded.',
+      reward:300, rewardVi:'+300đ · Cô Hoa mời 1 ổ bánh mì', rewardEn:'+300 coins · Ms. Hoa treats you to a banh mi',
+      request:'flower' },
     { id:'qDeliver', type:'deliver', giver:'lan',
       titleVi:'Giao tranh cho quán cà phê', titleEn:'Deliver a painting to the café',
       descVi:'Chị Lan nhờ mang bức tranh mặt trăng tới treo ở quán Cà Phê Sữa Đá.', descEn:'Lan asks you to bring the moon painting to hang at the iced-coffee shop.',
@@ -1433,6 +1471,10 @@ const CONFIG = {
 },
   /* ---- truyện mở đầu 4 trang (chỉ hiện lần đầu) ---- */
   STORY: [
+  /* r11.4 — trang mở đầu: câu chào An duyệt 12:43, bé cá nói trước khi vào truyện */
+  {titleVi:'Chào mừng đến Sài Gòn!', titleEn:'Welcome to Saigon!',
+   textVi:'“Chào mừng mọi người đến với Thành Phố Hồ Chí Minh nha!” — Bé cá vừa đặt chân tới Sài Gòn, thành phố rực rỡ nắng, xe cộ tấp nập, thơm mùi cà phê sữa đá.',
+   textEn:'"Welcome everyone to Ho Chi Minh City!" — Beca has just arrived in Saigon, a sunny bustling city smelling of iced coffee.'},
   {titleVi:'Mới ra trường!', titleEn:'Fresh out of school!',
    textVi:'Bé cá vừa tốt nghiệp trường mỹ thuật, tay cầm tấm bằng, lòng đầy háo hức.',
    textEn:'Beca just graduated from art school, diploma in hand, heart full of excitement.'},
@@ -1443,8 +1485,8 @@ const CONFIG = {
    textVi:'Cô mang giá vẽ ra phố, gõ cửa từng cửa hàng, mời từng người qua đường xem tranh.',
    textEn:'She took her easel to the street, knocked on every shop door, and invited every passerby to see her paintings.'},
   {titleVi:'Ước mơ của bé cá', titleEn:"Beca's dream",
-   textVi:'Ước mơ của bé cá: dành đủ 5.000đ để mua lại tiệm vẽ của riêng mình!',
-   textEn:"Beca's dream: save 5,000đ to buy an art shop of her very own!"},
+   textVi:'Ước mơ của bé cá: dành đủ 5.000đ để mua lại tiệm vẽ của riêng mình! Cô Hoa ở Chợ Bến Thành đang chờ cô vẽ biển hiệu cho tiệm bánh đó!',
+   textEn:"Beca's dream: save 5,000đ to buy an art shop of her very own! Ms. Hoa at Ben Thanh Market is waiting for her to paint a sign for the bakery!"},
 ],
   /* ---- toàn bộ chữ VI | EN của game ---- */
   I18N: {
@@ -1516,6 +1558,21 @@ vi:{
   rotateTitle:'Xoay ngang điện thoại để chơi 🎨',
   rotateHint:'Game chơi ngang cho đã — nhớ tắt khóa xoay màn hình trước nhé!',
   rotateGo:'Xoay ngang',
+  /* r11.4 — trò chuyện / tặng quà / hát hò / bản đồ 3D / hái trái / câu cá */
+  worldMapTitle:'🗺️ Bản đồ thành phố', worldMapClose:'Đóng',
+  worldMapHint:'Chạm vào 📍 để xem địa danh · Chấm trắng là bé cá · Bản đồ 3D An đã duyệt',
+  talkHi:'👋 Chào hỏi', talkGift:'🎁 Tặng quà', talkSing:'🎵 Hát cùng nhau', talkBye:'👋 Tạm biệt',
+  talkNoGift:'Giỏ đang trống — hái trái cây hoặc câu cá rồi tặng nhé!',
+  talkGiftDone:'Tặng quà xong! Tình bạn tăng lên 💗',
+  talkSingDone:'Hát vui quá! 🎵',
+  talkFriend:'Tình bạn',
+  histUnderstood:'Đã hiểu 👍',
+  bagTitle:'🎒 Giỏ của bé cá',
+  fruitPicked:'Hái được {fruit}!',
+  fruitDoneToday:'Đã hái hôm nay rồi — mai cây lại ra trái nhé!',
+  fishCaught:'Câu được {fish}! 🐟',
+  fishEscaped:'Cá cắn câu rồi tuột mất! Thử lại nhé!',
+  fishLimit:'Hôm nay câu đủ rồi — mai quay lại nhé!',
   fullscreen:'Toàn màn hình',
 },
 en:{
@@ -1586,6 +1643,21 @@ en:{
   rotateTitle:'Rotate your phone to play 🎨',
   rotateHint:'The game plays best sideways — turn off rotation lock first!',
   rotateGo:'Rotate',
+  /* r11.4 — chat / gifts / singing / 3D map / fruit picking / fishing */
+  worldMapTitle:'🗺️ City map', worldMapClose:'Close',
+  worldMapHint:'Tap a 📍 to see a landmark · The white dot is Beca · The 3D map An approved',
+  talkHi:'👋 Say hi', talkGift:'🎁 Give a gift', talkSing:'🎵 Sing together', talkBye:'👋 Bye for now',
+  talkNoGift:'Your bag is empty — pick some fruit or catch a fish to gift!',
+  talkGiftDone:'Gift given! Friendship grew 💗',
+  talkSingDone:'So fun singing together! 🎵',
+  talkFriend:'Friendship',
+  histUnderstood:'Got it 👍',
+  bagTitle:"🎒 Beca's bag",
+  fruitPicked:'Picked a {fruit}!',
+  fruitDoneToday:'Already picked today — the tree fruits again tomorrow!',
+  fishCaught:'Caught a {fish}! 🐟',
+  fishEscaped:'A fish bit and got away! Try again!',
+  fishLimit:'Enough fishing today — come back tomorrow!',
   fullscreen:'Fullscreen',
 }},
 };
@@ -1611,6 +1683,8 @@ let state = {
   deco:{lantern:false, flower:false, sign:false},
   won:false, totalPaintings:0, totalStars:0, todayEarned:0, todayStars:0, served:[],
   v:2, quests:{}, timePhase:0,
+  /* r11.4 — tình bạn NPC (0-5 tim), giỏ trái cây/cá, lịch sử đã tự hiện theo ngày */
+  friends:{}, bag:{mango:0, rambutan:0, mangosteen:0, fish:0}, histSeen:{},
 };
 function save(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }catch(e){} }
 function load(){
@@ -1718,7 +1792,7 @@ if(window.ResizeObserver){
 window.addEventListener('resize', ()=>setTimeout(fitCanvas, 80));
 window.addEventListener('orientationchange', ()=>setTimeout(fitCanvas, 250));
 
-/* ---------------- xoay ngang trên điện thoại (r11.3) ----------------
+/* ---------------- xoay ngang trên điện thoại (r11.3; nút "Xoay ngang" trong prompt đã bỏ ở r11.4) ----------------
    An báo: chơi trên điện thoại mà không xoay ngang được.
    - Prompt "Xoay ngang điện thoại để chơi": CHỈ hiện khi cầm dọc TRÊN
      ĐIỆN THOẠI (cảm ứng), tự ẩn khi sang ngang. Trên máy tính (không cảm
@@ -1762,7 +1836,6 @@ function toggleFullscreen(){
     tryRotateLandscape();
   }
 }
-document.getElementById('rotateGoBtn').onclick = tryRotateLandscape;
 document.getElementById('fsBtn').onclick = toggleFullscreen;
 window.addEventListener('resize', updateRotatePrompt);
 window.addEventListener('orientationchange', ()=>setTimeout(updateRotatePrompt, 250));
@@ -1985,39 +2058,89 @@ function updateCamera(){
   if(typeof window.__phaserSyncCamera==='function') window.__phaserSyncCamera();
 }
 
-/* ---------------- bản đồ nhỏ (minimap) ---------------- */
+/* ---------------- bản đồ nhỏ (minimap TRÒN kiểu Hello Kitty — r11.4) ---------------- */
 const minimap = document.getElementById('minimap');
 const mmc = minimap ? minimap.getContext('2d') : null;
-const MM_S = 1/30; // 4800x1400 -> 160x47
+const MM_S = 1/30; // giữ cho code cũ dùng (vẽ chấm theo tỉ lệ thế giới)
+/* ảnh thành phố 3D nhìn từ trên (worldmap-top): vẽ vào hình tròn minimap */
+const worldTopImg = new Image();
+worldTopImg.src = CONFIG.IMAGES.worldTop;
 function drawMinimap(){
   if(!mmc) return;
-  mmc.clearRect(0, 0, 160, 48);
-  mmc.fillStyle = '#E8C99A'; mmc.fillRect(0, 0, 160, 48);
-  /* 3 khu: quảng trường / phố đi bộ / chợ */
-  mmc.fillStyle = '#F3EAD8'; mmc.fillRect(0, WALK.y0*MM_S, 1600*MM_S, (WALK.y1-WALK.y0)*MM_S);
-  mmc.fillStyle = '#E8DCC8'; mmc.fillRect(1600*MM_S, WALK.y0*MM_S, 1600*MM_S, (WALK.y1-WALK.y0)*MM_S);
-  mmc.fillStyle = '#EFD9B0'; mmc.fillRect(3200*MM_S, WALK.y0*MM_S, 1600*MM_S, (WALK.y1-WALK.y0)*MM_S);
-  /* ROUND 3: mép trên vùng đi được theo đường chân tường (không phải đường thẳng) */
-  mmc.strokeStyle = '#B08A4B'; mmc.lineWidth = 1;
-  mmc.beginPath();
-  for(let x = 0; x <= 4800; x += 100){ const y = groundTopY(x); if(x === 0) mmc.moveTo(0, y*MM_S); else mmc.lineTo(x*MM_S, y*MM_S); }
-  mmc.stroke();
-  for(const b of CONFIG.BUILDINGS){
-    mmc.fillStyle = b.mmColor || '#C98A4B';
-    mmc.fillRect(b.rect[0]*MM_S, b.rect[1]*MM_S, b.rect[2]*MM_S, b.rect[3]*MM_S);
+  const S = 96;
+  mmc.clearRect(0, 0, S, S);
+  mmc.save();
+  mmc.beginPath(); mmc.arc(S/2, S/2, S/2 - 1, 0, Math.PI*2); mmc.clip();
+  if(worldTopImg.complete && worldTopImg.naturalWidth){
+    mmc.drawImage(worldTopImg, 0, 3, S, 90);
+  } else {
+    mmc.fillStyle = '#7FB069'; mmc.fillRect(0, 0, S, S);
   }
-  mmc.fillStyle = '#54A0FF';
-  mmc.beginPath(); mmc.arc(760*MM_S, 1225*MM_S, 4, 0, Math.PI*2); mmc.fill();  // đài phun nước
+  /* chấm: bé cá (trắng) + khách hôm nay (hồng) — tọa độ thế giới 4800×1400
+     -> tỉ lệ trên ảnh top (khu thành phố trong ảnh ~ x 8–83%, y 9–85%) */
+  function mmXY(x, y){ return [ (0.08 + (x/4800)*0.75)*S, 3 + (0.09 + (y/1400)*0.76)*90 ]; }
   for(const id of state.customersToday){
     const _n = (typeof npcs !== 'undefined') ? npcs[id] : null;
     const sp = _n ? [_n.x, _n.y] : SPOTS[id]; if(!sp) continue;
+    const p = mmXY(sp[0], sp[1]);
     mmc.fillStyle = '#FF6B9D';
-    mmc.beginPath(); mmc.arc(sp[0]*MM_S, sp[1]*MM_S, 2.5, 0, Math.PI*2); mmc.fill();
+    mmc.beginPath(); mmc.arc(p[0], p[1], 2.5, 0, Math.PI*2); mmc.fill();
   }
+  const bp = mmXY(beca.x, beca.y);
   mmc.fillStyle = '#fff';
-  mmc.beginPath(); mmc.arc(beca.x*MM_S, beca.y*MM_S, 3.5, 0, Math.PI*2); mmc.fill();
+  mmc.beginPath(); mmc.arc(bp[0], bp[1], 3.5, 0, Math.PI*2); mmc.fill();
   mmc.strokeStyle = '#2E86DE'; mmc.lineWidth = 1.5; mmc.stroke();
+  mmc.restore();
 }
+
+/* ---- bản đồ thành phố 3D (r11.4): ghim địa danh trên ảnh top + chấm bé cá ----
+   Vị trí ghim (fx, fy = tỉ lệ trên ảnh top 1600×1500, đo mắt từ ảnh render). */
+const WORLD_PINS = [
+  {id:'benthanh', fx:0.38, fy:0.50, img:'benthanh', nameVi:'Chợ Bến Thành', nameEn:'Ben Thanh Market',
+   vi:'Chợ Bến Thành xây 1912–1914, tháp đồng hồ là biểu tượng của Sài Gòn hơn 100 năm. Chợ bán đủ thứ: vải vóc, đồ lưu niệm, trái cây, đồ ăn.',
+   en:'Ben Thanh Market was built 1912–1914; its clock tower has symbolised Saigon for over 100 years.'},
+  {id:'church', fx:0.50, fy:0.17, img:'church', nameVi:'Nhà thờ Đức Bà', nameEn:'Notre-Dame Cathedral',
+   vi:'Nhà thờ Đức Bà xây 1877–1880 bằng gạch nhập từ Pháp, 2 tháp chuông cao 58m. Đối diện là Bưu điện Thành phố.',
+   en:'Notre-Dame Cathedral, built 1877–1880 with bricks from France, its twin spires 58m tall.'},
+  {id:'bitexco', fx:0.60, fy:0.30, img:'bitexco', nameVi:'Tòa tháp Bitexco', nameEn:'Bitexco Tower',
+   vi:'Tòa tháp Bitexco hoàn thành 2010, cao 262m — từng là tòa nhà cao nhất Sài Gòn. Đài quan sát Saigon Skydeck ở tầng 49.',
+   en:'Bitexco Tower, completed 2010, 262m tall — once Saigon\'s tallest building. The Skydeck is on floor 49.'},
+  {id:'dinh', fx:0.28, fy:0.37, img:'dinh', nameVi:'Dinh Độc Lập', nameEn:'Independence Palace',
+   vi:'Dinh Độc Lập xây 1962–1966, kiến trúc sư Ngô Viết Thụ. Ngày 30/4/1975, xe tăng tiến vào Dinh, đất nước thống nhất.',
+   en:'Independence Palace, built 1962–1966, designed by Ngo Viet Thu. On 30 April 1975 tanks entered the palace as the country reunified.'},
+  {id:'nhahat', fx:0.66, fy:0.50, img:'nhahat', nameVi:'Nhà hát Lớn', nameEn:'Saigon Opera House',
+   vi:'Nhà hát Lớn khánh thành 1900, kiến trúc Pháp cổ điển. Nơi diễn ra nhiều chương trình nghệ thuật lớn của thành phố.',
+   en:'Saigon Opera House, opened in 1900 in French colonial style, hosting the city\'s biggest art performances.'},
+  {id:'bennharong', fx:0.72, fy:0.90, img:'bennharong', nameVi:'Bến Nhà Rồng', nameEn:'Nha Rong Wharf',
+   vi:'Bến Nhà Rồng — ngày 5/6/1911, Bác Hồ lên tàu ra đi tìm đường cứu nước. Nay là Bảo tàng Hồ Chí Minh.',
+   en:'Nha Rong Wharf — on 5 June 1911, Ho Chi Minh boarded a ship to seek a way to save the country. It is now the Ho Chi Minh Museum.'},
+];
+function openWorldMap(){
+  const wrap = document.getElementById('worldMapPins');
+  if(wrap && !wrap.children.length){
+    WORLD_PINS.forEach(function(pin){
+      const b = document.createElement('button');
+      b.textContent = '📍';
+      b.title = state.lang==='vi' ? pin.nameVi : pin.nameEn;
+      b.style.left = (pin.fx*100) + '%';
+      b.style.top = (pin.fy*100) + '%';
+      b.onclick = function(){
+        lwShowInteract('📍 ' + (state.lang==='vi' ? pin.nameVi : pin.nameEn),
+          state.lang==='vi' ? pin.vi : pin.en, [], CONFIG.IMAGES.landmarks[pin.img]);
+      };
+      wrap.appendChild(b);
+    });
+  }
+  const dot = document.getElementById('worldMapBeca');
+  if(dot){
+    const fx = 0.08 + (beca.x/4800)*0.75, fy = 0.09 + (beca.y/1400)*0.76;
+    dot.style.left = (fx*100) + '%';
+    dot.style.top = (fy*100) + '%';
+  }
+  openOverlay('worldMapOverlay');
+}
+document.getElementById('minimap').addEventListener('click', openWorldMap);
+document.getElementById('worldMapClose').onclick = ()=>closeOverlay('worldMapOverlay');
 
 /* Vẽ vùng chạm + biển hiệu của các tòa nhà từ CONFIG.BUILDINGS */
 function renderHotspots(){ /* Phaser: biển hiệu + vùng chạm tòa nhà do scene xây */ }
@@ -2046,11 +2169,89 @@ function tapCustomer(id){
   }
   const idx = state.customersToday.indexOf(id);
   const c = CUSTOMERS.find(x=>x.id===id);
-  if(idx < 0){ toast(t('toastNotToday').replace('{name}', c.name)); return; }
-  if(state.served.includes(idx)){ toast(t('toastServed').replace('{name}', c.name)); return; }
+  /* r11.4 — khách không đặt tranh hôm nay / đã vẽ xong: trò chuyện thay vì toast */
+  if(idx < 0){ openTalk(id); return; }
+  if(state.served.includes(idx)){ openTalk(id); return; }
   if(strokes.length > 0 && state.custIdx !== idx){ toast(t('finishFirst')); return; }
   state.custIdx = idx; save();
   renderScene(); renderMap(); showPaint();
+}
+/* r11.4 — trò chuyện với NPC: nhiều lựa chọn lời thoại tuỳ hoàn cảnh (An dặn 16:03):
+   chào hỏi / tặng quà (từ giỏ hái/câu được) / hát cùng nhau / tạm biệt. Tình bạn 0-5 tim. */
+function friendHearts(id){
+  if(!state.friends) state.friends = {};
+  return state.friends[id] || 0;
+}
+function bagCount(){
+  if(!state.bag) state.bag = {mango:0, rambutan:0, mangosteen:0, fish:0};
+  const b = state.bag;
+  return (b.mango||0) + (b.rambutan||0) + (b.mangosteen||0) + (b.fish||0);
+}
+function bagText(){
+  if(!state.bag) state.bag = {mango:0, rambutan:0, mangosteen:0, fish:0};
+  const b = state.bag, vi = state.lang==='vi';
+  const parts = [];
+  if(b.mango) parts.push('🥭 ' + (vi ? 'xoài' : 'mango') + ' ×' + b.mango);
+  if(b.rambutan) parts.push('🥭 ' + (vi ? 'chôm chôm' : 'rambutan') + ' ×' + b.rambutan);
+  if(b.mangosteen) parts.push('🥭 ' + (vi ? 'măng cụt' : 'mangosteen') + ' ×' + b.mangosteen);
+  if(b.fish) parts.push('🐟 ' + (vi ? 'cá' : 'fish') + ' ×' + b.fish);
+  return parts.length ? (vi ? 'Giỏ có: ' : 'Bag: ') + parts.join(', ') : (vi ? 'Giỏ đang trống.' : 'Bag is empty.');
+}
+function talkButtons(id){
+  const btns = [];
+  if(bagCount() > 0) btns.push({label: t('talkGift') + ' (' + bagCount() + ')', onClick: function(){ giftToNpc(id); }});
+  btns.push({label: t('talkSing'), onClick: function(){ singWithNpc(id); }});
+  btns.push({label: t('talkBye'), onClick: function(){}});
+  return btns;
+}
+function openTalk(id){
+  const c = CUSTOMERS.find(x=>x.id===id); if(!c) return;
+  const hearts = '💗'.repeat(friendHearts(id)) || '🤍';
+  const lines = (CONFIG.CHAT_LINES[id] && CONFIG.CHAT_LINES[id][state.lang]) || CONFIG.CHAT_LINES.generic[state.lang];
+  const line = lines[Math.floor(Math.random()*lines.length)];
+  const btns = [
+    {label: t('talkHi'), onClick: function(){
+      const reply = lines[Math.floor(Math.random()*lines.length)];
+      lwShowInteract('💬 ' + c.name + ' ' + hearts, '“' + reply + '” · ' + bagText(), talkButtons(id));
+    }},
+  ];
+  if(bagCount() > 0){
+    btns.push({label: t('talkGift') + ' (' + bagCount() + ')', onClick: function(){ giftToNpc(id); }});
+  }
+  btns.push({label: t('talkSing'), onClick: function(){ singWithNpc(id); }});
+  btns.push({label: t('talkBye'), onClick: function(){}});
+  lwShowInteract('💬 ' + c.name + ' ' + hearts, '“' + line + '” · ' + bagText(), btns);
+}
+function giftToNpc(id){
+  const c = CUSTOMERS.find(x=>x.id===id); if(!c) return;
+  if(!state.bag) state.bag = {mango:0, rambutan:0, mangosteen:0, fish:0};
+  const b = state.bag;
+  let kind = null;
+  if(b.mango > 0){ b.mango--; kind = state.lang==='vi' ? 'quả xoài' : 'a mango'; }
+  else if(b.rambutan > 0){ b.rambutan--; kind = state.lang==='vi' ? 'chùm chôm chôm' : 'some rambutan'; }
+  else if(b.mangosteen > 0){ b.mangosteen--; kind = state.lang==='vi' ? 'quả măng cụt' : 'a mangosteen'; }
+  else if(b.fish > 0){ b.fish--; kind = state.lang==='vi' ? 'con cá' : 'a fish'; }
+  if(!kind){ toast(t('talkNoGift')); return; }
+  if(!state.friends) state.friends = {};
+  state.friends[id] = Math.min(5, (state.friends[id]||0) + 1);
+  save();
+  lwGiveCoins(30, c.name + (state.lang==='vi' ? ' cảm ơn bé cá vì ' + kind + '! 💗' : ' thanks Beca for ' + kind + '! 💗'));
+  renderHeader();
+}
+/* r11.4 — hát hò vui vẻ với NPC (An dặn 16:03): giai điệu vui + bong bóng nhạc + tình bạn +1 (1 lần/ngày/NPC) */
+function singWithNpc(id){
+  const c = CUSTOMERS.find(x=>x.id===id); if(!c) return;
+  lwSound('sing');
+  if(npcs[id]) npcs[id].chat = { text:'🎵 La la la~ ♪', until: performance.now() + 4000 };
+  const key = (state.day||1) + ':sing:' + id;
+  if(!state.histSeen) state.histSeen = {};
+  if(!state.histSeen[key]){
+    state.histSeen[key] = true;
+    if(!state.friends) state.friends = {};
+    state.friends[id] = Math.min(5, (state.friends[id]||0) + 1);
+    save();
+    toast('🎵 ' + c.name + ' ' + t('talkSingDone'));
+  }
 }
 /* ---- va chạm rắn (§4): tròn (đài phun nước, cây) + hộp (tòa nhà, tường) ----
    Đi từng trục X rồi Y: trục nào vướng thì đứng yên trục đó, trục kia vẫn đi
@@ -2138,7 +2339,31 @@ function zoneTick(){
     lastZoneId = z.id;
     updateDayNight();
     toast('📍 ' + currentZoneName());
+    showZoneHistory(z.id); /* r11.4: lịch sử tự hiện khi tới nơi */
   }
+}
+/* r11.4 — chú thích lịch sử TỰ ĐỘNG hiện khi bé cá tới một nơi (An dặn 16:03):
+   mỗi khu 1 lần/ngày; hiện bằng panel tương tác (không toast vì dài). */
+const ZONE_HISTORY = {
+  plaza: {nameVi:'Chợ Bến Thành', nameEn:'Ben Thanh Market',
+    vi:'Chợ Bến Thành xây 1912–1914, tháp đồng hồ là biểu tượng của Sài Gòn hơn 100 năm. Ngày xưa nơi này là bến chợ sát sông Sài Gòn, ghe thuyền tấp nập.',
+    en:'Ben Thanh Market was built 1912–1914; its clock tower has symbolised Saigon for over 100 years.'},
+  street: {nameVi:'Phố đi bộ Nguyễn Huệ', nameEn:'Nguyen Hue Walking Street',
+    vi:'Phố đi bộ Nguyễn Huệ khánh thành 30/4/2015, dài 670m, rộng 64m — quảng trường đi bộ lớn nhất Sài Gòn. Trước đây là đại lộ Charner thời Pháp.',
+    en:'Nguyen Hue Walking Street opened on 30 April 2015, 670m long and 64m wide — Saigon\'s biggest pedestrian square.'},
+  market: {nameVi:'Bến Nhà Rồng', nameEn:'Nha Rong Wharf',
+    vi:'Bến Nhà Rồng — ngày 5/6/1911, Bác Hồ lên tàu ra đi tìm đường cứu nước. Bến nằm bên sông Sài Gòn, gần cầu Khánh Hội.',
+    en:'Nha Rong Wharf — on 5 June 1911, Ho Chi Minh boarded a ship to seek a way to save the country.'},
+};
+function showZoneHistory(zid){
+  if(!state.histSeen) state.histSeen = {};
+  const key = (state.day||1) + ':' + zid;
+  if(state.histSeen[key]) return;
+  state.histSeen[key] = true; save();
+  const h = ZONE_HISTORY[zid]; if(!h) return;
+  lwShowInteract('📖 ' + (state.lang==='vi' ? h.nameVi : h.nameEn),
+    state.lang==='vi' ? h.vi : h.en,
+    [{label: t('histUnderstood'), onClick: function(){}}]);
 }
 let dayNightT = 0;
 const DAY_PHASES = [
@@ -2201,10 +2426,17 @@ document.getElementById('questAccept').onclick=()=>{
   if(!pendingQuest) return;
   const st = questState(pendingQuest.id);
   st.status = 'active';
-  /* nhiệm vụ vẽ biển hiệu: Cô Năm phải là khách hôm nay thì mới vẽ được */
-  if(pendingQuest.id==='qSign' && state.customersToday.indexOf('nam') < 0 && state.served.length < 3){
-    state.customersToday[2] = 'nam';
-    state.requestsToday[2] = {id:'pho', two:false, colors:['#A5672F']};
+  /* r11.4 — nhiệm vụ vẽ (qSign/qSignHoa): người giao phải là khách hôm nay thì mới vẽ được.
+     Chèn vào ô khách chưa vẽ xong đầu tiên (giữ nguyên hành vi cũ của qSign: Cô Năm vào danh sách hôm nay). */
+  if(pendingQuest.type==='paint'){
+    const giver = pendingQuest.giver;
+    if(state.customersToday.indexOf(giver) < 0 && state.served.length < 3){
+      let slot = state.customersToday.findIndex(function(c, idx){ return state.served.indexOf(idx) < 0 && c !== giver; });
+      if(slot < 0) slot = 2;
+      state.customersToday[slot] = giver;
+      const base = REQUESTS.find(function(r){ return r.id === pendingQuest.request; });
+      state.requestsToday[slot] = {id:pendingQuest.request, two:false, colors:[base ? base.colors[0] : '#FF6B9D']};
+    }
   }
   save();
   closeOverlay('questOverlay');
@@ -2468,7 +2700,7 @@ document.getElementById('winContinue').onclick=()=>closeOverlay('winOverlay');
 function resetGame(){
   if(!confirm(t('resetConfirm'))) return;
   localStorage.removeItem(SAVE_KEY);
-  state = {lang:state.lang, sound:state.sound, seenStory:state.seenStory, coins:0, day:1, custIdx:0, customersToday:[], requestsToday:[], owned:[], frame:null, deco:{lantern:false,flower:false,sign:false}, won:false, totalPaintings:0, totalStars:0, todayEarned:0, todayStars:0, served:[], v:2, quests:{}, timePhase:0};
+  state = {lang:state.lang, sound:state.sound, seenStory:state.seenStory, coins:0, day:1, custIdx:0, customersToday:[], requestsToday:[], owned:[], frame:null, deco:{lantern:false,flower:false,sign:false}, won:false, totalPaintings:0, totalStars:0, todayEarned:0, todayStars:0, served:[], v:2, quests:{}, timePhase:0, friends:{}, bag:{mango:0, rambutan:0, mangosteen:0, fish:0}, histSeen:{}};
   for(const q of CONFIG.QUESTS){ state.quests[q.id]={status:'new', found:0, foundIdx:[]}; }
   pickDay(); save(); newCanvas();
   closeOverlay('shopOverlay'); closeOverlay('winOverlay');
@@ -2507,7 +2739,17 @@ function renderStory(){
   document.getElementById('storyNextLabel').textContent = storyPage===STORY.length-1 ? t('startDrawing') : t('next');
 }
 function openStory(){ storyPage=0; renderStory(); openOverlay('storyOverlay'); }
-function finishStory(){ state.seenStory=true; save(); closeOverlay('storyOverlay'); }
+function finishStory(){
+  const first = !state.seenStory;
+  state.seenStory = true; save(); closeOverlay('storyOverlay');
+  /* r11.4 — lần đầu xem truyện xong: Cô Hoa giao nhiệm vụ ĐẦU TIÊN (vẽ biển hiệu tiệm bánh) */
+  if(first){
+    setTimeout(function(){
+      const st = questState('qSignHoa');
+      if(st.status === 'new') openQuest('qSignHoa');
+    }, 500);
+  }
+}
 document.getElementById('storyNext').onclick=()=>{
   if(storyPage<STORY.length-1){ storyPage++; renderStory(); }
   else finishStory();
@@ -3172,7 +3414,7 @@ function boneInit(){
     const img = new Image();
     img.onload = ()=>{ boneSheets[f] = {img, w:img.naturalWidth, h:img.naturalHeight}; boneBuildFacing(f); boneUpdateFallback(); };
     img.onerror = ()=>{ console.warn('[bone] sheet lỗi:', f); boneFailed[f] = true; boneUpdateFallback(); };
-    img.src = 'assets-ghibli/' + CONFIG.BECA_BONES.parts[f].sheet + '?v=r11.3';
+    img.src = 'assets-ghibli/' + CONFIG.BECA_BONES.parts[f].sheet + '?v=r11.4';
   }
   boneUpdateFallback(); /* hiện sprite dự phòng trong lúc chờ sheet đầu tiên */
 }
@@ -4299,6 +4541,28 @@ function buildRain(scene){
   p.setVisible(false);
   LW.rain = p;
 }
+/* r11.4 — lá rơi + lá bay theo gió (An dặn 16:03: cây xanh xào xạc trong gió).
+   Cây trong ảnh nền đã vẽ cố định nên không đung đưa được — lá rơi + mây + chim
+   là motion của cây trong game (đợt sau world agent render cảnh mới sẽ có cây đung đưa thật). */
+function buildLeaves(scene){
+  if(!scene.textures.exists('lw-leaf')){
+    var c = document.createElement('canvas'); c.width = 18; c.height = 12;
+    var x = c.getContext('2d');
+    x.fillStyle = '#5DBB4A';
+    x.beginPath(); x.ellipse(9, 6, 8, 5, 0.6, 0, Math.PI*2); x.fill();
+    x.fillStyle = '#7ED957';
+    x.beginPath(); x.ellipse(7, 5, 5, 3, 0.6, 0, Math.PI*2); x.fill();
+    scene.textures.addCanvas('lw-leaf', c);
+  }
+  var p = scene.add.particles(0, 0, 'lw-leaf', {
+    x: {min: 0, max: 4800}, y: -10,
+    lifespan: 9000, speedY: {min: 18, max: 42}, speedX: {min: -28, max: 28},
+    scale: {min: 0.6, max: 1.1}, alpha: {min: 0.5, max: 0.85},
+    rotate: {min: 0, max: 360}, quantity: 1, frequency: 900,
+  });
+  p.setDepth(1500);
+  LW.leaves = p;
+}
 /* --- chim bay + hót (ban ngày) --- */
 function buildBirds(scene){
   for(var i=0;i<3;i++){
@@ -4568,6 +4832,9 @@ function lwSound(name){
       noise(0.8, 0.03, 1200);
     } else if(name==='splash'){
       noise(0.3, 0.06, 900);
+    } else if(name==='sing'){
+      /* hát vui: 4 nốt cao vui vẻ (dùng khi hát cùng NPC) */
+      [523, 659, 784, 1047].forEach(function(f, i){ tone(f, f, 0.16, 'triangle', 0.09, i*0.17); });
     }
   }catch(e){ /* âm thanh lỗi thì bỏ qua, không phá game */ }
 }
@@ -4615,15 +4882,18 @@ function lwInteractPanel(){
   p = document.createElement('div');
   p.id = 'lwInteractPanel';
   p.style.cssText = 'position:fixed; left:50%; top:50%; transform:translate(-50%,-50%); z-index:70; width:min(430px,88vw); background:rgba(255,253,245,.97); border:3px solid #8B5E2E; border-radius:14px; padding:14px 16px; box-shadow:0 8px 24px rgba(90,50,10,.35); display:none; font-family:system-ui,sans-serif; color:#5C3D1E;';
-  p.innerHTML = '<div id="lwIntTitle" style="font-weight:800; font-size:17px; margin-bottom:6px;"></div><div id="lwIntText" style="font-size:14px; line-height:1.5; margin-bottom:12px;"></div><div id="lwIntBtns" style="display:flex; gap:8px; flex-wrap:wrap;"></div><div style="text-align:right; margin-top:10px;"><button id="lwIntClose" style="padding:6px 14px; border-radius:8px; border:2px solid #8B5E2E; background:#FFF3D6; font-weight:700; cursor:pointer;">Đóng</button></div>';
+  p.innerHTML = '<div id="lwIntTitle" style="font-weight:800; font-size:17px; margin-bottom:6px;"></div><img id="lwIntImg" style="width:100%;border-radius:10px;margin-bottom:10px;display:none" alt=""><div id="lwIntText" style="font-size:14px; line-height:1.5; margin-bottom:12px;"></div><div id="lwIntBtns" style="display:flex; gap:8px; flex-wrap:wrap;"></div><div style="text-align:right; margin-top:10px;"><button id="lwIntClose" style="padding:6px 14px; border-radius:8px; border:2px solid #8B5E2E; background:#FFF3D6; font-weight:700; cursor:pointer;">Đóng</button></div>';
   document.body.appendChild(p);
   document.getElementById('lwIntClose').onclick = function(){ p.style.display='none'; };
   return p;
 }
-function lwShowInteract(title, text, buttons){
+function lwShowInteract(title, text, buttons, imgUrl){
   var p = lwInteractPanel();
   document.getElementById('lwIntTitle').textContent = title;
   document.getElementById('lwIntText').textContent = text;
+  var im = document.getElementById('lwIntImg');
+  if(imgUrl){ im.src = imgUrl; im.style.display = 'block'; }
+  else { im.removeAttribute('src'); im.style.display = 'none'; }
   var box = document.getElementById('lwIntBtns');
   box.innerHTML = '';
   (buttons||[]).forEach(function(b){
@@ -4642,6 +4912,11 @@ function lwGiveCoins(n, why){
   lwSound('coin');
   toast((state.lang==='vi' ? '🪙 +' + n + 'đ · ' : '🪙 +' + n + ' coins · ') + why);
 }
+/* r11.4b — lw* nằm trong IIFE (dòng 3642) nên hàm toàn cục không thấy: đưa ra window
+   cho talk/history/pin/gift/sing gọi được. IIFE chạy ngay khi load nên có sẵn trước mọi tương tác. */
+window.lwShowInteract = lwShowInteract;
+window.lwSound = lwSound;
+window.lwGiveCoins = lwGiveCoins;
 /* --- vật tương tác: xe trái cây / bàn cà phê / đài phun nước / sạp chợ / biển hiệu --- */
 function buildInteractables(scene){
   lwInteractPanel();
@@ -4664,6 +4939,25 @@ function buildInteractables(scene){
     {id:'stall2', x:4530, y:1150, r:170, title:'🌺 Sạp hoa quả chợ Bến Thành', who:'Cô Tư sạp hoa',
      text:'Sạp hoa rực rỡ: hoa sen, hoa cúc, hoa hồng. Cô Tư bó hoa khéo lắm, khách mua về chưng Tết, chưng rằm. Mùi hoa thơm ngát cả góc chợ.',
      act:{label:'Mua bó hoa cúc · 10đ', cost:10, reward:25, why:'Cô Tư tặng thêm 1 cành + tiền boa'}},
+    /* r11.4 — HÁI TRÁI CÂY (An chốt 16:08): xoài/chôm chôm/măng cụt, 1 lần/ngày/cây.
+       Bán lấy tiền hoặc tặng NPC tăng tình bạn, đều góp vào mở tiệm 5.000đ. */
+    {id:'treeMango', kind:'fruit', fruit:'mango', fruitVi:'quả xoài', fruitEn:'a mango', sell:20,
+     x:1000, y:1120, r:120, title:'🌳 Cây xoài (Công viên Tao Đàn)', who:'Công viên Tao Đàn',
+     text:'Cây xoài cổ thụ ở công viên Tao Đàn — công viên lâu đời nhất Sài Gòn, cây xanh rợp bóng. Xoài cát Hòa Lộc chín vàng, ngọt lịm.'},
+    {id:'treeRambutan', kind:'fruit', fruit:'rambutan', fruitVi:'chùm chôm chôm', fruitEn:'some rambutan', sell:20,
+     x:2650, y:1120, r:120, title:'🌳 Cây chôm chôm (Thảo Cầm Viên)', who:'Thảo Cầm Viên',
+     text:'Cây chôm chôm ở Thảo Cầm Viên — vườn bách thú hơn 150 năm tuổi, cây cối um tùm. Chôm chôm chín đỏ, ngọt như đường.'},
+    {id:'treeMangosteen', kind:'fruit', fruit:'mangosteen', fruitVi:'quả măng cụt', fruitEn:'a mangosteen', sell:25,
+     x:3900, y:1300, r:120, title:'🌳 Cây măng cụt (Công viên 23/9)', who:'Công viên 23/9',
+     text:'Cây măng cụt ở công viên 23/9 — công viên ngay cạnh chợ Bến Thành, người dân hay ra đây hóng mát. Măng cụt tím thẫm, ngọt thanh.'},
+    /* r11.4 — CÂU CÁ (An chốt 16:08): sông Sài Gòn / kênh Bến Nghé, tối đa 3 con/ngày/điểm.
+       Cá bán lấy tiền hoặc tặng NPC tăng tình bạn. */
+    {id:'fishRiver', kind:'fish', sell:25,
+     x:4650, y:1290, r:130, title:'🎣 Bến sông Sài Gòn', who:'Sông Sài Gòn',
+     text:'Bờ sông Sài Gòn — tàu thuyền tấp nập, gió mát rượi. Cá rô phi, cá chép hay bơi ven bờ. Ngồi đây câu cá, ngắm hoàng hôn là đúng bài!'},
+    {id:'fishCanal', kind:'fish', sell:25,
+     x:250, y:1290, r:130, title:'🎣 Kênh Bến Nghé', who:'Kênh Bến Nghé',
+     text:'Kênh Bến Nghé — con kênh lịch sử chảy qua quận 4, nối sông Sài Gòn với chợ Bến Thành. Nước kênh trong, cá hay tụ về đây.'},
   ];
   defs.forEach(function(d){
     var zn = scene.add.zone(d.x, d.y, d.r*2, d.r*1.1);
@@ -4691,6 +4985,9 @@ function buildInteractables(scene){
 function lwTapInteract(id){
   var d = LW.interactDefs[id];
   if(!d) return false;
+  /* r11.4 — hái trái / câu cá có logic riêng (không phải mua bán ở sạp) */
+  if(d.kind==='fruit') return lwPickFruit(d);
+  if(d.kind==='fish') return lwFish(d);
   var dayKey = (state.day||1) + ':' + id;
   var used = LW.claimed[dayKey];
   var btns = [];
@@ -4707,6 +5004,67 @@ function lwTapInteract(id){
     btns.push({label: state.lang==='vi' ? 'Đã ghé hôm nay rồi 😊' : 'Already visited today 😊', onClick: function(){}});
   }
   lwShowInteract(d.title, d.text, btns);
+  return true;
+}
+/* r11.4 — HÁI TRÁI CÂY: 1 lần/ngày/cây; bán lấy tiền hoặc cất vào giỏ để tặng NPC */
+function lwPickFruit(d){
+  var dayKey = (state.day||1) + ':' + d.id;
+  if(LW.claimed[dayKey]){
+    lwShowInteract(d.title, d.text + ' ' + t('fruitDoneToday'), []);
+    return true;
+  }
+  LW.claimed[dayKey] = true;
+  if(!state.bag) state.bag = {mango:0, rambutan:0, mangosteen:0, fish:0};
+  state.bag[d.fruit] = (state.bag[d.fruit]||0) + 1;
+  save();
+  lwSound('coin');
+  lwShowInteract(d.title,
+    t('fruitPicked').replace('{fruit}', state.lang==='vi' ? d.fruitVi : d.fruitEn) + ' ' + d.text,
+    [
+      {label: (state.lang==='vi' ? 'Bán ngay +' : 'Sell now +') + d.sell + 'đ', onClick: function(){
+        state.bag[d.fruit] = Math.max(0, (state.bag[d.fruit]||0) - 1); save();
+        lwGiveCoins(d.sell, state.lang==='vi' ? 'Bán ' + d.fruitVi : 'Sold ' + d.fruitEn);
+        renderHeader();
+      }},
+      {label: state.lang==='vi' ? 'Cất vào giỏ 🎒' : 'Keep in bag 🎒', onClick: function(){
+        toast(t('bagTitle') + ': ' + bagText());
+      }},
+    ]);
+  return true;
+}
+/* r11.4 — CÂU CÁ: thả cần, chờ 1.2s, 70% câu được; tối đa 3 con/ngày/điểm */
+function lwFish(d){
+  var dayKey = (state.day||1) + ':' + d.id;
+  LW.fishCount = LW.fishCount || {};
+  var n = LW.fishCount[dayKey] || 0;
+  if(n >= 3){
+    lwShowInteract(d.title, d.text + ' ' + t('fishLimit'), []);
+    return true;
+  }
+  lwShowInteract(d.title, state.lang==='vi' ? '🎣 Đang câu... chờ cá cắn câu...' : '🎣 Fishing... waiting for a bite...', []);
+  setTimeout(function(){
+    if(Math.random() < 0.3){
+      lwSound('splash');
+      lwShowInteract(d.title, t('fishEscaped'), [{label: state.lang==='vi' ? 'Câu lại 🎣' : 'Fish again 🎣', onClick: function(){ lwFish(d); }}]);
+      return;
+    }
+    LW.fishCount[dayKey] = n + 1;
+    if(!state.bag) state.bag = {mango:0, rambutan:0, mangosteen:0, fish:0};
+    state.bag.fish = (state.bag.fish||0) + 1;
+    save();
+    lwSound('coin');
+    var fishes = state.lang==='vi' ? ['cá rô phi', 'cá chép', 'cá lóc'] : ['tilapia', 'carp', 'snakehead'];
+    var f = fishes[Math.floor(Math.random()*fishes.length)];
+    lwShowInteract(d.title, t('fishCaught').replace('{fish}', f) + ' ' + d.text,
+      [
+        {label: (state.lang==='vi' ? 'Bán ngay +' : 'Sell now +') + d.sell + 'đ', onClick: function(){
+          state.bag.fish = Math.max(0, (state.bag.fish||0) - 1); save();
+          lwGiveCoins(d.sell, state.lang==='vi' ? 'Bán ' + f : 'Sold ' + f);
+          renderHeader();
+        }},
+        {label: state.lang==='vi' ? 'Cất vào giỏ 🎒' : 'Keep in bag 🎒', onClick: function(){ toast(t('bagTitle') + ': ' + bagText()); }},
+      ]);
+  }, 1200);
   return true;
 }
 /* --- cốt truyện dệt vào thế giới: nhiệm vụ có chuyện, NPC có tính cách, lịch sử thật --- */
@@ -4778,6 +5136,7 @@ function buildLivingWorld(scene){
   LW.tint.setDepth(1800);
   buildForegroundTufts(scene);
   buildRain(scene);
+  buildLeaves(scene); /* r11.4: lá rơi theo gió */
   buildBirds(scene);
   buildStrays(scene);
   buildTraffic(scene);
@@ -5078,18 +5437,24 @@ function onWorldUp(scene, p){
   PH.dragStart = null; PH.dragMode = null; dragVec = null; PH.camDrag = null; PH.joyBase = null;
   dotHide(); joyHide();
 }
-/* tap: NPC / ông chủ nhà / tòa nhà / quest marker (ưu tiên vật trên cùng) */
+/* tap: NPC / ông chủ nhà / tòa nhà / quest marker (ưu tiên vật có tâm gần điểm chạm nhất) */
 function worldTapAt(scene, p){
   var hits = scene.input.hitTestPointer(p);
   if(hits && hits.length){
-    /* hitTestPointer không đảm bảo thứ tự theo depth -> chọn tường minh hit có depth
-       CAO NHẤT (vật trên cùng về mặt thị giác). FG không có data thì bỏ qua. */
-    var best = null, bestDepth = -1e9;
+    /* r11.4b: chọn hit có TÂM gần điểm chạm nhất (thay vì depth cao nhất).
+       NPC đi dạo có depth=y (~1200) luôn thắng zone tương tác (depth 0) nên khi ông chủ nhà
+       đứng chồng lên vùng chạm của cây xoài, chạm vào cây lại mở bảng chủ nhà.
+       Chạm vào vật nào thì tâm vật đó gần điểm chạm nhất — đúng ý người chơi. FG không có data thì bỏ qua. */
+    var wp = scene.cameras.main.getWorldPoint(p.x, p.y);
+    var best = null, bestD = 1e18;
     for(var i=0; i<hits.length; i++){
       var h = hits[i];
       if(!h.getData) continue;
       var has = h.getData('npcId') || h.getData('strayId') || h.getData('interactId') || h.getData('bldId') || h.getData('questItem');
-      if(has && h.depth > bestDepth){ best = h; bestDepth = h.depth; }
+      if(!has) continue;
+      var dx = (h.x||0) - wp.x, dy = (h.y||0) - wp.y;
+      var d = dx*dx + dy*dy;
+      if(d < bestD){ best = h; bestD = d; }
     }
     if(best){
       var npcId = best.getData('npcId');
@@ -5203,7 +5568,7 @@ load();
 if(!Array.isArray(state.served)) state.served=[];
 if(!state.customersToday || state.customersToday.length!==3 || !state.requestsToday || state.requestsToday.length!==3 || state.customersToday.some(id=>!CUSTOMERS.some(c=>c.id===id))) pickDay(); /* migration 19/11: save cũ còn Mai -> rút lại ngày */
 applyLang(); renderHeader(); renderScene(); renderPalette(); syncTools();
-updateRotatePrompt(); /* r11.3: hiện prompt xoay ngang nếu đang cầm dọc trên điện thoại */
+updateRotatePrompt(); /* r11.4: hiện prompt xoay ngang nếu đang cầm dọc trên điện thoại */
 /* ông chủ nhà: khung vẽ vẫn dùng ảnh chân dung; trên map do Phaser scene vẽ */
 document.getElementById('landlordAvatar').innerHTML = custAvatarHTML(LANDLORD);
 rigPreload(); npcInit(); window.__phaserInit(); renderMap(); updateWalker(); updateCamera(); rigLayout();
